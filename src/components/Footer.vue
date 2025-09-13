@@ -8,8 +8,13 @@ const config = inject("config");
     <nav
       class="navbar bg-grey d-flex flex-column align-items-start justify-content-start"
     >
-      <div class="mb-2 mx-4 d-none d-md-block">
-        <p class="footer-text">
+    <div
+        class="device-label-div mb-1 mx-4 d-flex align-items-center p-2"
+        data-bs-toggle="modal"
+        data-bs-target="#deviceLabelModal"
+        style="cursor: pointer"
+      >
+      <p class="footer-text">
           <span
             ><strong>{{ config.appName }}&nbsp;</strong> Client
             <a :href="config.client.repo.changelog" target="_blank"
@@ -18,20 +23,18 @@ const config = inject("config");
             | API
             <a :href="config.api.repo.changelog" target="_blank"
               >v{{ config.api.version }}</a
-            >
-            | ICP
-            <a :href="config.client.repo.icpChangelog" target="_blank"
-              >v{{ config.organisations.bsped.icpVersion }}</a
             ></span
           >
         </p>
+      </div>
+      <div class="mb-2 mx-4 d-none d-md-block">
         <p class="footer-text">
           Created and maintained by
           <a :href="config.author.url" target="_blank">{{
             config.author.name
           }}</a>
-          on behalf of
-          <a :href="config.organisations.bsped.main" target="_blank">BSPED</a>.
+          on behalf of the
+          <a :href="config.organisations.msf.main" target="_blank">{{config.organisations.msf.shortName}}</a>.
           <span class="ms-4"
             >Correspondance:
             <a :href="'mailto:' + config.author.email">{{
@@ -49,36 +52,22 @@ const config = inject("config");
           >
         </p>
       </div>
-      <div
-        class="ukca-div mb-1 mx-4 d-flex align-items-center p-2"
-        data-bs-toggle="modal"
-        data-bs-target="#ukcaModal"
-        style="cursor: pointer"
-      >
-        <img class="ukca me-2" src="@/assets/UKCA.png" />
-        <p class="footer-text">
-          The
-          <a :href="config.organisations.bsped.main" target="_blank">BSPED</a>
-          {{ config.appName }} is registered as a medical device in the UK.<br />{{
-            config.disclaimer
-          }}
-        </p>
-      </div>
+      
     </nav>
   </footer>
 
   <!-- Modal -->
   <div
     class="modal fade"
-    id="ukcaModal"
+    id="deviceLabelModal"
     tabindex="-1"
-    aria-labelledby="ukcaModalLabel"
+    aria-labelledby="deviceLabelModalLabel"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">BSPED {{ config.appName }}</h5>
+          <h5 class="modal-title">{{ config.appName }}</h5>
           <button
             type="button"
             class="btn-close"
@@ -102,13 +91,6 @@ const config = inject("config");
                 <a :href="config.api.repo.changelog" target="_blank" class="p-0"
                   >v{{ config.api.version }}</a
                 >
-                | ICP
-                <a
-                  :href="config.client.repo.icpChangelog"
-                  target="_blank"
-                  class="p-0"
-                  >v{{ config.organisations.bsped.icpVersion }}</a
-                >
               </td>
             </tr>
             <br />
@@ -123,16 +105,15 @@ const config = inject("config");
               </td>
               <td>
                 <a
-                  :href="config.organisations.bsped.main"
+                  :href="config.organisations.msf.main"
                   target="_blank"
                   class="p-0"
-                  >British Society for Paediatric Endocrinology and Diabetes</a
+                  >{{config.organisations.msf.fullName}}</a
                 ><br />
-                c/o BioScientifica Ltd<br />
-                Starling House<br />
-                1600 Bristol Parkway North<br />
-                Bristol<br />
-                BS34 8YU
+                La Fondation MSF<br>
+                Service donateurs<br>
+                14-34 avenue Jean Jaurès<br>
+                75019 Paris
               </td>
             </tr>
             <br />
@@ -164,16 +145,6 @@ const config = inject("config");
                 disclaimer and privacy policy.
               </td>
             </tr>
-            <br />
-            <tr>
-              <td class="ukca-col">
-                <img class="ukca-modal-img" src="@/assets/UKCA.png" />
-              </td>
-              <td>
-                The BSPED Paediatric DKA Calculator is registered as a medical
-                device in the UK.
-              </td>
-            </tr>
           </table>
         </div>
       </div>
@@ -182,15 +153,6 @@ const config = inject("config");
 </template>
 
 <style scoped>
-.ukca {
-  width: 40px;
-  height: 40px;
-}
-
-.ukca-modal-img {
-  width: 60px;
-  height: 60px;
-}
 .footer-text {
   color: black;
   text-decoration: none;
@@ -202,24 +164,19 @@ const config = inject("config");
   }
 }
 
-.ukca-div {
+.device-label-div {
   transition: all 0.3s ease;
   border: 2px solid #000000;
   border-radius: 8px;
 }
 
-.ukca-div:hover {
+.device-label-div:hover {
   background-color: rgba(255, 255, 102, 0.3); /* Light yellow highlight */
 }
 
 .left-col {
   font-weight: bold;
   float: right;
-  margin-right: 25px;
-}
-.ukca-col {
-  display: flex;
-  justify-content: flex-end;
   margin-right: 25px;
 }
 table {

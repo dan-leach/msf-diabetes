@@ -1,0 +1,4 @@
+Fix validate.js for new variables. Ensure either blood or urine ketones are submitted and within acceptable range.
+
+Before launch
+- restore commented out redirects to start of form if blank

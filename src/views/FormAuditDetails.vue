@@ -185,217 +185,131 @@ onMounted(() => {
         </div>
       </div>
     </transition>
-    <!--ethnicGroup-->
-    <div class="mb-4">
-      <div class="input-group">
-        <select
-          name="ethnicGroup"
-          class="form-select"
-          v-model="data.inputs.ethnicGroup.val"
-          @change="data.inputs.ethnicGroup.isValid()"
-          autocomplete="off"
-          required
-        >
-          <option value="" disabled>{{ data.inputs.ethnicGroup.label }}</option>
-          <option
-            v-for="ethnicGroup in config.ethnicGroups"
-            :value="ethnicGroup.name"
-          >
-            {{ ethnicGroup.name }}
-          </option>
-        </select>
 
-        <span
-          class="input-group-text"
-          data-bs-toggle="collapse"
-          data-bs-target="#ethnicGroupInfo"
-          ><font-awesome-icon :icon="['fas', 'circle-info']"
-        /></span>
-      </div>
-      <div
-        v-if="showErrors"
-        class="form-text text-danger mx-1"
-        id="ethnicGroupErrors"
-      >
-        {{ data.inputs.ethnicGroup.errors }}
-      </div>
-      <div class="collapse form-text mx-1" id="ethnicGroupInfo">
-        {{ data.inputs.ethnicGroup.info }}
-      </div>
-    </div>
-    <!--ethnicSubgroup-->
-    <transition>
-      <div class="mb-4" v-if="data.inputs.ethnicGroup.val">
-        <div class="input-group">
-          <select
-            name="ethnicSubgroup"
-            class="form-select"
-            v-model="data.inputs.ethnicSubgroup.val"
-            @change="data.inputs.ethnicSubgroup.isValid()"
-            autocomplete="off"
-            required
-            :disabled="!data.inputs.ethnicGroup.val"
-          >
-            <option value="" disabled>
-              {{ data.inputs.ethnicSubgroup.label }}
-            </option>
-            <option
-              v-for="ethnicSubgroupOption in data.inputs.ethnicSubgroup.options"
-              :value="ethnicSubgroupOption"
-            >
-              {{ ethnicSubgroupOption }}
-            </option>
-            <option value="Unknown">Unknown</option>
-          </select>
-
-          <span
-            class="input-group-text"
-            data-bs-toggle="collapse"
-            data-bs-target="#ethnicSubgroupInfo"
-            ><font-awesome-icon :icon="['fas', 'circle-info']"
-          /></span>
-        </div>
-        <div
-          v-if="showErrors"
-          class="form-text text-danger mx-1"
-          id="ethnicSubgroupErrors"
-        >
-          {{ data.inputs.ethnicSubgroup.errors }}
-        </div>
-        <div class="collapse form-text mx-1" id="ethnicSubgroupInfo">
-          {{ data.inputs.ethnicSubgroup.info }}
-        </div>
-      </div>
-    </transition>
-    <!--preventableFactors-->
+    <!--preExistingDiabetes-->
     <div class="mb-4">
       <p class="text-center m-2">
-        {{ data.inputs.preventableFactors.label }}
+        {{ data.inputs.preExistingDiabetes.label }}
         <font-awesome-icon
           :icon="['fas', 'circle-info']"
           data-bs-toggle="collapse"
-          data-bs-target="#preventableFactorsInfo"
+          data-bs-target="#preExistingDiabetesInfo"
           class="ms-2"
         />
       </p>
-      <!--options-->
-      <div class="d-flex flex-row flex-wrap justify-content-center mb-4">
-        <div v-for="option in data.inputs.preventableFactors.options.list">
+      <div class="d-flex justify-content-center">
+        <div>
           <input
-            type="checkbox"
+            type="radio"
             class="btn-check"
-            :id="option"
-            :value="option"
-            v-model="data.inputs.preventableFactors.options.val"
-            @change="data.inputs.preventableFactors.options.change(option)"
+            name="preExistingDiabetes"
+            id="preExistingDiabetesTrue"
+            value="true"
+            v-model="data.inputs.preExistingDiabetes.val"
+            @change="data.inputs.preExistingDiabetes.isValid()"
             autocomplete="off"
             required
           />
-          <label class="btn btn-outline-secondary me-2 mb-2" :for="option">{{
-            option
-          }}</label>
+          <label
+            class="btn btn-outline-secondary me-2"
+            for="preExistingDiabetesTrue"
+            >Yes</label
+          >
+
+          <input
+            type="radio"
+            class="btn-check"
+            name="preExistingDiabetes"
+            id="preExistingDiabetesFalse"
+            value="false"
+            v-model="data.inputs.preExistingDiabetes.val"
+            @change="data.inputs.preExistingDiabetes.isValid()"
+            autocomplete="off"
+          />
+          <label
+            class="btn btn-outline-secondary"
+            for="preExistingDiabetesFalse"
+            >No</label
+          >
         </div>
-        <div
-          v-if="data.inputs.preventableFactors.options.val.includes('Yes')"
-          class="form-text text-center"
-        >
-          Please select <strong>all</strong> preventable factors which apply,
-          using the categories below.<br />
-          You do not need to be certain that a particular factor caused the
-          episode of DKA.<br />If addressing a factor
-          <strong>might possibly</strong> have allowed the episode of DKA to be
-          avoided, please select it.
-        </div>
-        <div
-          v-else-if="
-            data.inputs.preventableFactors.options.val.includes('Not yet known')
-          "
-          class="form-text text-center"
-        >
-          Instructions on how to submit retrospective preventable factors data
-          will be printed on the generated care pathway document.
+      </div>
+      <div
+        v-if="showErrors"
+        class="form-text text-danger text-center mx-1"
+        id="preExistingDiabetesErrors"
+      >
+        {{ data.inputs.preExistingDiabetes.errors }}
+      </div>
+      <div
+        class="collapse form-text text-center mx-1"
+        id="preExistingDiabetesInfo"
+      >
+        {{ data.inputs.preExistingDiabetes.info }}
+      </div>
+    </div>
+    <!--underFollowUp-->
+    <transition>
+      <div class="mb-4" v-if="data.inputs.preExistingDiabetes.val == 'true'">
+        <p class="text-center m-2">
+          {{ data.inputs.underFollowUp.label }}
+          <font-awesome-icon
+            :icon="['fas', 'circle-info']"
+            data-bs-toggle="collapse"
+            data-bs-target="#underFollowUpInfo"
+            class="ms-2"
+          />
+        </p>
+        <div class="d-flex justify-content-center">
+          <div>
+            <input
+              type="radio"
+              class="btn-check"
+              name="underFollowUp"
+              id="underFollowUpTrue"
+              value=true
+              v-model="data.inputs.underFollowUp.val"
+              @change="data.inputs.underFollowUp.isValid()"
+              autocomplete="off"
+              required
+            />
+            <label
+              class="btn btn-outline-secondary me-2"
+              for="underFollowUpTrue"
+              >Yes</label
+            >
+
+            <input
+              type="radio"
+              class="btn-check"
+              name="underFollowUp"
+              id="underFollowUpFalse"
+              value=false
+              v-model="data.inputs.underFollowUp.val"
+              @change="data.inputs.underFollowUp.isValid()"
+              autocomplete="off"
+            />
+            <label
+              class="btn btn-outline-secondary"
+              for="underFollowUpFalse"
+              >No</label
+            >
+          </div>
         </div>
         <div
           v-if="showErrors"
           class="form-text text-danger text-center mx-1"
-          id="preventableFactorsErrors"
+          id="underFollowUpErrors"
         >
-          {{ data.inputs.preventableFactors.errors }}
+          {{ data.inputs.underFollowUp.errors }}
         </div>
         <div
           class="collapse form-text text-center mx-1"
-          id="preventableFactorsInfo"
+          id="underFollowUpInfo"
         >
-          {{ data.inputs.preventableFactors.info }}
+          {{ data.inputs.underFollowUp.info }}
         </div>
       </div>
-      <!--categories-->
-      <transition>
-        <div
-          v-if="data.inputs.preventableFactors.options.val.includes('Yes')"
-          class="d-flex flex-row flex-wrap justify-content-center mt-4"
-        >
-          <div
-            v-for="category in data.inputs.preventableFactors.categories.list"
-          >
-            <div
-              v-if="
-                category.preExistingDiabetes.includes(
-                  data.inputs.preExistingDiabetes.val
-                )
-              "
-            >
-              <input
-                type="checkbox"
-                class="btn-check"
-                :id="category.name"
-                :value="category.name"
-                v-model="data.inputs.preventableFactors.categories.val"
-                autocomplete="off"
-              />
-              <label
-                class="btn btn-outline-secondary me-2 preventable-factors-category-btn mb-2"
-                :for="category.name"
-                >{{ category.name }}</label
-              >
-              <!--factors-->
-              <div class="d-flex flex-column justify-content-center">
-                <div v-for="factor in data.inputs.preventableFactors.factors">
-                  <transition>
-                    <div
-                      v-if="
-                        factor.categories.includes(category.name) &&
-                        (data.inputs.preventableFactors.categories.val.includes(
-                          category.name
-                        ) ||
-                          data.inputs.preventableFactors.val.includes(
-                            factor.val
-                          ))
-                      "
-                    >
-                      <input
-                        type="checkbox"
-                        class="btn-check"
-                        :id="factor.val"
-                        :value="factor.val"
-                        v-model="data.inputs.preventableFactors.val"
-                        @change="data.inputs.preventableFactors.isValid()"
-                        autocomplete="off"
-                      />
-                      <label
-                        class="btn btn-outline-dark me-2 preventable-factors-factor-btn mb-1"
-                        :for="factor.val"
-                        >{{ factor.val }}</label
-                      >
-                    </div>
-                  </transition>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </transition>
-    </div>
+    </transition>
     <div class="d-flex flex-row justify-content-evenly">
       <!--back-->
       <div class="text-center">

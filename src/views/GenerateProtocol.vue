@@ -19,7 +19,7 @@ const generateSteps = ref({
    */
   transmit: {
     //Generate the payload
-    text: "Transmitting data to DKA Calculator",
+    text: "Transmitting data to calculator",
     complete: false,
     fail: "",
     current: false,
@@ -80,7 +80,6 @@ const generate = {
       data.value.auditID = res.auditID;
       data.value.calculations = res.calculations;
     } catch (error) {
-      console.log(error);
       generateSteps.value.calculate.fail = error;
       generateSteps.value.calculate.current = false;
       return;
@@ -126,29 +125,38 @@ const generate = {
       payload[input] = data.value.inputs[input].val;
     }
 
+    payload.legalAgreement = payload.legalAgreement == "true";
     payload.protocolStartDatetime = new Date(payload.protocolStartDatetime);
-    payload.pH = parseFloat(payload.pH);
-    payload.glucose = payload.glucose ? parseFloat(payload.glucose) : undefined;
-    payload.bicarbonate = payload.bicarbonate
-      ? parseFloat(payload.bicarbonate)
-      : undefined;
-    payload.ketones = payload.ketones ? parseFloat(payload.ketones) : undefined;
+    if (payload.pH) {
+      payload.pH = parseFloat(payload.pH);
+    } else {
+      delete payload.pH
+    }
+    payload.glucose = parseFloat(payload.glucose);
+    if (payload.bloodKetones) {
+      payload.bloodKetones = parseFloat(payload.bloodKetones);
+      delete payload.urineKetones
+    } else {
+      payload.urineKetones = parseInt(payload.urineKetones);
+      delete payload.bloodKetones
+    }
     payload.weight = parseFloat(payload.weight);
     payload.shockPresent = payload.shockPresent == "true";
     payload.insulinRate = parseFloat(payload.insulinRate);
     payload.preExistingDiabetes = payload.preExistingDiabetes == "true";
+    if (payload.preExistingDiabetes) {
+      payload.underFollowUp = payload.underFollowUp == "true";
+    } else {
+      delete payload.underFollowUp
+    } 
 
-    if (data.value.inputs.patientNHS.val && data.value.inputs.patientDOB.val) {
-      payload.patientHash = await generate.patientHash();
-    }
-    if (!payload.patientPostcode) delete payload.patientPostcode;
+    payload.patientHash = await generate.patientHash();
 
     const excludedFields = [
       "patientName",
-      "patientHospNum",
-      "patientNHS",
+      "patientIdentifier",
       "patientDOB",
-      "other",
+      "other"
     ];
     for (const field of excludedFields) {
       delete payload[field];
@@ -160,7 +168,6 @@ const generate = {
     payload.appVersion = {
       client: config.value.client.version,
       api: config.value.api.version,
-      icp: config.value.organisations.bsped.icpVersion,
     };
     payload.clientDatetime = new Date();
     payload.clientUseragent = navigator.userAgent;
@@ -170,7 +177,7 @@ const generate = {
 
   patientHash: async function () {
     const dataToHash = new TextEncoder().encode(
-      data.value.inputs.patientNHS.val + data.value.inputs.patientDOB.val
+      data.value.inputs.patientIdentifier.val + data.value.inputs.patientDOB.val
     );
     const hashBuffer = await crypto.subtle.digest("SHA-256", dataToHash);
     return Array.from(new Uint8Array(hashBuffer), (byte) =>
@@ -270,18 +277,14 @@ const generate = {
     return {
       patientName: inputs.patientName.val,
       patientDOB: inputs.patientDOB.val,
-      patientNHS: inputs.patientNHS.val,
-      patientHospNum: inputs.patientHospNum.val,
+      patientIdentifier: inputs.patientIdentifier.val,
       weight: inputs.weight.val,
       override: inputs.weight.limit.override,
       pH: inputs.pH.val,
-      bicarbonate: inputs.bicarbonate.val,
       glucose: inputs.glucose.val,
       ketones: inputs.ketones.val,
       shockPresent: inputs.shockPresent.val,
       preExistingDiabetes: inputs.preExistingDiabetes.val,
-      insulinDeliveryMethod: inputs.insulinDeliveryMethod.val,
-      preventableFactors: inputs.preventableFactors.val,
       patientSex: inputs.patientSex.val,
       insulinRate: inputs.insulinRate.val,
       protocolStartDatetime: inputs.protocolStartDatetime.val,
@@ -777,7 +780,7 @@ onMounted(() => {
             <div class="card border-warning mb-3">
               <div class="card-body">
                 <p class="card-text">
-                  Note: Refer to the BSPED Paediatric DKA care pathway for how
+                  Note: Refer to the MSF paediatric diabetes guidelines for how
                   to use these calculated values.
                 </p>
               </div>

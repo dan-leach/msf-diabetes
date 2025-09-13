@@ -47,7 +47,7 @@ onMounted(() => {
     <h4>Sorry, something went wrong...</h4>
     <p>
       If this keeps happening please contact
-      <a href="mailto:admin@dka-calculator.co.uk">admin@dka-calculator.co.uk</a>
+      <a href="mailto:web@danleach.co.uk">web@danleach.co.uk</a>
       including the error message show below:<br />
       <code>{{ load.failed }}</code>
     </p>

@@ -49,16 +49,6 @@ const router = createRouter({
       },
     },
     {
-      path: "/update",
-      name: "update",
-      component: () => import("../views/Update.vue"),
-    },
-    {
-      path: "/submit-update",
-      name: "submit-update",
-      component: () => import("../views/SubmitUpdate.vue"),
-    },
-    {
       path: "/sodium-osmo",
       name: "sodium-osmo",
       component: () => import("../views/SodiumOsmo.vue"),

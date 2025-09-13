@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink, useRoute } from "vue-router";
+import { RouterLink } from "vue-router";
 import { inject } from "vue";
 const config = inject("config");
 </script>
@@ -12,8 +12,8 @@ const config = inject("config");
       <RouterLink
         to="/"
         class="navbar-brand d-flex flex-row flex-wrap align-items-center justify-content-center"
-        ><img alt="BSPED logo" class="logo" src="@/assets/bsped.png" />
-        <h1 class="display-5 mx-4 my-0">
+        ><img alt="MSF logo" class="logo" src="@/assets/msf-logo.jpg" />
+        <h1 class="display-5 mx-1 my-0">
           {{ config.appName }}
         </h1>
       </RouterLink>
@@ -26,7 +26,7 @@ const config = inject("config");
 
 <style scoped>
 .logo {
-  width: 10vw;
+  width: 15vw;
 }
 .site-title {
   font-size: 3vw;

@@ -343,7 +343,7 @@ function getDocDef(req) {
                 text: `${req.config.client.url.replace("https://", "")} (v${
                   req.config.client.version
                 }/${req.config.api.version}/${
-                  req.config.organisations.bsped.icpVersion
+                  req.config.organisations.msf.icpVersion
                 })`,
                 alignment: "center",
                 style: "header",
@@ -565,8 +565,8 @@ function getDocDef(req) {
         absolutePosition: { x: 325, y: 741 },
       },
       {
-        text: req.config.organisations.bsped.dkaGuidelines,
-        link: req.config.organisations.bsped.dkaGuidelines,
+        text: req.config.organisations.msf.dkaGuidelines,
+        link: req.config.organisations.msf.dkaGuidelines,
         fontSize: 10,
         absolutePosition: { x: 250, y: 530 },
         pageBreak: "after",
@@ -1423,11 +1423,11 @@ function getDocDef(req) {
             [
               "",
               {
-                text: `For worked examples, refer to the full guideline (${req.config.organisations.bsped.dkaGuidelines.replace(
+                text: `For worked examples, refer to the full guideline (${req.config.organisations.msf.dkaGuidelines.replace(
                   "https://",
                   ""
                 )}).`,
-                link: req.config.organisations.bsped.dkaGuidelines,
+                link: req.config.organisations.msf.dkaGuidelines,
               },
               "",
             ],
@@ -1479,11 +1479,11 @@ function getDocDef(req) {
             [
               "",
               {
-                text: `For worked examples, refer to the full guideline (${req.config.organisations.bsped.dkaGuidelines.replace(
+                text: `For worked examples, refer to the full guideline (${req.config.organisations.msf.dkaGuidelines.replace(
                   "https://",
                   ""
                 )}).`,
-                link: req.config.organisations.bsped.dkaGuidelines,
+                link: req.config.organisations.msf.dkaGuidelines,
               },
               "",
             ],
