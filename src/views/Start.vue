@@ -9,17 +9,17 @@ const config = inject("config");
       <div class="card-body">
         <h5 class="card-title">Development version</h5>
         <p class="card-text">
-          This development version is for demonstration/testing forthcoming
-          updates.
-          <br />Do NOT use for real clinical cases.
+          This version is for demonstration/testing. Do not use for real
+          clinical cases.
         </p>
       </div>
     </div>
 
     <h2 class="display-3">Welcome</h2>
     <p class="mx-1">
-      The {{ config.appName }} allows clinicians to calculate variables for managing paediatric diabetic ketoacidosis
-      based on the 2024 MSF paediatric guidelines.
+      The {{ config.appName }} allows clinicians to calculate variables for
+      managing paediatric diabetic ketoacidosis based on the 2024 MSF paediatric
+      guidelines.
     </p>
     <div class="card border-warning mb-3" hidden>
       <div class="card-body">
@@ -32,9 +32,7 @@ const config = inject("config");
         </p>
         <div class="collapse my-2" id="changes">
           <ul>
-            <li>
-              Change 1 etc
-            </li>
+            <li>Change 1 etc</li>
           </ul>
           You can
           <a :href="config.client.repo.changelog" target="_blank"
@@ -44,8 +42,8 @@ const config = inject("config");
       </div>
     </div>
     <p class="nx-1">
-      We're always trying to improve. If you have suggestions
-      or queries, please contact
+      We're always trying to improve. If you have suggestions or queries, please
+      contact
       <a :href="'mailto:' + config.author.email">{{ config.author.email }}</a
       >.
     </p>

@@ -88,7 +88,7 @@ const generate = {
     generateSteps.value.audit.complete = true;
 
     // Build and download care pathway
-    if (!(await generate.executeStep("build", generate.startWebWorker))) return;
+    //if (!(await generate.executeStep("build", generate.startWebWorker))) return;
     return true;
   },
 
@@ -130,33 +130,37 @@ const generate = {
     if (payload.pH) {
       payload.pH = parseFloat(payload.pH);
     } else {
-      delete payload.pH
+      delete payload.pH;
+    }
+    if (payload.bicarbonate) {
+      payload.bicarbonate = parseFloat(payload.bicarbonate);
+    } else {
+      delete payload.bicarbonate;
     }
     payload.glucose = parseFloat(payload.glucose);
     if (payload.bloodKetones) {
       payload.bloodKetones = parseFloat(payload.bloodKetones);
-      delete payload.urineKetones
+      delete payload.urineKetones;
     } else {
       payload.urineKetones = parseInt(payload.urineKetones);
-      delete payload.bloodKetones
+      delete payload.bloodKetones;
     }
     payload.weight = parseFloat(payload.weight);
     payload.shockPresent = payload.shockPresent == "true";
+    payload.gcs = parseInt(payload.gcs);
     payload.insulinRate = parseFloat(payload.insulinRate);
     payload.preExistingDiabetes = payload.preExistingDiabetes == "true";
     if (payload.preExistingDiabetes) {
       payload.underFollowUp = payload.underFollowUp == "true";
     } else {
-      delete payload.underFollowUp
-    } 
-
-    payload.patientHash = await generate.patientHash();
+      delete payload.underFollowUp;
+    }
 
     const excludedFields = [
       "patientName",
       "patientIdentifier",
       "patientDOB",
-      "other"
+      "other",
     ];
     for (const field of excludedFields) {
       delete payload[field];
@@ -173,16 +177,6 @@ const generate = {
     payload.clientUseragent = navigator.userAgent;
 
     return payload;
-  },
-
-  patientHash: async function () {
-    const dataToHash = new TextEncoder().encode(
-      data.value.inputs.patientIdentifier.val + data.value.inputs.patientDOB.val
-    );
-    const hashBuffer = await crypto.subtle.digest("SHA-256", dataToHash);
-    return Array.from(new Uint8Array(hashBuffer), (byte) =>
-      byte.toString(16).padStart(2, "0")
-    ).join("");
   },
 
   /**

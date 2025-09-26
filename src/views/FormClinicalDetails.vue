@@ -36,7 +36,6 @@ onMounted(() => {
   } else if (!data.value.form.isValid(1)) {
     router.push("/form-patient-details");
   } else {
-
     // Scroll to top
     window.scrollTo(0, 0);
 
@@ -151,41 +150,88 @@ onMounted(() => {
         {{ data.inputs.pH.available.info }}
       </div>
     </div>
-    <!--pH-->
     <transition>
-      <div class="mb-4" v-if="data.inputs.pH.available.val === 'true'">
-        <div class="input-group">
-          <div class="form-floating">
-            <input
-              type="number"
-              class="form-control"
-              id="pH"
-              v-model="data.inputs.pH.val"
-              @change="data.inputs.pH.isValid()"
-              placeholder="x"
-              :min="data.inputs.pH.min()"
-              :max="data.inputs.pH.max()"
-              :step="data.inputs.pH.step"
-              autocomplete="off"
-              required
-            />
-            <label for="pH">{{ data.inputs.pH.label }}</label>
+      <div v-if="data.inputs.pH.available.val === 'true'">
+        <!--pH-->
+        <div class="mb-4">
+          <div class="input-group">
+            <div class="form-floating">
+              <input
+                type="number"
+                class="form-control"
+                id="pH"
+                v-model="data.inputs.pH.val"
+                @change="data.inputs.pH.isValid()"
+                placeholder="x"
+                :min="data.inputs.pH.min()"
+                :max="data.inputs.pH.max()"
+                :step="data.inputs.pH.step"
+                autocomplete="off"
+                required
+              />
+              <label for="pH">{{ data.inputs.pH.label }}</label>
+            </div>
+            <span
+              class="input-group-text"
+              data-bs-toggle="collapse"
+              data-bs-target="#pHInfo"
+              ><font-awesome-icon :icon="['fas', 'circle-info']"
+            /></span>
           </div>
-          <span
-            class="input-group-text"
-            data-bs-toggle="collapse"
-            data-bs-target="#pHInfo"
-            ><font-awesome-icon :icon="['fas', 'circle-info']"
-          /></span>
+          <div
+            v-if="showErrors"
+            class="form-text text-danger mx-1"
+            id="pHErrors"
+          >
+            {{ data.inputs.pH.errors }}
+          </div>
+          <div
+            class="collapse form-text mx-1"
+            id="pHInfo"
+            v-html="data.inputs.pH.info"
+          ></div>
         </div>
-        <div v-if="showErrors" class="form-text text-danger mx-1" id="pHErrors">
-          {{ data.inputs.pH.errors }}
+        <!--bicarbonate-->
+        <div class="mb-4">
+          <div class="input-group">
+            <div class="form-floating">
+              <input
+                type="number"
+                class="form-control"
+                id="bicarbonate"
+                v-model="data.inputs.bicarbonate.val"
+                @change="data.inputs.bicarbonate.isValid()"
+                placeholder="x"
+                :min="data.inputs.bicarbonate.min()"
+                :max="data.inputs.bicarbonate.max()"
+                :step="data.inputs.bicarbonate.step"
+                autocomplete="off"
+              />
+              <label for="bicarbonate">{{
+                data.inputs.bicarbonate.label
+              }}</label>
+            </div>
+            <span class="input-group-text">mmol/L</span>
+            <span
+              class="input-group-text"
+              data-bs-toggle="collapse"
+              data-bs-target="#bicarbonateInfo"
+              ><font-awesome-icon :icon="['fas', 'circle-info']"
+            /></span>
+          </div>
+          <div
+            v-if="showErrors"
+            class="form-text text-danger mx-1"
+            id="bicarbonateErrors"
+          >
+            {{ data.inputs.bicarbonate.errors }}
+          </div>
+          <div
+            class="collapse form-text mx-1"
+            id="bicarbonateInfo"
+            v-html="data.inputs.bicarbonate.info"
+          ></div>
         </div>
-        <div
-          class="collapse form-text mx-1"
-          id="pHInfo"
-          v-html="data.inputs.pH.info"
-        ></div>
       </div>
     </transition>
     <!--bloodKetones available-->
@@ -212,7 +258,9 @@ onMounted(() => {
             autocomplete="off"
             required
           />
-          <label class="btn btn-outline-secondary me-2" for="bloodKetonesAvailableTrue"
+          <label
+            class="btn btn-outline-secondary me-2"
+            for="bloodKetonesAvailableTrue"
             >Yes</label
           >
 
@@ -226,7 +274,9 @@ onMounted(() => {
             @change="data.inputs.bloodKetones.available.isValid()"
             autocomplete="off"
           />
-          <label class="btn btn-outline-secondary" for="bloodKetonesAvailableFalse"
+          <label
+            class="btn btn-outline-secondary"
+            for="bloodKetonesAvailableFalse"
             >No</label
           >
         </div>
@@ -238,13 +288,19 @@ onMounted(() => {
       >
         {{ data.inputs.bloodKetones.available.errors }}
       </div>
-      <div class="collapse form-text text-center mx-1" id="bloodKetonesAvailableInfo">
+      <div
+        class="collapse form-text text-center mx-1"
+        id="bloodKetonesAvailableInfo"
+      >
         {{ data.inputs.bloodKetones.available.info }}
       </div>
     </div>
     <!--bloodKetones-->
     <transition>
-      <div class="mb-4" v-if="data.inputs.bloodKetones.available.val === 'true'">
+      <div
+        class="mb-4"
+        v-if="data.inputs.bloodKetones.available.val === 'true'"
+      >
         <div class="input-group">
           <div class="form-floating">
             <input
@@ -260,7 +316,9 @@ onMounted(() => {
               autocomplete="off"
               required
             />
-            <label for="bloodKetones">{{ data.inputs.bloodKetones.label }}</label>
+            <label for="bloodKetones">{{
+              data.inputs.bloodKetones.label
+            }}</label>
           </div>
           <span class="input-group-text">mmol/L</span>
           <span
@@ -270,7 +328,11 @@ onMounted(() => {
             ><font-awesome-icon :icon="['fas', 'circle-info']"
           /></span>
         </div>
-        <div v-if="showErrors" class="form-text text-danger mx-1" id="bloodKetonesErrors">
+        <div
+          v-if="showErrors"
+          class="form-text text-danger mx-1"
+          id="bloodKetonesErrors"
+        >
           {{ data.inputs.bloodKetones.errors }}
         </div>
         <div
@@ -282,7 +344,10 @@ onMounted(() => {
     </transition>
     <!--urineKetones-->
     <transition>
-      <div class="mb-4" v-if="data.inputs.bloodKetones.available.val === 'false'">
+      <div
+        class="mb-4"
+        v-if="data.inputs.bloodKetones.available.val === 'false'"
+      >
         <p class="text-center m-2">
           {{ data.inputs.urineKetones.label }}
           <font-awesome-icon
@@ -298,37 +363,51 @@ onMounted(() => {
             :class="{ urineKetonesActive: data.inputs.urineKetones.val === 0 }"
             type="button"
             @click="data.inputs.urineKetones.setVal(0)"
-          >-</button>
+          >
+            -
+          </button>
 
           <button
             class="btn btn-outline-secondary me-2"
             :class="{ urineKetonesActive: data.inputs.urineKetones.val === 1 }"
             type="button"
             @click="data.inputs.urineKetones.setVal(1)"
-          >+</button>
+          >
+            +
+          </button>
 
           <button
             class="btn btn-outline-secondary me-2"
             :class="{ urineKetonesActive: data.inputs.urineKetones.val === 2 }"
             type="button"
             @click="data.inputs.urineKetones.setVal(2)"
-          >++</button>
+          >
+            ++
+          </button>
 
           <button
             class="btn btn-outline-secondary me-2"
             :class="{ urineKetonesActive: data.inputs.urineKetones.val === 3 }"
             type="button"
             @click="data.inputs.urineKetones.setVal(3)"
-          >+++</button>
+          >
+            +++
+          </button>
 
           <button
             class="btn btn-outline-secondary me-2"
             :class="{ urineKetonesActive: data.inputs.urineKetones.val === 4 }"
             type="button"
             @click="data.inputs.urineKetones.setVal(4)"
-          >++++</button>
+          >
+            ++++
+          </button>
         </div>
-        <div v-if="showErrors" class="text-center form-text text-danger mx-1" id="urineKetonesErrors">
+        <div
+          v-if="showErrors"
+          class="text-center form-text text-danger mx-1"
+          id="urineKetonesErrors"
+        >
           {{ data.inputs.urineKetones.errors }}
         </div>
         <div
@@ -490,6 +569,41 @@ onMounted(() => {
         {{ data.inputs.shockPresent.info }}
       </div>
     </div>
+    <!--gcs-->
+    <div class="mb-4">
+      <div class="input-group">
+        <div class="form-floating">
+          <input
+            type="number"
+            class="form-control"
+            id="gcs"
+            v-model="data.inputs.gcs.val"
+            @change="data.inputs.gcs.isValid()"
+            placeholder="x"
+            :min="data.inputs.gcs.min()"
+            :max="data.inputs.gcs.max()"
+            :step="data.inputs.gcs.step"
+            autocomplete="off"
+            required
+          />
+          <label for="gcs">{{ data.inputs.gcs.label }}</label>
+        </div>
+        <span
+          class="input-group-text"
+          data-bs-toggle="collapse"
+          data-bs-target="#gcsInfo"
+          ><font-awesome-icon :icon="['fas', 'circle-info']"
+        /></span>
+      </div>
+      <div v-if="showErrors" class="form-text text-danger mx-1" id="gcsErrors">
+        {{ data.inputs.gcs.errors }}
+      </div>
+      <div
+        class="collapse form-text mx-1"
+        id="gcsInfo"
+        v-html="data.inputs.gcs.info"
+      ></div>
+    </div>
     <!--insulinRate-->
     <div class="mb-4">
       <p class="text-center m-2">
@@ -529,10 +643,9 @@ onMounted(() => {
             @change="data.inputs.insulinRate.isValid()"
             autocomplete="off"
           />
-          <label
-            class="btn btn-outline-secondary text-nowrap me-2"
-            for="0.1"
-            >0.1 units/kg/hour<br> (Default for ≥2 years)</label
+          <label class="btn btn-outline-secondary text-nowrap me-2" for="0.1"
+            >0.1 units/kg/hour<br />
+            (Default for ≥2 years)</label
           >
         </div>
       </div>
@@ -595,6 +708,6 @@ onMounted(() => {
 }
 .urineKetonesActive {
   background-color: #6c757d;
-  color: white
+  color: white;
 }
 </style>

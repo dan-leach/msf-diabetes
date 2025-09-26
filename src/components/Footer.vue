@@ -8,13 +8,13 @@ const config = inject("config");
     <nav
       class="navbar bg-grey d-flex flex-column align-items-start justify-content-start"
     >
-    <div
+      <div
         class="device-label-div mb-1 mx-4 d-flex align-items-center p-2"
         data-bs-toggle="modal"
         data-bs-target="#deviceLabelModal"
         style="cursor: pointer"
       >
-      <p class="footer-text">
+        <p class="footer-text">
           <span
             ><strong>{{ config.appName }}&nbsp;</strong> Client
             <a :href="config.client.repo.changelog" target="_blank"
@@ -29,12 +29,15 @@ const config = inject("config");
       </div>
       <div class="mb-2 mx-4 d-none d-md-block">
         <p class="footer-text">
-          Created and maintained by
+          Created by
           <a :href="config.author.url" target="_blank">{{
             config.author.name
           }}</a>
-          on behalf of the
-          <a :href="config.organisations.msf.main" target="_blank">{{config.organisations.msf.shortName}}</a>.
+          for
+          <a :href="config.organisations.msf.main" target="_blank">{{
+            config.organisations.msf.shortName
+          }}</a
+          >.
           <span class="ms-4"
             >Correspondance:
             <a :href="'mailto:' + config.author.email">{{
@@ -52,7 +55,6 @@ const config = inject("config");
           >
         </p>
       </div>
-      
     </nav>
   </footer>
 
@@ -108,11 +110,11 @@ const config = inject("config");
                   :href="config.organisations.msf.main"
                   target="_blank"
                   class="p-0"
-                  >{{config.organisations.msf.fullName}}</a
+                  >{{ config.organisations.msf.fullName }}</a
                 ><br />
-                La Fondation MSF<br>
-                Service donateurs<br>
-                14-34 avenue Jean Jaurès<br>
+                La Fondation MSF<br />
+                Service donateurs<br />
+                14-34 avenue Jean Jaurès<br />
                 75019 Paris
               </td>
             </tr>

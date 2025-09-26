@@ -42,7 +42,7 @@ const setMinMaxPatientDOB = () => {
 onMounted(() => {
   if (!data.value.form.isValid(0)) {
     //router.push("/form-disclaimer");
-    data.value.form.joeBloggs()
+    data.value.form.joeBloggs();
   } else {
     setMinMaxPatientDOB();
     // Scroll to top
@@ -55,8 +55,8 @@ onMounted(() => {
   <form id="form-patient-details" class="container my-4 needs-validation">
     <h2 class="display-3">Patient details</h2>
     <p class="mx-1">
-      To calculate values for your patient please complete the form
-      below. For more information about how this data is used click the
+      To calculate values for your patient please complete the form below. For
+      more information about how this data is used click the
       <font-awesome-icon :icon="['fas', 'circle-info']" /> icon by each field or
       refer to the
       <RouterLink to="/privacy-policy" target="_blank" class=""
@@ -186,44 +186,6 @@ onMounted(() => {
       <div class="collapse form-text text-center mx-1" id="patientSexInfo">
         {{ data.inputs.patientSex.info }}
       </div>
-    </div>
-    <!--patientIdentifier-->
-    <div class="mb-4">
-      <div class="input-group">
-        <div class="form-floating">
-          <input
-            type="text"
-            class="form-control"
-            id="patientIdentifier"
-            v-model="data.inputs.patientIdentifier.val"
-            @change="data.inputs.patientIdentifier.isValid()"
-            placeholder="x"
-            :min="data.inputs.patientIdentifier.min"
-            :max="data.inputs.patientIdentifier.max"
-            autocomplete="off"
-            required
-          />
-          <label for="patientIdentifier">{{ data.inputs.patientIdentifier.label }}</label>
-        </div>
-        <span
-          class="input-group-text"
-          data-bs-toggle="collapse"
-          data-bs-target="#patientIdentifierInfo"
-          ><font-awesome-icon :icon="['fas', 'circle-info']"
-        /></span>
-      </div>
-      <div
-        v-if="showErrors"
-        class="form-text text-danger mx-1"
-        id="patientIdentifierErrors"
-      >
-        {{ data.inputs.patientIdentifier.errors }}
-      </div>
-      <div
-        class="collapse form-text mx-1"
-        id="patientIdentifierInfo"
-        v-html="data.inputs.patientIdentifier.info"
-      ></div>
     </div>
 
     <div class="d-flex flex-row justify-content-evenly">

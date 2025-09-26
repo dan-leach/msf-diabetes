@@ -107,20 +107,25 @@ onMounted(() => {
         {{ data.inputs.episodeType.info }}
       </div>
     </div>
-    <!--region-->
+    <!--operationalCentre-->
     <div class="mb-4">
       <div class="input-group">
         <select
-          name="region"
+          name="operationalCentre"
           class="form-select"
-          v-model="data.inputs.region.val"
-          @change="data.inputs.region.isValid()"
+          v-model="data.inputs.operationalCentre.val"
+          @change="data.inputs.operationalCentre.isValid()"
           autocomplete="off"
           required
         >
-          <option value="" disabled>{{ data.inputs.region.label }}</option>
-          <option v-for="region in config.regions" :value="region.name">
-            {{ region.name }}
+          <option value="" disabled>
+            {{ data.inputs.operationalCentre.label }}
+          </option>
+          <option
+            v-for="operationalCentre in config.operationalCentres"
+            :value="operationalCentre.name"
+          >
+            {{ operationalCentre.name }}
           </option>
           <option value="Other">Other</option>
         </select>
@@ -128,40 +133,40 @@ onMounted(() => {
         <span
           class="input-group-text"
           data-bs-toggle="collapse"
-          data-bs-target="#regionInfo"
+          data-bs-target="#operationalCentreInfo"
           ><font-awesome-icon :icon="['fas', 'circle-info']"
         /></span>
       </div>
       <div
         v-if="showErrors"
         class="form-text text-danger mx-1"
-        id="regionErrors"
+        id="operationalCentreErrors"
       >
-        {{ data.inputs.region.errors }}
+        {{ data.inputs.operationalCentre.errors }}
       </div>
-      <div class="collapse form-text mx-1" id="regionInfo">
-        {{ data.inputs.region.info }}
+      <div class="collapse form-text mx-1" id="operationalCentreInfo">
+        {{ data.inputs.operationalCentre.info }}
       </div>
     </div>
-    <!--centre-->
+    <!--project-->
     <transition>
-      <div class="mb-4" v-if="data.inputs.region.val">
+      <div class="mb-4" v-if="data.inputs.operationalCentre.val">
         <div class="input-group">
           <select
-            name="centre"
+            name="project"
             class="form-select"
-            v-model="data.inputs.centre.val"
-            @change="data.inputs.centre.isValid()"
+            v-model="data.inputs.project.val"
+            @change="data.inputs.project.isValid()"
             autocomplete="off"
             required
-            :disabled="!data.inputs.region.val"
+            :disabled="!data.inputs.operationalCentre.val"
           >
-            <option value="" disabled>{{ data.inputs.centre.label }}</option>
+            <option value="" disabled>{{ data.inputs.project.label }}</option>
             <option
-              v-for="centreOption in data.inputs.centre.options"
-              :value="centreOption"
+              v-for="projectOption in data.inputs.project.options"
+              :value="projectOption"
             >
-              {{ centreOption }}
+              {{ projectOption }}
             </option>
             <option value="Other">Other</option>
           </select>
@@ -169,19 +174,19 @@ onMounted(() => {
           <span
             class="input-group-text"
             data-bs-toggle="collapse"
-            data-bs-target="#centreInfo"
+            data-bs-target="#projectInfo"
             ><font-awesome-icon :icon="['fas', 'circle-info']"
           /></span>
         </div>
         <div
           v-if="showErrors"
           class="form-text text-danger mx-1"
-          id="centreErrors"
+          id="projectErrors"
         >
-          {{ data.inputs.centre.errors }}
+          {{ data.inputs.project.errors }}
         </div>
-        <div class="collapse form-text mx-1" id="centreInfo">
-          {{ data.inputs.centre.info }}
+        <div class="collapse form-text mx-1" id="projectInfo">
+          {{ data.inputs.project.info }}
         </div>
       </div>
     </transition>
@@ -266,7 +271,7 @@ onMounted(() => {
               class="btn-check"
               name="underFollowUp"
               id="underFollowUpTrue"
-              value=true
+              value="true"
               v-model="data.inputs.underFollowUp.val"
               @change="data.inputs.underFollowUp.isValid()"
               autocomplete="off"
@@ -283,14 +288,12 @@ onMounted(() => {
               class="btn-check"
               name="underFollowUp"
               id="underFollowUpFalse"
-              value=false
+              value="false"
               v-model="data.inputs.underFollowUp.val"
               @change="data.inputs.underFollowUp.isValid()"
               autocomplete="off"
             />
-            <label
-              class="btn btn-outline-secondary"
-              for="underFollowUpFalse"
+            <label class="btn btn-outline-secondary" for="underFollowUpFalse"
               >No</label
             >
           </div>
@@ -302,10 +305,7 @@ onMounted(() => {
         >
           {{ data.inputs.underFollowUp.errors }}
         </div>
-        <div
-          class="collapse form-text text-center mx-1"
-          id="underFollowUpInfo"
-        >
+        <div class="collapse form-text text-center mx-1" id="underFollowUpInfo">
           {{ data.inputs.underFollowUp.info }}
         </div>
       </div>
