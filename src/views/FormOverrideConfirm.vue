@@ -12,7 +12,7 @@ const config = inject("config");
  */
 const continueClick = () => {
   data.value.inputs.weight.limit.overrideConfirm = true;
-  router.push("/form-audit-details");
+  router.push("/form-clinical-details");
 };
 
 /**
@@ -20,7 +20,7 @@ const continueClick = () => {
  * Sets the patient weight to 2SD above mean for age and returns the user to the clinical details page to highlight the change
  */
 const use2SD = async () => {
-  router.push("/form-clinical-details");
+  router.push("/form-patient-details");
   await new Promise((resolve) => setTimeout(resolve, 1000));
   data.value.inputs.weight.val = data.value.inputs.weight.limit.upper();
   data.value.inputs.weight.limit.overrideConfirm = false;
@@ -46,8 +46,6 @@ onMounted(() => {
     router.push("/form-disclaimer");
   } else if (!data.value.form.isValid(1)) {
     router.push("/form-patient-details");
-  } else if (!data.value.form.isValid(2)) {
-    router.push("/form-clinical-details");
   }
   // Scroll to top
   window.scrollTo(0, 0);
@@ -116,7 +114,7 @@ onMounted(() => {
       <div class="text-center mb-2">
         <button
           type="button"
-          @click="router.push('/form-clinical-details')"
+          @click="router.push('/form-patient-details')"
           class="btn btn-lg btn-secondary"
         >
           Go back and review

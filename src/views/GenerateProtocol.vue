@@ -320,15 +320,16 @@ onMounted(() => {
     router.push("/form-disclaimer");
   } else if (!data.value.form.isValid(1)) {
     router.push("/form-patient-details");
-  } else if (!data.value.form.isValid(2)) {
-    router.push("/form-clinical-details");
   } else if (
     data.value.inputs.weight.limit.override &&
     !data.value.inputs.weight.limit.overrideConfirm
   ) {
     router.push("/form-override-confirm");
+  } else if (!data.value.form.isValid(2)) {
+    router.push("/form-equipment-availability");
   } else if (!data.value.form.isValid(3)) {
-    router.push("/form-audit-details");
+    console.log(data.value.form.isValid(3));
+    router.push("/form-clinical-details");
   } else {
     // Scroll to top
     window.scrollTo(0, 0);
@@ -809,7 +810,7 @@ onMounted(() => {
     <!--back-->
     <button
       type="button"
-      @click="router.push('/form-audit-details')"
+      @click="router.push('/form-clinical-details')"
       class="btn btn-secondary"
     >
       Back to form

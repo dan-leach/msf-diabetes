@@ -21,19 +21,19 @@ const router = createRouter({
       component: () => import("../views/FormPatientDetails.vue"),
     },
     {
-      path: "/form-clinical-details",
-      name: "form-clinical-details",
-      component: () => import("../views/FormClinicalDetails.vue"),
-    },
-    {
       path: "/form-override-confirm",
       name: "form-override-confirm",
       component: () => import("../views/FormOverrideConfirm.vue"),
     },
     {
-      path: "/form-audit-details",
-      name: "form-audit-details",
-      component: () => import("../views/FormAuditDetails.vue"),
+      path: "/form-equipment-availability",
+      name: "form-equipment-availability",
+      component: () => import("../views/FormEquipmentAvailability.vue"),
+    },
+    {
+      path: "/form-clinical-details",
+      name: "form-clinical-details",
+      component: () => import("../views/FormClinicalDetails.vue"),
     },
     {
       path: "/generate-protocol",
