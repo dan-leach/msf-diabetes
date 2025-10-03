@@ -126,7 +126,7 @@ forms:
       bicarbonate:
         type: float
         description: The patient's blood bicarbonate level in mmol/L.
-        conditions: bloodGasAvailable is true
+        conditions: bloodGasAvailable is true, and pH is >=7.3
         validation: must be a floating-point number between 0 and 30
         required: true, if conditions met
         auditable: true
@@ -141,6 +141,7 @@ forms:
         type: int
         description: The patient's Glasgow Coma Scale (GCS) score.
         validation: must be an integer between 3 and 15
+        conditions: shockPresent is false
         required: true
         auditable: true
       respiratorySupport:
@@ -148,6 +149,7 @@ forms:
         description: Indicates if the patient is receiving respiratory support or O2.
         options: true, false
         validation: must be one of the provided options
+        conditions: shockPresent is false and gcs is >13 and pH >=7.1
         required: true
         auditable: true
 server:

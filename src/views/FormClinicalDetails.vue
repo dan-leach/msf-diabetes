@@ -3,6 +3,9 @@ import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
 
+import { inject } from "vue";
+const config = inject("config");
+
 // Reactive variable to control error display.
 const showErrors = ref(false);
 
@@ -16,7 +19,7 @@ const continueClick = () => {
     .getElementById("form-clinical-details")
     .classList.add("was-validated");
 
-  if (data.value.form.isValid(2)) {
+  if (data.value.form.isValid(3)) {
     router.push("/generate-protocol");
   }
 };
@@ -288,44 +291,52 @@ onMounted(() => {
         ></div>
       </div>
       <!--bicarbonate-->
-      <div class="mb-4">
-        <div class="input-group">
-          <div class="form-floating">
-            <input
-              type="number"
-              class="form-control"
-              id="bicarbonate"
-              v-model="data.inputs.bicarbonate.val"
-              @change="data.inputs.bicarbonate.isValid()"
-              placeholder="x"
-              :min="data.inputs.bicarbonate.min()"
-              :max="data.inputs.bicarbonate.max()"
-              :step="data.inputs.bicarbonate.step"
-              autocomplete="off"
-            />
-            <label for="bicarbonate">{{ data.inputs.bicarbonate.label }}</label>
-          </div>
-          <span class="input-group-text">mmol/L</span>
-          <span
-            class="input-group-text"
-            data-bs-toggle="collapse"
-            data-bs-target="#bicarbonateInfo"
-            ><font-awesome-icon :icon="['fas', 'circle-info']"
-          /></span>
-        </div>
+      <transition>
         <div
-          v-if="showErrors"
-          class="form-text text-danger mx-1"
-          id="bicarbonateErrors"
+          class="mb-4"
+          v-if="data.inputs.pH.val >= config.validation.pH.diagnosticThreshold"
         >
-          {{ data.inputs.bicarbonate.errors }}
+          <div class="input-group">
+            <div class="form-floating">
+              <input
+                type="number"
+                class="form-control"
+                id="bicarbonate"
+                v-model="data.inputs.bicarbonate.val"
+                @change="data.inputs.bicarbonate.isValid()"
+                placeholder="x"
+                :min="data.inputs.bicarbonate.min()"
+                :max="data.inputs.bicarbonate.max()"
+                :step="data.inputs.bicarbonate.step"
+                autocomplete="off"
+                required
+              />
+              <label for="bicarbonate">{{
+                data.inputs.bicarbonate.label
+              }}</label>
+            </div>
+            <span class="input-group-text">mmol/L</span>
+            <span
+              class="input-group-text"
+              data-bs-toggle="collapse"
+              data-bs-target="#bicarbonateInfo"
+              ><font-awesome-icon :icon="['fas', 'circle-info']"
+            /></span>
+          </div>
+          <div
+            v-if="showErrors"
+            class="form-text text-danger mx-1"
+            id="bicarbonateErrors"
+          >
+            {{ data.inputs.bicarbonate.errors }}
+          </div>
+          <div
+            class="collapse form-text mx-1"
+            id="bicarbonateInfo"
+            v-html="data.inputs.bicarbonate.info"
+          ></div>
         </div>
-        <div
-          class="collapse form-text mx-1"
-          id="bicarbonateInfo"
-          v-html="data.inputs.bicarbonate.info"
-        ></div>
-      </div>
+      </transition>
     </div>
     <!--shockPresent-->
     <div class="mb-4">
@@ -382,99 +393,116 @@ onMounted(() => {
       </div>
     </div>
     <!--gcs-->
-    <div class="mb-4">
-      <div class="input-group">
-        <div class="form-floating">
-          <input
-            type="number"
-            class="form-control"
-            id="gcs"
-            v-model="data.inputs.gcs.val"
-            @change="data.inputs.gcs.isValid()"
-            placeholder="x"
-            :min="data.inputs.gcs.min()"
-            :max="data.inputs.gcs.max()"
-            :step="data.inputs.gcs.step"
-            autocomplete="off"
-            required
-          />
-          <label for="gcs">{{ data.inputs.gcs.label }}</label>
+    <transition>
+      <div class="mb-4" v-if="data.inputs.shockPresent.val === 'false'">
+        <div class="input-group">
+          <div class="form-floating">
+            <input
+              type="number"
+              class="form-control"
+              id="gcs"
+              v-model="data.inputs.gcs.val"
+              @change="data.inputs.gcs.isValid()"
+              placeholder="x"
+              :min="data.inputs.gcs.min()"
+              :max="data.inputs.gcs.max()"
+              :step="data.inputs.gcs.step"
+              autocomplete="off"
+              required
+            />
+            <label for="gcs">{{ data.inputs.gcs.label }}</label>
+          </div>
+          <span
+            class="input-group-text"
+            data-bs-toggle="collapse"
+            data-bs-target="#gcsInfo"
+            ><font-awesome-icon :icon="['fas', 'circle-info']"
+          /></span>
         </div>
-        <span
-          class="input-group-text"
-          data-bs-toggle="collapse"
-          data-bs-target="#gcsInfo"
-          ><font-awesome-icon :icon="['fas', 'circle-info']"
-        /></span>
+        <div
+          v-if="showErrors"
+          class="form-text text-danger mx-1"
+          id="gcsErrors"
+        >
+          {{ data.inputs.gcs.errors }}
+        </div>
+        <div
+          class="collapse form-text mx-1"
+          id="gcsInfo"
+          v-html="data.inputs.gcs.info"
+        ></div>
       </div>
-      <div v-if="showErrors" class="form-text text-danger mx-1" id="gcsErrors">
-        {{ data.inputs.gcs.errors }}
-      </div>
-      <div
-        class="collapse form-text mx-1"
-        id="gcsInfo"
-        v-html="data.inputs.gcs.info"
-      ></div>
-    </div>
+    </transition>
     <!--respiratorySupport-->
-    <div class="mb-4">
-      <p class="text-center m-2">
-        {{ data.inputs.respiratorySupport.label }}
-        <font-awesome-icon
-          :icon="['fas', 'circle-info']"
-          data-bs-toggle="collapse"
-          data-bs-target="#respiratorySupportInfo"
-          class="ms-2"
-        />
-      </p>
-      <div class="d-flex justify-content-center">
-        <div>
-          <input
-            type="radio"
-            class="btn-check"
-            name="respiratorySupport"
-            id="respiratorySupportTrue"
-            value="true"
-            v-model="data.inputs.respiratorySupport.val"
-            @change="data.inputs.respiratorySupport.isValid()"
-            autocomplete="off"
-            required
+    <transition>
+      <div
+        class="mb-4"
+        v-if="
+          data.inputs.shockPresent.val === 'false' &&
+          data.inputs.gcs.val >= config.validation.gcs.severeThreshold &&
+          data.inputs.pH.val < config.validation.pH.severeThreshold
+        "
+      >
+        <p class="text-center m-2">
+          {{ data.inputs.respiratorySupport.label }}
+          <font-awesome-icon
+            :icon="['fas', 'circle-info']"
+            data-bs-toggle="collapse"
+            data-bs-target="#respiratorySupportInfo"
+            class="ms-2"
           />
-          <label
-            class="btn btn-outline-secondary me-2"
-            for="respiratorySupportTrue"
-            >Yes</label
-          >
+        </p>
+        <div class="d-flex justify-content-center">
+          <div>
+            <input
+              type="radio"
+              class="btn-check"
+              name="respiratorySupport"
+              id="respiratorySupportTrue"
+              value="true"
+              v-model="data.inputs.respiratorySupport.val"
+              @change="data.inputs.respiratorySupport.isValid()"
+              autocomplete="off"
+              required
+            />
+            <label
+              class="btn btn-outline-secondary me-2"
+              for="respiratorySupportTrue"
+              >Yes</label
+            >
 
-          <input
-            type="radio"
-            class="btn-check"
-            name="respiratorySupport"
-            id="respiratorySupportFalse"
-            value="false"
-            v-model="data.inputs.respiratorySupport.val"
-            @change="data.inputs.respiratorySupport.isValid()"
-            autocomplete="off"
-          />
-          <label class="btn btn-outline-secondary" for="respiratorySupportFalse"
-            >No</label
-          >
+            <input
+              type="radio"
+              class="btn-check"
+              name="respiratorySupport"
+              id="respiratorySupportFalse"
+              value="false"
+              v-model="data.inputs.respiratorySupport.val"
+              @change="data.inputs.respiratorySupport.isValid()"
+              autocomplete="off"
+            />
+            <label
+              class="btn btn-outline-secondary"
+              for="respiratorySupportFalse"
+              >No</label
+            >
+          </div>
+        </div>
+        <div
+          v-if="showErrors"
+          class="form-text text-danger text-center mx-1"
+          id="respiratorySupportErrors"
+        >
+          {{ data.inputs.respiratorySupport.errors }}
+        </div>
+        <div
+          class="collapse form-text text-center mx-1"
+          id="respiratorySupportInfo"
+        >
+          {{ data.inputs.respiratorySupport.info }}
         </div>
       </div>
-      <div
-        v-if="showErrors"
-        class="form-text text-danger text-center mx-1"
-        id="respiratorySupportErrors"
-      >
-        {{ data.inputs.respiratorySupport.errors }}
-      </div>
-      <div
-        class="collapse form-text text-center mx-1"
-        id="respiratorySupportInfo"
-      >
-        {{ data.inputs.respiratorySupport.info }}
-      </div>
-    </div>
+    </transition>
 
     <div class="d-flex flex-row justify-content-evenly">
       <!--back-->

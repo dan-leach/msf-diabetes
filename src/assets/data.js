@@ -418,6 +418,12 @@ export const data = ref({
         const errors = [];
         if (this.val === null || isNaN(this.val) || this.val == "") {
           errors.push("Glucose must be provided. ");
+        } else if (
+          this.val < config.value.validation.glucose.diagnosticThreshold
+        ) {
+          errors.push(
+            `Biochemical threshold for DKA not met: glucose should be >=${config.value.validation.glucose.diagnosticThreshold}mmol/L.`
+          );
         } else {
           this.val = Number.parseFloat(this.val).toFixed(1);
           checkNumberRange(
@@ -455,6 +461,9 @@ export const data = ref({
           return true;
         if (this.val === null || isNaN(this.val) || this.val == "") {
           this.errors = "Blood ketones must be provided. ";
+          return false;
+        } else if (this.val < config.value.validation.bloodKetones.min) {
+          this.errors = `Biochemical threshold for DKA not met: blood ketones should be >=${config.value.validation.bloodKetones.min}mmol/L.`;
           return false;
         }
         const errors = [];
@@ -507,10 +516,12 @@ export const data = ref({
        * @returns {boolean} - True if the urineKetones level is valid, false otherwise.
        */
       isValid() {
-        if (data.value.inputs.bloodKetonesAvailable.val === "false")
-          return true;
-        if (isNaN(this.val)) {
+        if (data.value.inputs.bloodKetonesAvailable.val === "true") return true;
+        if (isNaN(this.val) || this.val === null || this.val == "") {
           this.errors = "Urine ketones must be provided. ";
+          return false;
+        } else if (this.val < config.value.validation.urineKetones.min) {
+          this.errors = `Biochemical threshold for DKA not met: urine ketones should be >=${config.value.validation.urineKetones.min}+.`;
           return false;
         }
         const errors = [];
@@ -535,9 +546,8 @@ export const data = ref({
       info: "If clinical features of DKA are present is used to establish the diagnosis. It is stored for audit purposes.",
       isValid() {
         this.errors = "";
-        if (!this.val)
-          this.errors +=
-            "Presence of clinical features of DKA must be selected. ";
+        if (this.val !== "true")
+          this.errors += "Diagnosis requires clinical features of DKA. ";
         return !this.errors;
       },
       errors: "",
@@ -589,12 +599,14 @@ export const data = ref({
        * @returns {boolean} - True if the bicarbonate value is valid, false otherwise.
        */
       isValid() {
-        if (!data.value.inputs.bloodGasAvailable.isValid()) return false;
         if (data.value.inputs.bloodGasAvailable.val === "false") return true;
-        if (this.val === null || this.val == "") return true;
+        if (data.value.inputs.pH.val < config.validation.pH.diagnosticThreshold)
+          return true;
         const errors = [];
         if (isNaN(this.val)) {
-          errors.push("Bicarbonate, if provided, must be a number. ");
+          errors.push(
+            `Bicarbonate must be provided if pH above diagnostic threshold of ${config.value.validation.pH.diagnosticThreshold}. `
+          );
         } else {
           this.val = Number.parseFloat(this.val).toFixed(1);
           checkNumberRange(
@@ -606,6 +618,14 @@ export const data = ref({
             "Bicarbonate"
           );
         }
+        if (
+          data.value.inputs.pH.val <
+            config.value.validation.pH.diagnosticThreshold &&
+          this.val >= config.value.validation.bicarbonate.diagnosticThreshold
+        )
+          errors.push(
+            `Biochemical threshold for DKA not met: if blood gas testing available pH should be <${config.value.validation.pH.diagnosticThreshold} or bicarbonate should be <${config.value.validation.bicarbonate.diagnosticThreshold}.`
+          );
         this.errors = errors.join(" ");
         return !this.errors;
       },

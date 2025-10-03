@@ -12,7 +12,7 @@ const config = inject("config");
  */
 const continueClick = () => {
   data.value.inputs.weight.limit.overrideConfirm = true;
-  router.push("/form-clinical-details");
+  router.push("/form-equipment-availability");
 };
 
 /**
