@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
-import router from "../router";
+import router from "../router/index.js";
 import { api } from "@/assets/api.js";
 import { inject } from "vue";
 const config = inject("config");
@@ -34,20 +34,6 @@ const generateSteps = ref({
   audit: {
     //is completed at the same time as the calculate step
     text: "Logging audit data",
-    complete: false,
-    fail: "",
-    current: false,
-  },
-  build: {
-    //fetch the docDef definition
-    text: "Generating individualised care pathway",
-    complete: false,
-    fail: "",
-    current: false,
-  },
-  download: {
-    //return the pdfBlob and trigger download
-    text: "Starting PDF download",
     complete: false,
     fail: "",
     current: false,
@@ -87,9 +73,7 @@ const generate = {
     if (!(await generate.executeStep("calculate"))) return;
     generateSteps.value.audit.complete = true;
 
-    // Build and download care pathway
-    //if (!(await generate.executeStep("build", generate.startWebWorker))) return;
-    return true;
+    router.push("/output");
   },
 
   /**
@@ -178,131 +162,6 @@ const generate = {
 
     return payload;
   },
-
-  /**
-   * Starts the web worker to generate the PDF blob.
-   * @returns {Promise<void>} A promise that resolves when the worker responds.
-   */
-  startWebWorker: async function () {
-    console.log("main: starting webWorker.js...");
-    try {
-      const myWorker = new Worker(
-        new URL("@/assets/webWorker.js", import.meta.url),
-        { type: "module" }
-      );
-
-      // Wait for the worker to signal it's ready
-      await new Promise((resolve, reject) => {
-        myWorker.onmessage = (res) => {
-          if (res.data.type === "ready") {
-            console.log("main: webWorker.js is ready.");
-            resolve();
-          } else {
-            reject(
-              new Error("Unexpected message from worker during initialization.")
-            );
-          }
-        };
-
-        myWorker.onerror = (error) => {
-          console.error(
-            "main: worker encountered an error during initialization:",
-            error
-          );
-          reject(
-            `Error encountered while initialising thread to generate protocol PDF: ${error.message}`
-          );
-        };
-      });
-
-      //prepare the data to send to the worker
-      const workerData = JSON.parse(
-        JSON.stringify(generate.prepareWorkerData())
-      );
-
-      //send the prepared data to the worker and await a response
-      const response = await new Promise((resolve, reject) => {
-        myWorker.onmessage = (res) => {
-          console.log("main: response received from webWorker.js:", res);
-          if (res.data.stack) {
-            reject(
-              `Error encountered by thread generating protocol PDF: ${res.data.toString()}`
-            );
-          } else if (res.data.complete) {
-            //pdfBlob has been returned so trigger the download
-            resolve(res);
-          } else if (res.data.docDef) {
-            //docDef definition has been generated, now pdfBlob being generated
-            generateSteps.value.build.complete = true;
-            generateSteps.value.build.current = false;
-            generateSteps.value.download.current = true;
-          } else {
-            reject(
-              `Unexpected message event from webWorker: ${res.data.toString()}`
-            );
-          }
-        };
-
-        myWorker.onerror = (error) => {
-          console.error("main: worker encountered an error:", error);
-          reject(
-            `Error encountered by thread generating protocol PDF: ${error.message}`
-          );
-        };
-
-        myWorker.postMessage(workerData);
-        console.log("main: request sent to webWorker.js...");
-      });
-
-      //trigger the download of the pdf
-      generate.handleWorkerResponse(response);
-    } catch (error) {
-      console.error("main: failed to start webWorker.js:", error);
-      throw error;
-    }
-  },
-
-  /**
-   * Prepares the data to be sent to the web worker.
-   * @returns {Object} The data to be sent.
-   */
-  prepareWorkerData: function () {
-    const inputs = data.value.inputs;
-    return {
-      patientName: inputs.patientName.val,
-      patientDOB: inputs.patientDOB.val,
-      patientIdentifier: inputs.patientIdentifier.val,
-      weight: inputs.weight.val,
-      override: inputs.weight.limit.override,
-      pH: inputs.pH.val,
-      glucose: inputs.glucose.val,
-      ketones: inputs.ketones.val,
-      shockPresent: inputs.shockPresent.val,
-      preExistingDiabetes: inputs.preExistingDiabetes.val,
-      patientSex: inputs.patientSex.val,
-      insulinRate: inputs.insulinRate.val,
-      protocolStartDatetime: inputs.protocolStartDatetime.val,
-      calculations: data.value.calculations,
-      auditID: data.value.auditID,
-      config: config.value,
-    };
-  },
-
-  /**
-   * Handles the response from the web worker, triggering the PDF download.
-   * @param {MessageEvent} res - The message event from the web worker.
-   */
-  handleWorkerResponse: function (res) {
-    console.log("main: response received from webWorker.js...");
-    const anchor = document.createElement("a");
-    document.body.appendChild(anchor);
-    anchor.href = window.URL.createObjectURL(res.data.pdfBlob);
-    anchor.download = `DKA Protocol for ${data.value.inputs.patientName.val}.pdf`;
-    anchor.click();
-    console.log("main: pdf download triggered...");
-    generateSteps.value.download.complete = true;
-    generateSteps.value.download.current = false;
-  },
 };
 
 // Reactive variable to control button text
@@ -352,7 +211,7 @@ onMounted(() => {
 
 <template>
   <div class="container my-4 needs-validation">
-    <h2 class="display-3">Generating care pathway</h2>
+    <h2 class="display-3">Performing calculations</h2>
     <div v-for="(step, index) in generateSteps" class="mb-3">
       <span
         class="step-text"
@@ -656,15 +515,15 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-            <!--starting fluid rate-->
+            <!--full speed bag-->
             <div class="card mb-4">
-              <div class="card-header">Starting fluid rate</div>
+              <div class="card-header">Full speed bag</div>
               <div class="card-body">
                 <div class="mb-2">
                   <div class="card p-2">
                     <span class="text-muted m-0">Formula</span>
                     <span
-                      v-html="data.calculations.startingFluidRate.formula"
+                      v-html="data.calculations.bagSpeeds.fullSpeed.formula"
                     ></span>
                   </div>
                 </div>
@@ -672,7 +531,7 @@ onMounted(() => {
                   <div class="card p-2">
                     <span class="text-muted m-0">Working</span>
                     <span
-                      v-html="data.calculations.startingFluidRate.working"
+                      v-html="data.calculations.bagSpeeds.fullSpeed.working"
                     ></span>
                   </div>
                 </div>
@@ -680,7 +539,37 @@ onMounted(() => {
                   <div class="card p-2">
                     <span class="text-muted m-0">Output</span>
                     {{
-                      data.calculations.startingFluidRate.val.toFixed(1)
+                      data.calculations.bagSpeeds.fullSpeed.val.toFixed(1)
+                    }}mL/hour
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--half speed bag-->
+            <div class="card mb-4">
+              <div class="card-header">Half speed bag</div>
+              <div class="card-body">
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Formula</span>
+                    <span
+                      v-html="data.calculations.bagSpeeds.halfSpeed.formula"
+                    ></span>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Working</span>
+                    <span
+                      v-html="data.calculations.bagSpeeds.halfSpeed.working"
+                    ></span>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Output</span>
+                    {{
+                      data.calculations.bagSpeeds.halfSpeed.val.toFixed(1)
                     }}mL/hour
                   </div>
                 </div>
@@ -786,16 +675,6 @@ onMounted(() => {
           Retry
         </button>
       </div>
-    </div>
-    <div v-if="generateSteps.download.complete">
-      <!--retry-->
-      <button
-        type="button"
-        @click="generate.start"
-        class="btn btn-primary mb-2"
-      >
-        Regenerate care pathway
-      </button>
     </div>
     <!--back-->
     <button

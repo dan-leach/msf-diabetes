@@ -36,9 +36,14 @@ const router = createRouter({
       component: () => import("../views/FormClinicalDetails.vue"),
     },
     {
-      path: "/generate-protocol",
-      name: "generate-protocol",
-      component: () => import("../views/GenerateProtocol.vue"),
+      path: "/calculate",
+      name: "calculate",
+      component: () => import("../views/Calculate.vue"),
+    },
+    {
+      path: "/output",
+      name: "output",
+      component: () => import("../views/Output.vue"),
     },
     {
       path: "/privacy-policy",

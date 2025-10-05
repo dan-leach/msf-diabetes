@@ -20,7 +20,7 @@ const continueClick = () => {
     .classList.add("was-validated");
 
   if (data.value.form.isValid(3)) {
-    router.push("/generate-protocol");
+    router.push("/calculate");
   }
 };
 
