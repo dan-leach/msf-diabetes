@@ -57,6 +57,18 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
+      weightLimitOverride:
+        type: boolean
+        description: Indicates if the weight limit override is used.
+        validation: must be true or false
+        required: true
+        auditable: true
+      use2SD:
+        type: boolean
+        description: Indicates if reduce weight to +2SD function is used.
+        validation: must be true or false
+        required: true
+        auditable: true
     derived values:
       patientAge:
         type: float
