@@ -2,7 +2,6 @@
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
-
 import { inject } from "vue";
 const config = inject("config");
 
@@ -40,20 +39,14 @@ const setMinMaxPatientDOB = () => {
     .substring(0, 10);
 };
 
-/**
- * Lifecycle hook that runs when the component is mounted.
- * Checks the validity of previous form steps and redirects if necessary.
- * Scrolls to the top of the page.
- */
+if (!data.value.form.isValid(0)) {
+  //router.push("/form-disclaimer");
+  data.value.form.joeBloggs();
+}
+
 onMounted(() => {
-  if (!data.value.form.isValid(0)) {
-    //router.push("/form-disclaimer");
-    data.value.form.joeBloggs();
-  } else {
-    setMinMaxPatientDOB();
-    // Scroll to top
-    window.scrollTo(0, 0);
-  }
+  setMinMaxPatientDOB();
+  window.scrollTo(0, 0);
 });
 </script>
 

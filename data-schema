@@ -197,7 +197,7 @@ server:
           val:
             type: string
             description: The severity classification.
-            options: mild/moderate, severe, null (not DKA)
+            options: standard, severe, null (not DKA)
           formula:
             type: string
             description: The formula used to determine the severity classification.

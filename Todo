@@ -1,4 +1,5 @@
-Fix validate.js for new variables. Ensure either blood or urine ketones are submitted and within acceptable range.
+Improve appearance of output page (with show working as individual modals or collapse cards next to each output)
 
 Before launch
+
 - restore commented out redirects to start of form if blank

@@ -2,7 +2,6 @@
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
-
 import { inject } from "vue";
 const config = inject("config");
 
@@ -24,22 +23,9 @@ const continueClick = () => {
   }
 };
 
-/**
- * Lifecycle hook that runs when the component is mounted.
- * Checks the validity of previous form steps and redirects if necessary.
- * Sets initial form state.
- * Scrolls to the top of the page.
- */
-onMounted(() => {
-  if (!data.value.form.isValid(0)) {
-    router.push("/form-disclaimer");
-  } else if (!data.value.form.isValid(1)) {
-    router.push("/form-patient-details");
-  } else {
-    // Scroll to top
-    window.scrollTo(0, 0);
-  }
-});
+if (!data.value.form.isValid(1)) router.push("/form-equipment-availability");
+
+onMounted(() => window.scrollTo(0, 0));
 </script>
 
 <template>

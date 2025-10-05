@@ -9,7 +9,7 @@ const config = inject("config");
       <div class="card-body">
         <h5 class="card-title">Development version</h5>
         <p class="card-text">
-          This version is for demonstration/testing. Do not use for real
+          This version is for demonstration purposes only. Do not use for real
           clinical cases.
         </p>
       </div>
@@ -55,24 +55,6 @@ const config = inject("config");
       >
         Start
       </button>
-    </div>
-
-    <div class="card border-info mb-3">
-      <div class="card-body">
-        <div class="d-flex align-items-center">
-          <p class="flex-grow-1 m-0">
-            Calculate the corrected sodium and effective osmolality using a
-            measured sodium and glucose for your patient
-          </p>
-          <button
-            type="button"
-            class="btn btn-secondary my-2"
-            @click="$router.push('/sodium-osmo')"
-          >
-            Calcuate
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>

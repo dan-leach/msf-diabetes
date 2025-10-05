@@ -54,11 +54,6 @@ const router = createRouter({
       },
     },
     {
-      path: "/sodium-osmo",
-      name: "sodium-osmo",
-      component: () => import("../views/SodiumOsmo.vue"),
-    },
-    {
       path: "/:pathMatch(.*)*",
       name: "404",
       component: () => import("../views/404.vue"),

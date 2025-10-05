@@ -2,7 +2,6 @@
 import { onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
-
 import { inject } from "vue";
 const config = inject("config");
 
@@ -54,13 +53,14 @@ onMounted(() => {
         should rely.
       </p>
       <p>
-        The {{ config.appName }} allows a maximum weight for age of +2SDS or 75kg
-        (whichever is lower), and a minimum weight for age of -2SDS. There is
-        the facility to override these weight limits but clinicians do this at
-        their own risk and the {{ config.organisations.msf.shortName }} accepts no liability for any adverse
-        events. Neither the {{ config.organisations.msf.shortName }} nor the website authors accept any
-        liability for any errors arising from the use of this tool or protocols
-        generated.
+        The {{ config.appName }} allows a maximum weight for age of +2SDS or
+        75kg (whichever is lower), and a minimum weight for age of -2SDS. There
+        is the facility to override these weight limits but clinicians do this
+        at their own risk and the
+        {{ config.organisations.msf.shortName }} accepts no liability for any
+        adverse events. Neither the {{ config.organisations.msf.shortName }} nor
+        the website authors accept any liability for any errors arising from the
+        use of this tool or protocols generated.
       </p>
       <p>
         We exclude all implied conditions, warranties, representations or other

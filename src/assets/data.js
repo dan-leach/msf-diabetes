@@ -600,7 +600,10 @@ export const data = ref({
        */
       isValid() {
         if (data.value.inputs.bloodGasAvailable.val === "false") return true;
-        if (data.value.inputs.pH.val < config.validation.pH.diagnosticThreshold)
+        if (
+          data.value.inputs.pH.val <
+          config.value.validation.pH.diagnosticThreshold
+        )
           return true;
         const errors = [];
         if (isNaN(this.val)) {
