@@ -385,37 +385,6 @@ onMounted(() => {
 
         <div class="collapse my-2" id="showWorking">
           <div v-if="step.complete">
-            <!--bolus volume-->
-            <div class="card mb-4">
-              <div class="card-header">Bolus volumes</div>
-              <div class="card-body">
-                <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Formula</span>
-                    <span v-html="data.calculations.bolusVolume.formula"></span>
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Limit</span>
-                    <span v-html="data.calculations.bolusVolume.limit"></span>
-                    <small>Based on weight of 75kg</small>
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Working</span>
-                    <span v-html="data.calculations.bolusVolume.working"></span>
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Output</span>
-                    {{ data.calculations.bolusVolume.val.toFixed(0) }}mL
-                  </div>
-                </div>
-              </div>
-            </div>
             <!--severity-->
             <div class="card mb-4">
               <div class="card-header">Severity</div>
@@ -435,7 +404,94 @@ onMounted(() => {
                 <div class="mb-2">
                   <div class="card p-2">
                     <span class="text-muted m-0">Output</span>
-                    {{ data.calculations.severity.val }}
+                    {{ data.calculations.severity.valText }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--bolus volume-->
+            <div class="card mb-4">
+              <div class="card-header">Bolus volume</div>
+              <div class="card-body">
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Formula</span>
+                    <span
+                      v-html="data.calculations.bolus.volume.formula"
+                    ></span>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Limit</span>
+                    <span v-html="data.calculations.bolus.volume.limit"></span>
+                    <small>Based on weight of {{ config.caps.weight }}kg</small>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Working</span>
+                    <span
+                      v-html="data.calculations.bolus.volume.working"
+                    ></span>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Output</span>
+                    {{ data.calculations.bolus.volume.val.toFixed(0) }}mL
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--bolus volume-->
+            <div class="card mb-4">
+              <div class="card-header">Bolus duration</div>
+              <div class="card-body">
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Formula</span>
+                    <span
+                      v-html="data.calculations.bolus.duration.formula"
+                    ></span>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Working</span>
+                    <span
+                      v-html="data.calculations.bolus.duration.working"
+                    ></span>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Output</span>
+                    {{ data.calculations.bolus.duration.val.toFixed(0) }} hours
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--bolus rate-->
+            <div class="card mb-4">
+              <div class="card-header">Bolus rate</div>
+              <div class="card-body">
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Formula</span>
+                    <span v-html="data.calculations.bolus.rate.formula"></span>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Working</span>
+                    <span v-html="data.calculations.bolus.rate.working"></span>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <div class="card p-2">
+                    <span class="text-muted m-0">Output</span>
+                    {{ data.calculations.bolus.rate.val.toFixed(0) }}mL/hour
                   </div>
                 </div>
               </div>
@@ -486,7 +542,7 @@ onMounted(() => {
                     <span
                       v-html="data.calculations.deficit.volume.limit"
                     ></span>
-                    <small>Based on weight of 75kg</small>
+                    <small>Based on weight of {{ config.caps.weight }}kg</small>
                   </div>
                 </div>
                 <div class="mb-2">
@@ -501,36 +557,6 @@ onMounted(() => {
                   <div class="card p-2">
                     <span class="text-muted m-0">Output</span>
                     {{ data.calculations.deficit.volume.val.toFixed(0) }}mL
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!--deficit volume less bolus-->
-            <div class="card mb-4">
-              <div class="card-header">Deficit volume less bolus</div>
-              <div class="card-body">
-                <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Formula</span>
-                    <span
-                      v-html="data.calculations.deficit.volumeLessBolus.formula"
-                    ></span>
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Working</span>
-                    <span
-                      v-html="data.calculations.deficit.volumeLessBolus.working"
-                    ></span>
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Output</span>
-                    {{
-                      data.calculations.deficit.volumeLessBolus.val.toFixed(0)
-                    }}mL
                   </div>
                 </div>
               </div>
@@ -581,7 +607,7 @@ onMounted(() => {
                     <span
                       v-html="data.calculations.maintenance.volume.limit"
                     ></span>
-                    <small>Based on weight of 75kg</small>
+                    <small>Based on weight of {{ config.caps.weight }}kg</small>
                   </div>
                 </div>
                 <div class="mb-2">
@@ -660,9 +686,9 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-            <!--insulin rate-->
+            <!--IV insulin rate-->
             <div class="card mb-4">
-              <div class="card-header">Insulin rate</div>
+              <div class="card-header">IV insulin rate</div>
               <div class="card-body">
                 <div class="mb-2">
                   <div class="card p-2">
@@ -674,7 +700,7 @@ onMounted(() => {
                   <div class="card p-2">
                     <span class="text-muted m-0">Limit</span>
                     <span v-html="data.calculations.insulinRate.limit"></span>
-                    <small>Based on weight of 75kg</small>
+                    <small>Based on weight of {{ config.caps.weight }}kg</small>
                   </div>
                 </div>
                 <div class="mb-2">
@@ -692,82 +718,46 @@ onMounted(() => {
                 </div>
                 <div class="mb-2">
                   <div class="card border-warning p-2">
-                    Note: Insulin should NOT be started immediately. Wait 1-2
-                    hours after starting IV fluid therapy.
+                    Note: Insulin should NOT be started immediately. Wait 1 hour
+                    after starting IV fluid therapy.
                   </div>
                 </div>
               </div>
             </div>
-            <!--glucose bolus volume-->
+            <!--IM insulin dose-->
             <div class="card mb-4">
-              <div class="card-header">Glucose bolus volume</div>
+              <div class="card-header">IM insulin rate</div>
               <div class="card-body">
                 <div class="mb-2">
                   <div class="card p-2">
                     <span class="text-muted m-0">Formula</span>
-                    <span
-                      v-html="data.calculations.glucoseBolusVolume.formula"
-                    ></span>
+                    <span v-html="data.calculations.insulinDose.formula"></span>
                   </div>
                 </div>
                 <div class="mb-2">
                   <div class="card p-2">
                     <span class="text-muted m-0">Limit</span>
-                    <span
-                      v-html="data.calculations.glucoseBolusVolume.limit"
-                    ></span>
-                    <small>Based on weight of 75kg</small>
+                    <span v-html="data.calculations.insulinDose.limit"></span>
+                    <small>Based on weight of {{ config.caps.weight }}kg</small>
                   </div>
                 </div>
                 <div class="mb-2">
                   <div class="card p-2">
                     <span class="text-muted m-0">Working</span>
-                    <span
-                      v-html="data.calculations.glucoseBolusVolume.working"
-                    ></span>
+                    <span v-html="data.calculations.insulinDose.working"></span>
                   </div>
                 </div>
                 <div class="mb-2">
                   <div class="card p-2">
                     <span class="text-muted m-0">Output</span>
-                    {{ data.calculations.glucoseBolusVolume.val.toFixed(0) }}mL
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!--hhs bolus volume-->
-            <div class="card mb-4">
-              <div class="card-header">HHS bolus volume</div>
-              <div class="card-body">
-                <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Formula</span>
-                    <span
-                      v-html="data.calculations.hhsBolusVolume.formula"
-                    ></span>
+                    {{ data.calculations.insulinDose.val.toFixed(2) }}
+                    Units
                   </div>
                 </div>
                 <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Limit</span>
-                    <span
-                      v-html="data.calculations.hhsBolusVolume.limit"
-                    ></span>
-                    <small>Based on weight of 75kg</small>
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Working</span>
-                    <span
-                      v-html="data.calculations.hhsBolusVolume.working"
-                    ></span>
-                  </div>
-                </div>
-                <div class="mb-2">
-                  <div class="card p-2">
-                    <span class="text-muted m-0">Output</span>
-                    {{ data.calculations.hhsBolusVolume.val.toFixed(0) }}mL
+                  <div class="card border-warning p-2">
+                    Note: Insulin should NOT be started immediately. Wait 1 hour
+                    after starting IV fluid therapy.
                   </div>
                 </div>
               </div>

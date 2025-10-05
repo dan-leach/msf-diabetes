@@ -543,7 +543,7 @@ export const data = ref({
       val: null,
       label: "Clinical features of DKA?",
       form: [3],
-      info: "If clinical features of DKA are present is used to establish the diagnosis. It is stored for audit purposes.",
+      info: "The presence of clinical features of DKA is used to establish the diagnosis. It is stored for audit purposes.",
       isValid() {
         this.errors = "";
         if (this.val !== "true")
