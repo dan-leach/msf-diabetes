@@ -17,7 +17,13 @@ body {
   border-color: #ec0000;
 }
 
-.btn-primary:hover {
+.btn-outline-primary {
+  border-color: #ec0000;
+  color: black;
+}
+
+.btn-primary:hover,
+.btn-outline-primary:hover {
   background-color: #f07676;
   border-color: #ec0000;
 }

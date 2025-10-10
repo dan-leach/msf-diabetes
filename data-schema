@@ -103,8 +103,15 @@ forms:
     inputs:
       glucose:
         type: float
-        description: The patient's blood glucose level in mmol/L.
-        validation: must be a floating-point number >=11.1
+        description: The patient's blood glucose level.
+        validation: must be a floating-point number >=11.1mmol/L or >=200mg/dL
+        required: true
+        auditable: true
+      glucoseUnit:
+        type: string
+        description: The units for the blood glucose.
+        options: mmol/L, mg/dL
+        validation: must be one of the provided options
         required: true
         auditable: true
       bloodKetones:
