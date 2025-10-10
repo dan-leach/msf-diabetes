@@ -123,6 +123,7 @@ const generate = {
       delete payload.bicarbonate;
     }
     payload.glucose = parseFloat(payload.glucose);
+    payload.glucoseUnit = data.value.inputs.glucose.unit;
     if (payload.bloodKetones) {
       payload.bloodKetones = parseFloat(payload.bloodKetones);
       delete payload.urineKetones;

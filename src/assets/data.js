@@ -86,7 +86,7 @@ export const data = ref({
       data.value.inputs.bloodKetonesAvailable.val = "false";
       data.value.inputs.syringeDriverAvailable.val = "true";
 
-      data.value.inputs.glucose.val = 25;
+      data.value.inputs.glucose.val = 250;
       data.value.inputs.urineKetones.val = 3;
       data.value.inputs.diagnosticFeatures.val = "true";
       data.value.inputs.shockPresent.val = "false";
@@ -400,14 +400,30 @@ export const data = ref({
     },
     glucose: {
       val: null,
+      unit: null,
+      unitChange() {
+        if (!this.unit) {
+          //set the default unit
+          this.unit = Object.keys(config.value.validation.glucose.units).find(
+            (key) => config.value.validation.glucose.units[key].default
+          );
+        } else {
+          //update the min/max and (if shown) the invalid message
+          this.min();
+          this.max();
+          this.isValid();
+        }
+      },
       label: "Glucose",
       info: "Glucose will be added to the relevant field in the care pathway. It is stored by the calculator for audit purposes.",
       form: [3],
       min() {
-        return config.value.validation.glucose.min;
+        if (!this.unit) this.unitChange();
+        return config.value.validation.glucose.units[this.unit].min;
       },
       max() {
-        return config.value.validation.glucose.max;
+        if (!this.unit) this.unitChange();
+        return config.value.validation.glucose.units[this.unit].max;
       },
       step: 0.1,
       /**
@@ -416,19 +432,14 @@ export const data = ref({
        */
       isValid() {
         const errors = [];
+        if (!this.unit) this.unitChange();
         if (this.val === null || isNaN(this.val) || this.val == "") {
           errors.push("Glucose must be provided. ");
-        } else if (
-          this.val < config.value.validation.glucose.diagnosticThreshold
-        ) {
-          errors.push(
-            `Biochemical threshold for DKA not met: glucose should be >=${config.value.validation.glucose.diagnosticThreshold}mmol/L.`
-          );
         } else {
           this.val = Number.parseFloat(this.val).toFixed(1);
           checkNumberRange(
             this.val,
-            "mmol/L",
+            this.unit,
             this.min(),
             this.max(),
             errors,

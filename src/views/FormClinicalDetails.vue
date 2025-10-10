@@ -50,7 +50,21 @@ onMounted(() => window.scrollTo(0, 0));
           />
           <label for="glucose">{{ data.inputs.glucose.label }}</label>
         </div>
-        <span class="input-group-text">mmol/L</span>
+        <select
+          class="form-select w-auto glucose-unit-select"
+          id="glucoseUnitSelect"
+          v-model="data.inputs.glucose.unit"
+          @change="data.inputs.glucose.unitChange()"
+        >
+          <option
+            v-for="(unit, unitKey) in config.validation.glucose.units"
+            :key="unitKey"
+            :value="unitKey"
+            :selected="unit.default === true"
+          >
+            {{ unitKey }}
+          </option>
+        </select>
         <span
           class="input-group-text"
           data-bs-toggle="collapse"
@@ -538,5 +552,13 @@ onMounted(() => window.scrollTo(0, 0));
 .urineKetonesActive {
   background-color: #6c757d;
   color: white;
+}
+.input-group > .glucose-unit-select {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  display: inline-block;
+  padding-right: 2em; /* optional */
 }
 </style>
