@@ -206,6 +206,11 @@ server:
     description: The client and API version of the application used.
     auditable: true
     encrypted: false
+  serverCalculations:
+    type: boolean
+    description: If the calculations were performed on the server side or not
+    auditable: true
+    encrypted: false
   timestamp:
     type: datetime
     description: The sever UTC datetime the form was submitted.

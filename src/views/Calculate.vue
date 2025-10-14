@@ -138,6 +138,10 @@ const generate = {
     payload.respiratorySupport =
       data.value.inputs.respiratorySupport.val == "true";
     payload.clientUseragent = navigator.userAgent;
+    payload.appVersion = {
+      client: config.value.client.version,
+      api: config.value.api.version,
+    };
 
     return payload;
   },
