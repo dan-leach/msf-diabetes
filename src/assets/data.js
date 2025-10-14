@@ -733,7 +733,9 @@ export const data = ref({
           config.value.validation.gcs.severeThreshold
         )
           return true;
-        if (data.value.inputs.pH.val < config.value.validation.severeThreshold)
+        if (
+          data.value.inputs.pH.val < config.value.validation.pH.severeThreshold
+        )
           return true;
         if (!this.val)
           this.errors += "Respiratory support status must be selected. ";

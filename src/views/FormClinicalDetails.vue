@@ -32,7 +32,7 @@ onMounted(() => window.scrollTo(0, 0));
   <form id="form-clinical-details" class="container my-4 needs-validation">
     <h2 class="display-3">Clinical details</h2>
     <!--glucose-->
-    <div class="mb-1 flex-grow-1">
+    <div class="mb-4 flex-grow-1">
       <div class="input-group">
         <div class="form-floating">
           <input
@@ -436,7 +436,7 @@ onMounted(() => window.scrollTo(0, 0));
         v-if="
           data.inputs.shockPresent.val === 'false' &&
           data.inputs.gcs.val > config.validation.gcs.severeThreshold &&
-          data.inputs.pH.val > config.validation.pH.severeThreshold
+          data.inputs.pH.val >= config.validation.pH.severeThreshold
         "
       >
         <p class="m-2">
