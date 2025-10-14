@@ -310,7 +310,7 @@ export const data = ref({
     },
     operationalCentre: {
       val: "",
-      label: "Please select the operational centre for this project",
+      label: "Select operational centre",
       privacyLabel: "Operational centre",
       form: [1],
       info: "Operational centre is stored by the calculator for audit purposes.",

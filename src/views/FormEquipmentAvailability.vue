@@ -42,8 +42,8 @@ onMounted(() => window.scrollTo(0, 0));
   >
     <h2 class="display-3">Equipment availability</h2>
     <!--bloodGasAvailable-->
-    <div class="mb-4">
-      <p class="text-center m-2">
+    <div class="mb-4 text-center">
+      <p class="m-2">
         {{ data.inputs.bloodGasAvailable.label }}
         <font-awesome-icon
           :icon="['fas', 'circle-info']"
@@ -52,39 +52,35 @@ onMounted(() => window.scrollTo(0, 0));
           class="ms-2"
         />
       </p>
-      <div class="d-flex justify-content-center">
-        <div>
-          <input
-            type="radio"
-            class="btn-check"
-            name="bloodGasAvailable"
-            id="bloodGasAvailableTrue"
-            value="true"
-            v-model="data.inputs.bloodGasAvailable.val"
-            @change="data.inputs.bloodGasAvailable.isValid()"
-            autocomplete="off"
-            required
-          />
-          <label
-            class="btn btn-outline-secondary me-2"
-            for="bloodGasAvailableTrue"
-            >Yes</label
-          >
+      <div class="d-flex justify-content-center flex-wrap gap-2">
+        <input
+          type="radio"
+          class="btn-check"
+          name="bloodGasAvailable"
+          id="bloodGasAvailableTrue"
+          value="true"
+          v-model="data.inputs.bloodGasAvailable.val"
+          @change="data.inputs.bloodGasAvailable.isValid()"
+          autocomplete="off"
+          required
+        />
+        <label class="btn btn-outline-secondary" for="bloodGasAvailableTrue"
+          >Yes</label
+        >
 
-          <input
-            type="radio"
-            class="btn-check"
-            name="bloodGasAvailable"
-            id="bloodGasAvailableFalse"
-            value="false"
-            v-model="data.inputs.bloodGasAvailable.val"
-            @change="data.inputs.bloodGasAvailable.isValid()"
-            autocomplete="off"
-          />
-          <label class="btn btn-outline-secondary" for="bloodGasAvailableFalse"
-            >No</label
-          >
-        </div>
+        <input
+          type="radio"
+          class="btn-check"
+          name="bloodGasAvailable"
+          id="bloodGasAvailableFalse"
+          value="false"
+          v-model="data.inputs.bloodGasAvailable.val"
+          @change="data.inputs.bloodGasAvailable.isValid()"
+          autocomplete="off"
+        />
+        <label class="btn btn-outline-secondary" for="bloodGasAvailableFalse"
+          >No</label
+        >
       </div>
       <div
         v-if="showErrors"
@@ -101,8 +97,8 @@ onMounted(() => window.scrollTo(0, 0));
       </div>
     </div>
     <!--bloodKetonesAvailable-->
-    <div class="mb-4">
-      <p class="text-center m-2">
+    <div class="mb-4 text-center">
+      <p class="m-2">
         {{ data.inputs.bloodKetonesAvailable.label }}
         <font-awesome-icon
           :icon="['fas', 'circle-info']"
@@ -111,41 +107,37 @@ onMounted(() => window.scrollTo(0, 0));
           class="ms-2"
         />
       </p>
-      <div class="d-flex justify-content-center">
-        <div>
-          <input
-            type="radio"
-            class="btn-check"
-            name="bloodKetonesAvailable"
-            id="bloodKetonesAvailableTrue"
-            value="true"
-            v-model="data.inputs.bloodKetonesAvailable.val"
-            @change="data.inputs.bloodKetonesAvailable.isValid()"
-            autocomplete="off"
-            required
-          />
-          <label
-            class="btn btn-outline-secondary me-2"
-            for="bloodKetonesAvailableTrue"
-            >Yes</label
-          >
+      <div class="d-flex justify-content-center flex-wrap gap-2">
+        <input
+          type="radio"
+          class="btn-check"
+          name="bloodKetonesAvailable"
+          id="bloodKetonesAvailableTrue"
+          value="true"
+          v-model="data.inputs.bloodKetonesAvailable.val"
+          @change="data.inputs.bloodKetonesAvailable.isValid()"
+          autocomplete="off"
+          required
+        />
+        <label class="btn btn-outline-secondary" for="bloodKetonesAvailableTrue"
+          >Yes</label
+        >
 
-          <input
-            type="radio"
-            class="btn-check"
-            name="bloodKetonesAvailable"
-            id="bloodKetonesAvailableFalse"
-            value="false"
-            v-model="data.inputs.bloodKetonesAvailable.val"
-            @change="data.inputs.bloodKetonesAvailable.isValid()"
-            autocomplete="off"
-          />
-          <label
-            class="btn btn-outline-secondary"
-            for="bloodKetonesAvailableFalse"
-            >No</label
-          >
-        </div>
+        <input
+          type="radio"
+          class="btn-check"
+          name="bloodKetonesAvailable"
+          id="bloodKetonesAvailableFalse"
+          value="false"
+          v-model="data.inputs.bloodKetonesAvailable.val"
+          @change="data.inputs.bloodKetonesAvailable.isValid()"
+          autocomplete="off"
+        />
+        <label
+          class="btn btn-outline-secondary"
+          for="bloodKetonesAvailableFalse"
+          >No</label
+        >
       </div>
       <div
         v-if="showErrors"
@@ -162,8 +154,8 @@ onMounted(() => window.scrollTo(0, 0));
       </div>
     </div>
     <!--syringeDriverAvailable-->
-    <div class="mb-4">
-      <p class="text-center m-2">
+    <div class="mb-4 text-center">
+      <p class="m-2">
         {{ data.inputs.syringeDriverAvailable.label }}
         <font-awesome-icon
           :icon="['fas', 'circle-info']"
@@ -172,41 +164,39 @@ onMounted(() => window.scrollTo(0, 0));
           class="ms-2"
         />
       </p>
-      <div class="d-flex justify-content-center">
-        <div>
-          <input
-            type="radio"
-            class="btn-check"
-            name="syringeDriverAvailable"
-            id="syringeDriverAvailableTrue"
-            value="true"
-            v-model="data.inputs.syringeDriverAvailable.val"
-            @change="data.inputs.syringeDriverAvailable.isValid()"
-            autocomplete="off"
-            required
-          />
-          <label
-            class="btn btn-outline-secondary me-2"
-            for="syringeDriverAvailableTrue"
-            >Yes</label
-          >
+      <div class="d-flex justify-content-center flex-wrap gap-2">
+        <input
+          type="radio"
+          class="btn-check"
+          name="syringeDriverAvailable"
+          id="syringeDriverAvailableTrue"
+          value="true"
+          v-model="data.inputs.syringeDriverAvailable.val"
+          @change="data.inputs.syringeDriverAvailable.isValid()"
+          autocomplete="off"
+          required
+        />
+        <label
+          class="btn btn-outline-secondary"
+          for="syringeDriverAvailableTrue"
+          >Yes</label
+        >
 
-          <input
-            type="radio"
-            class="btn-check"
-            name="syringeDriverAvailable"
-            id="syringeDriverAvailableFalse"
-            value="false"
-            v-model="data.inputs.syringeDriverAvailable.val"
-            @change="data.inputs.syringeDriverAvailable.isValid()"
-            autocomplete="off"
-          />
-          <label
-            class="btn btn-outline-secondary"
-            for="syringeDriverAvailableFalse"
-            >No</label
-          >
-        </div>
+        <input
+          type="radio"
+          class="btn-check"
+          name="syringeDriverAvailable"
+          id="syringeDriverAvailableFalse"
+          value="false"
+          v-model="data.inputs.syringeDriverAvailable.val"
+          @change="data.inputs.syringeDriverAvailable.isValid()"
+          autocomplete="off"
+        />
+        <label
+          class="btn btn-outline-secondary"
+          for="syringeDriverAvailableFalse"
+          >No</label
+        >
       </div>
       <div
         v-if="showErrors"

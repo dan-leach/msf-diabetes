@@ -68,20 +68,26 @@ onMounted(() => window.scrollTo(0, 0));
           dehydration for 75kg)
         </li>
         <li>
-          Deficit volume is capped at 3750mL for patients with standard severity
-          DKA (5% dehydration for 75kg)
+          Deficit volume is capped at 5625mL for patients with standard severity
+          DKA (7.5% dehydration for 75kg)
         </li>
         <li>Bolus volumes are capped at 750mL (10mL/kg for 75kg)</li>
         <li>
-          Insulin rate is capped at 7.5 Units/hour if insulin rate of 0.1
+          IV insulin rate is capped at 7.5 Units/hour if insulin rate of 0.1
           Units/kg/hour is selected (0.1 Units/kg/hour for 75kg patient)
         </li>
         <li>
-          Insulin rate is capped at 3.75 Units/hour if insulin rate of 0.05
+          IV insulin rate is capped at 3.75 Units/hour if insulin rate of 0.05
           Units/kg/hour is selected (0.05 Units/kg/hour for 75kg patient)
         </li>
-        <li>Glucose bolus is capped at 150mL (2mL/kg for 75kg patient)</li>
-        <li>HHS bolus is capped at 1500mL (20mL/kg for 75kg patient)</li>
+        <li>
+          IM insulin rate is capped at 15 Units if insulin dose of 0.2 Units/kg
+          is selected (0.2 Units/kg for 75kg patient)
+        </li>
+        <li>
+          IM insulin rate is capped at 7.5 Units if insulin dose of 0.2 Units/kg
+          is selected (0.1 Units/kg for 75kg patient)
+        </li>
       </ul>
       <p>
         <strong

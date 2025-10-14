@@ -136,9 +136,11 @@ onMounted(() => window.scrollTo(0, 0));
           class="ms-2"
         />
       </p>
-      <div class="d-flex justify-content-center">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-2"
+      >
         <button
-          class="btn btn-outline-secondary me-2"
+          class="btn btn-outline-secondary btn-urineKetones"
           :class="{ urineKetonesActive: data.inputs.urineKetones.val === 0 }"
           type="button"
           @click="data.inputs.urineKetones.setVal(0)"
@@ -147,7 +149,7 @@ onMounted(() => window.scrollTo(0, 0));
         </button>
 
         <button
-          class="btn btn-outline-secondary me-2"
+          class="btn btn-outline-secondary btn-urineKetones"
           :class="{ urineKetonesActive: data.inputs.urineKetones.val === 1 }"
           type="button"
           @click="data.inputs.urineKetones.setVal(1)"
@@ -156,7 +158,7 @@ onMounted(() => window.scrollTo(0, 0));
         </button>
 
         <button
-          class="btn btn-outline-secondary me-2"
+          class="btn btn-outline-secondary btn-urineKetones"
           :class="{ urineKetonesActive: data.inputs.urineKetones.val === 2 }"
           type="button"
           @click="data.inputs.urineKetones.setVal(2)"
@@ -165,7 +167,7 @@ onMounted(() => window.scrollTo(0, 0));
         </button>
 
         <button
-          class="btn btn-outline-secondary me-2"
+          class="btn btn-outline-secondary btn-urineKetones"
           :class="{ urineKetonesActive: data.inputs.urineKetones.val === 3 }"
           type="button"
           @click="data.inputs.urineKetones.setVal(3)"
@@ -174,7 +176,7 @@ onMounted(() => window.scrollTo(0, 0));
         </button>
 
         <button
-          class="btn btn-outline-secondary me-2"
+          class="btn btn-outline-secondary btn-urineKetones"
           :class="{ urineKetonesActive: data.inputs.urineKetones.val === 4 }"
           type="button"
           @click="data.inputs.urineKetones.setVal(4)"
@@ -196,8 +198,8 @@ onMounted(() => window.scrollTo(0, 0));
       ></div>
     </div>
     <!--diagnosticFeatures-->
-    <div class="mb-4">
-      <p class="text-center m-2">
+    <div class="mb-4 text-center">
+      <p class="m-2">
         {{ data.inputs.diagnosticFeatures.label }}
         <font-awesome-icon
           :icon="['fas', 'circle-info']"
@@ -206,39 +208,35 @@ onMounted(() => window.scrollTo(0, 0));
           class="ms-2"
         />
       </p>
-      <div class="d-flex justify-content-center">
-        <div>
-          <input
-            type="radio"
-            class="btn-check"
-            name="diagnosticFeatures"
-            id="diagnosticFeaturesTrue"
-            value="true"
-            v-model="data.inputs.diagnosticFeatures.val"
-            @change="data.inputs.diagnosticFeatures.isValid()"
-            autocomplete="off"
-            required
-          />
-          <label
-            class="btn btn-outline-secondary me-2"
-            for="diagnosticFeaturesTrue"
-            >Yes</label
-          >
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <input
+          type="radio"
+          class="btn-check"
+          name="diagnosticFeatures"
+          id="diagnosticFeaturesTrue"
+          value="true"
+          v-model="data.inputs.diagnosticFeatures.val"
+          @change="data.inputs.diagnosticFeatures.isValid()"
+          autocomplete="off"
+          required
+        />
+        <label class="btn btn-outline-secondary" for="diagnosticFeaturesTrue"
+          >Yes</label
+        >
 
-          <input
-            type="radio"
-            class="btn-check"
-            name="diagnosticFeatures"
-            id="diagnosticFeaturesFalse"
-            value="false"
-            v-model="data.inputs.diagnosticFeatures.val"
-            @change="data.inputs.diagnosticFeatures.isValid()"
-            autocomplete="off"
-          />
-          <label class="btn btn-outline-secondary" for="diagnosticFeaturesFalse"
-            >No</label
-          >
-        </div>
+        <input
+          type="radio"
+          class="btn-check"
+          name="diagnosticFeatures"
+          id="diagnosticFeaturesFalse"
+          value="false"
+          v-model="data.inputs.diagnosticFeatures.val"
+          @change="data.inputs.diagnosticFeatures.isValid()"
+          autocomplete="off"
+        />
+        <label class="btn btn-outline-secondary" for="diagnosticFeaturesFalse"
+          >No</label
+        >
       </div>
       <div
         v-if="showErrors"
@@ -339,8 +337,8 @@ onMounted(() => window.scrollTo(0, 0));
       </transition>
     </div>
     <!--shockPresent-->
-    <div class="mb-4">
-      <p class="text-center m-2">
+    <div class="mb-4 text-center">
+      <p class="m-2">
         {{ data.inputs.shockPresent.label }}
         <font-awesome-icon
           :icon="['fas', 'circle-info']"
@@ -349,37 +347,35 @@ onMounted(() => window.scrollTo(0, 0));
           class="ms-2"
         />
       </p>
-      <div class="d-flex justify-content-center">
-        <div>
-          <input
-            type="radio"
-            class="btn-check"
-            name="shockPresent"
-            id="shockPresentTrue"
-            value="true"
-            v-model="data.inputs.shockPresent.val"
-            @change="data.inputs.shockPresent.isValid()"
-            autocomplete="off"
-            required
-          />
-          <label class="btn btn-outline-secondary me-2" for="shockPresentTrue"
-            >Yes</label
-          >
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <input
+          type="radio"
+          class="btn-check"
+          name="shockPresent"
+          id="shockPresentTrue"
+          value="true"
+          v-model="data.inputs.shockPresent.val"
+          @change="data.inputs.shockPresent.isValid()"
+          autocomplete="off"
+          required
+        />
+        <label class="btn btn-outline-secondary" for="shockPresentTrue"
+          >Yes</label
+        >
 
-          <input
-            type="radio"
-            class="btn-check"
-            name="shockPresent"
-            id="shockPresentFalse"
-            value="false"
-            v-model="data.inputs.shockPresent.val"
-            @change="data.inputs.shockPresent.isValid()"
-            autocomplete="off"
-          />
-          <label class="btn btn-outline-secondary" for="shockPresentFalse"
-            >No</label
-          >
-        </div>
+        <input
+          type="radio"
+          class="btn-check"
+          name="shockPresent"
+          id="shockPresentFalse"
+          value="false"
+          v-model="data.inputs.shockPresent.val"
+          @change="data.inputs.shockPresent.isValid()"
+          autocomplete="off"
+        />
+        <label class="btn btn-outline-secondary" for="shockPresentFalse"
+          >No</label
+        >
       </div>
       <div
         v-if="showErrors"
@@ -436,14 +432,14 @@ onMounted(() => window.scrollTo(0, 0));
     <!--respiratorySupport-->
     <transition>
       <div
-        class="mb-4"
+        class="mb-4 text-center"
         v-if="
           data.inputs.shockPresent.val === 'false' &&
           data.inputs.gcs.val >= config.validation.gcs.severeThreshold &&
           data.inputs.pH.val < config.validation.pH.severeThreshold
         "
       >
-        <p class="text-center m-2">
+        <p class="m-2">
           {{ data.inputs.respiratorySupport.label }}
           <font-awesome-icon
             :icon="['fas', 'circle-info']"
@@ -452,41 +448,35 @@ onMounted(() => window.scrollTo(0, 0));
             class="ms-2"
           />
         </p>
-        <div class="d-flex justify-content-center">
-          <div>
-            <input
-              type="radio"
-              class="btn-check"
-              name="respiratorySupport"
-              id="respiratorySupportTrue"
-              value="true"
-              v-model="data.inputs.respiratorySupport.val"
-              @change="data.inputs.respiratorySupport.isValid()"
-              autocomplete="off"
-              required
-            />
-            <label
-              class="btn btn-outline-secondary me-2"
-              for="respiratorySupportTrue"
-              >Yes</label
-            >
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+          <input
+            type="radio"
+            class="btn-check"
+            name="respiratorySupport"
+            id="respiratorySupportTrue"
+            value="true"
+            v-model="data.inputs.respiratorySupport.val"
+            @change="data.inputs.respiratorySupport.isValid()"
+            autocomplete="off"
+            required
+          />
+          <label class="btn btn-outline-secondary" for="respiratorySupportTrue"
+            >Yes</label
+          >
 
-            <input
-              type="radio"
-              class="btn-check"
-              name="respiratorySupport"
-              id="respiratorySupportFalse"
-              value="false"
-              v-model="data.inputs.respiratorySupport.val"
-              @change="data.inputs.respiratorySupport.isValid()"
-              autocomplete="off"
-            />
-            <label
-              class="btn btn-outline-secondary"
-              for="respiratorySupportFalse"
-              >No</label
-            >
-          </div>
+          <input
+            type="radio"
+            class="btn-check"
+            name="respiratorySupport"
+            id="respiratorySupportFalse"
+            value="false"
+            v-model="data.inputs.respiratorySupport.val"
+            @change="data.inputs.respiratorySupport.isValid()"
+            autocomplete="off"
+          />
+          <label class="btn btn-outline-secondary" for="respiratorySupportFalse"
+            >No</label
+          >
         </div>
         <div
           v-if="showErrors"
