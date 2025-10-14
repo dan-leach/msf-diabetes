@@ -8,6 +8,7 @@ forms:
         validation: must be true
         required: true
         auditable: true
+        encrypted: false
   Patient details:
     description: A form to collect patient demographics. Used to ensure calculated outputs are used for the correct patient.
     inputs:
@@ -18,18 +19,21 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
+        encrypted: false
       patientName:
         type: string
         description: The patient's full name.
         validation: must be 5 and 80 characters, alphabetic characters only
         required: true
         auditable: false
+        encrypted: n/a
       patientDOB:
         type: date
         description: The patient's date of birth.
         validation: must be a valid date in the past, not more than 19 years ago
         required: true
         auditable: false
+        encrypted: n/a
       patientSex:
         type: string
         description: The patient's sex.
@@ -37,12 +41,14 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
-      patientWeight:
+        encrypted: true
+      weight:
         type: float
         description: The patient's weight in kilograms.
         validation: must be a floating-point number between 2 and 150
         required: true
         auditable: true
+        encrypted: true
       operationalCentre:
         type: string
         description: The operational centre for the project.
@@ -50,6 +56,7 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
+        encrypted: false
       project:
         type: string
         description: The project name.
@@ -57,23 +64,27 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
+        encrypted: false
       weightLimitOverride:
         type: boolean
         description: Indicates if the weight limit override is used.
         validation: must be true or false
         required: true
         auditable: true
+        encrypted: false
       use2SD:
         type: boolean
         description: Indicates if reduce weight to +2SD function is used.
         validation: must be true or false
         required: true
         auditable: true
+        encrypted: false
     derived values:
       patientAge:
         type: float
         description: The patient's age in decimal years, calculated from the date of birth.
         auditable: true
+        encrypted: true
   Equipment availability:
     description: A form to collect information about the availability of medical equipment.
     inputs:
@@ -84,6 +95,7 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
+        encrypted: false
       bloodKetonesAvailable:
         type: boolean
         description: Indicates if blood ketone testing is available.
@@ -91,6 +103,7 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
+        encrypted: false
       syringeDriverAvailable:
         type: boolean
         description: Indicates if syringe drivers are available.
@@ -98,6 +111,7 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
+        encrypted: false
   Clinical details:
     description: A form to collect clinical details about the patient's condition.
     inputs:
@@ -107,6 +121,7 @@ forms:
         validation: must be a floating-point number >=11.1mmol/L or >=200mg/dL
         required: true
         auditable: true
+        encrypted: true
       glucoseUnit:
         type: string
         description: The units for the blood glucose.
@@ -114,6 +129,7 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
+        encrypted: true
       bloodKetones:
         type: float
         description: The patient's blood ketone level in mmol/L.
@@ -121,6 +137,7 @@ forms:
         validation: must be a floating-point number >=3
         required: true, if conditions met
         auditable: true
+        encrypted: true
       urineKetones:
         type: int
         description: The patient's urine ketone level.
@@ -128,6 +145,7 @@ forms:
         validation: must be integer between 2 and 4
         required: true, if conditions met
         auditable: true
+        encrypted: true
       diagnosticFeatures:
         type: boolean
         description: Indicates if the patient has diagnostic features of diabetic ketoacidosis (DKA).
@@ -135,6 +153,7 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
+        encrypted: true
       pH:
         type: float
         description: The patient's blood pH level.
@@ -142,6 +161,7 @@ forms:
         validation: must be a floating-point number >=6.0 and <7.3
         required: true, if conditions met
         auditable: true
+        encrypted: true
       bicarbonate:
         type: float
         description: The patient's blood bicarbonate level in mmol/L.
@@ -149,6 +169,7 @@ forms:
         validation: must be a floating-point number between 0 and 30
         required: true, if conditions met
         auditable: true
+        encrypted: true
       shockPresent:
         type: boolean
         description: Indicates if the patient is in shock.
@@ -156,6 +177,7 @@ forms:
         validation: must be one of the provided options
         required: true
         auditable: true
+        encrypted: true
       gcs:
         type: int
         description: The patient's Glasgow Coma Scale (GCS) score.
@@ -163,6 +185,7 @@ forms:
         conditions: shockPresent is false
         required: true
         auditable: true
+        encrypted: true
       respiratorySupport:
         type: boolean
         description: Indicates if the patient is receiving respiratory support or O2.
@@ -171,31 +194,38 @@ forms:
         conditions: shockPresent is false and gcs is >13 and pH >=7.1
         required: true
         auditable: true
+        encrypted: true
 server:
   auditID:
     type: string
     description: A unique identifier for each form submission, used for assurance and audit.
     auditable: true
+    encrypted: false
   appVersion:
     type: string
     description: The client and API version of the application used.
     auditable: true
+    encrypted: false
   timestamp:
     type: datetime
     description: The sever UTC datetime the form was submitted.
     auditable: true
+    encrypted: false
   browseragent:
     type: string
     description: The browser user-agent string of the client used to submit the form.
     auditable: true
+    encrypted: false
   ip:
     type: string
     description: The IP address of the client used to submit the form.
     auditable: true
+    encrypted: false
   calculations:
     type: object
     description: The outputs of the calculator.
     auditable: true
+    encrypted: true
     properties:
       severity:
         type: object

@@ -106,68 +106,42 @@ const generate = {
    * @returns {Object} Payload containing input values.
    */
   buildPayload: async function (payload) {
-    for (let input in data.value.inputs) {
-      payload[input] = data.value.inputs[input].val;
-    }
-
-    payload.legalAgreement = payload.legalAgreement == "true";
-    payload.protocolStartDatetime = new Date(payload.protocolStartDatetime);
-    if (payload.pH) {
-      payload.pH = parseFloat(payload.pH);
-    } else {
-      delete payload.pH;
-    }
-    if (payload.bicarbonate) {
-      payload.bicarbonate = parseFloat(payload.bicarbonate);
-    } else {
-      delete payload.bicarbonate;
-    }
-    payload.glucose = parseFloat(payload.glucose);
-    payload.glucoseUnit = data.value.inputs.glucose.unit;
-    if (payload.bloodKetones) {
-      payload.bloodKetones = parseFloat(payload.bloodKetones);
-      delete payload.urineKetones;
-    } else {
-      payload.urineKetones = parseInt(payload.urineKetones);
-      delete payload.bloodKetones;
-    }
-    payload.weight = parseFloat(payload.weight);
-    payload.shockPresent = payload.shockPresent == "true";
-    payload.gcs = parseInt(payload.gcs);
-    payload.insulinRate = parseFloat(payload.insulinRate);
-    payload.preExistingDiabetes = payload.preExistingDiabetes == "true";
-    if (payload.preExistingDiabetes) {
-      payload.underFollowUp = payload.underFollowUp == "true";
-    } else {
-      delete payload.underFollowUp;
-    }
-
-    const excludedFields = [
-      "patientName",
-      "patientIdentifier",
-      "patientDOB",
-      "other",
-    ];
-    for (const field of excludedFields) {
-      delete payload[field];
-    }
-
-    payload.patientAge = data.value.inputs.patientDOB.patientAge.val;
+    payload.legalAgreement = data.value.inputs.legalAgreement.val == "true";
+    payload.episodeType = data.value.inputs.episodeType.val;
+    payload.patientSex = data.value.inputs.patientSex.val;
+    payload.weight = parseFloat(data.value.inputs.weight.val);
+    payload.operationalCentre = data.value.inputs.operationalCentre.val;
+    payload.project = data.value.inputs.project.val;
     payload.weightLimitOverride = data.value.inputs.weight.limit.override;
-    payload.use2SD = data.value.inputs.weight.limit.use2SD;
-    payload.appVersion = {
-      client: config.value.client.version,
-      api: config.value.api.version,
-    };
-    payload.clientDatetime = new Date();
+    payload.use2SD = data.value.inputs.weight.limit.use2SD == "true";
+    payload.patientAge = data.value.inputs.patientDOB.patientAge.val;
+    payload.bloodGasAvailable =
+      data.value.inputs.bloodGasAvailable.val == "true";
+    payload.bloodKetonesAvailable =
+      data.value.inputs.bloodKetonesAvailable.val == "true";
+    payload.syringeDriverAvailable =
+      data.value.inputs.syringeDriverAvailable.val == "true";
+    payload.glucose = parseFloat(data.value.inputs.glucose.val);
+    payload.glucoseUnit = data.value.inputs.glucose.unit;
+    if (data.value.inputs.bloodKetones.val)
+      payload.bloodKetones = parseFloat(data.value.inputs.bloodKetones.val);
+    if (data.value.inputs.urineKetones.val)
+      payload.urineKetones = parseFloat(data.value.inputs.urineKetones.val);
+    payload.diagnosticFeatures =
+      data.value.inputs.diagnosticFeatures.val == "true";
+    if (data.value.inputs.pH.val)
+      payload.pH = parseFloat(data.value.inputs.pH.val);
+    if (data.value.inputs.bicarbonate.val)
+      payload.bicarbonate = parseFloat(data.value.inputs.bicarbonate.val);
+    payload.shockPresent = data.value.inputs.shockPresent.val == "true";
+    payload.gcs = parseFloat(data.value.inputs.gcs.val);
+    payload.respiratorySupport =
+      data.value.inputs.respiratorySupport.val == "true";
     payload.clientUseragent = navigator.userAgent;
 
     return payload;
   },
 };
-
-// Reactive variable to control button text
-let showWorkingBtnText = ref("Show working");
 
 if (!data.value.form.isValid(3)) router.push("/form-clinical-details");
 
