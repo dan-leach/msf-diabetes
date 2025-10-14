@@ -20,13 +20,6 @@ forms:
         required: true
         auditable: true
         encrypted: false
-      patientName:
-        type: string
-        description: The patient's full name.
-        validation: must be 5 and 80 characters, alphabetic characters only
-        required: true
-        auditable: false
-        encrypted: n/a
       patientDOB:
         type: date
         description: The patient's date of birth.

@@ -41,7 +41,7 @@ const config = inject("config");
         </div>
       </div>
     </div>
-    <p class="nx-1">
+    <p class="mx-1">
       We're always trying to improve. If you have suggestions or queries, please
       contact
       <a :href="'mailto:' + config.author.email">{{ config.author.email }}</a

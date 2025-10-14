@@ -6,54 +6,25 @@ const config = inject("config");
 <template>
   <footer id="footer" class="footer mt-auto">
     <nav
-      class="navbar bg-grey d-flex flex-column align-items-start justify-content-start"
+      class="navbar bg-grey d-flex flex-column align-items-center"
     >
       <div
-        class="device-label-div mb-1 mx-4 d-flex align-items-center p-2"
+        class="device-label-div mb-1 mx-4 d-flex flex-column align-items-center p-2"
         data-bs-toggle="modal"
         data-bs-target="#deviceLabelModal"
         style="cursor: pointer"
       >
         <p class="footer-text">
           <span
-            ><strong>{{ config.appName }}&nbsp;</strong> Client
-            <a :href="config.client.repo.changelog" target="_blank"
-              >v{{ config.client.version }}</a
-            >
-            | API
-            <a :href="config.api.repo.changelog" target="_blank"
-              >v{{ config.api.version }}</a
-            ></span
+            ><strong>{{ config.appName }}&nbsp;</strong></span
           >
-        </p>
+        <span class="text-decoration-underline mx-3">View device label</span></p>
+        <div class="footer-text text-xxs text-center">
+        This application should only be used by medical professionals. Decisions
+        about patient care remain the treating clinician's responsibility.<br></br>You
+        must ensure the input values provided are accurate and that output
+        values are checked carefully for suitability before use.
       </div>
-      <div class="mb-2 mx-4 d-none d-md-block">
-        <p class="footer-text">
-          Created by
-          <a :href="config.author.url" target="_blank">{{
-            config.author.name
-          }}</a>
-          for
-          <a :href="config.organisations.msf.main" target="_blank">{{
-            config.organisations.msf.shortName
-          }}</a
-          >.
-          <span class="ms-4"
-            >Correspondance:
-            <a :href="'mailto:' + config.author.email">{{
-              config.author.email
-            }}</a></span
-          >
-        </p>
-        <p class="footer-text" v-if="config.author.contributors">
-          Contributors to the current version:
-          <span v-html="config.author.contributors.current"></span>.
-          <span class="ms-4"
-            ><a :href="config.author.contributors.url" target="_blank"
-              >See all contributors</a
-            >.</span
-          >
-        </p>
       </div>
     </nav>
   </footer>
@@ -106,6 +77,7 @@ const config = inject("config");
                 <font-awesome-icon :icon="['fas', 'industry']" size="2xl" />
               </td>
               <td>
+                Created by <a class="p-0" :href="config.author.url">{{config.author.name}}</a> for<br></br>
                 <a
                   :href="config.organisations.msf.main"
                   target="_blank"
@@ -183,5 +155,8 @@ const config = inject("config");
 }
 table {
   border-spacing: 0 25px; /* Adds 10px space between rows */
+}
+.text-xxs {
+  font-size: xx-small;
 }
 </style>

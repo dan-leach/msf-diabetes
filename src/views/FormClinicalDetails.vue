@@ -435,8 +435,8 @@ onMounted(() => window.scrollTo(0, 0));
         class="mb-4 text-center"
         v-if="
           data.inputs.shockPresent.val === 'false' &&
-          data.inputs.gcs.val >= config.validation.gcs.severeThreshold &&
-          data.inputs.pH.val < config.validation.pH.severeThreshold
+          data.inputs.gcs.val > config.validation.gcs.severeThreshold &&
+          data.inputs.pH.val > config.validation.pH.severeThreshold
         "
       >
         <p class="m-2">

@@ -8,14 +8,15 @@ const config = inject("config");
   <div class="container my-4 needs-validation">
     <h2 class="display-3">Privacy policy</h2>
     <p>
-      This policy explains how the data you enter into the DKA Calculator is
-      used and stored. The overarching principle is that patient identifiable
-      data does not leave the device on which you are generating the protocol,
-      however some anonymised data is transmitted and stored for audit purposes.
+      This policy explains how the data you enter into the
+      {{ config.appName }} is used and stored. The overarching principle is that
+      patient identifiable data does not leave the device on which you are
+      generating the protocol, however some anonymised data is transmitted and
+      stored for audit.
     </p>
     <p>
-      Data stored by the DKA Calculator can be requested by the clinical team
-      for the treating centre to support local audit.
+      Data stored by the {{ config.appName }} can be requested by the clinical
+      team for the treating centre to support local audit.
     </p>
     <p>
       If you have any questions please contact

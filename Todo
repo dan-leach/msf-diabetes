@@ -1,6 +1,6 @@
-Fix upper limit of 4mmol/L on bloodKetones
-Fix use2SD not logging correctly to db
+Fix missing ) after kg in insulin rate
 
 Before launch
 
 - restore commented out redirects to start of form if blank
+- Remove joe bloggs

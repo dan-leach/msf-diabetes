@@ -55,9 +55,7 @@ onMounted(() => {
     <h2 class="display-3">Patient details</h2>
     <p class="mx-1">
       To calculate values for your patient please complete the form below. For
-      more information about how this data is used click the
-      <font-awesome-icon :icon="['fas', 'circle-info']" /> icon by each field or
-      refer to the
+      more information about how this data is used refer to the
       <RouterLink to="/privacy-policy" target="_blank" class=""
         >privacy policy</RouterLink
       >.
@@ -116,42 +114,6 @@ onMounted(() => {
       </div>
       <div class="collapse form-text text-center mx-1" id="episodeTypeInfo">
         {{ data.inputs.episodeType.info }}
-      </div>
-    </div>
-    <!--patientName-->
-    <div class="mb-4">
-      <div class="input-group">
-        <div class="form-floating">
-          <input
-            type="text"
-            class="form-control"
-            id="patientName"
-            v-model="data.inputs.patientName.val"
-            @change="data.inputs.patientName.isValid()"
-            placeholder="x"
-            :minlength="data.inputs.patientName.minLength"
-            :maxlength="data.inputs.patientName.maxLength"
-            required
-            autocomplete="off"
-          />
-          <label for="patientName">{{ data.inputs.patientName.label }}</label>
-        </div>
-        <span
-          class="input-group-text"
-          data-bs-toggle="collapse"
-          data-bs-target="#patientNameInfo"
-          ><font-awesome-icon :icon="['fas', 'circle-info']"
-        /></span>
-      </div>
-      <div
-        v-if="showErrors"
-        class="form-text text-danger mx-1"
-        id="patientNameErrors"
-      >
-        {{ data.inputs.patientName.errors }}
-      </div>
-      <div class="collapse form-text mx-1" id="patientNameInfo">
-        {{ data.inputs.patientName.info }}
       </div>
     </div>
     <!--patientDOB-->

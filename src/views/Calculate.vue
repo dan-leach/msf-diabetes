@@ -106,14 +106,15 @@ const generate = {
    * @returns {Object} Payload containing input values.
    */
   buildPayload: async function (payload) {
-    payload.legalAgreement = data.value.inputs.legalAgreement.val == "true";
+    console.log(data.value.inputs.legalAgreement.val);
+    payload.legalAgreement = data.value.inputs.legalAgreement.val;
     payload.episodeType = data.value.inputs.episodeType.val;
     payload.patientSex = data.value.inputs.patientSex.val;
     payload.weight = parseFloat(data.value.inputs.weight.val);
     payload.operationalCentre = data.value.inputs.operationalCentre.val;
     payload.project = data.value.inputs.project.val;
     payload.weightLimitOverride = data.value.inputs.weight.limit.override;
-    payload.use2SD = data.value.inputs.weight.limit.use2SD == "true";
+    payload.use2SD = data.value.inputs.weight.limit.use2SD;
     payload.patientAge = data.value.inputs.patientDOB.patientAge.val;
     payload.bloodGasAvailable =
       data.value.inputs.bloodGasAvailable.val == "true";
