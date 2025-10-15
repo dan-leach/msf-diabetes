@@ -5,8 +5,8 @@ const underDevelopment = false;
 async function fetchConfig() {
   if (underDevelopment) console.log("***DEV MODE ACTIVE***");
   const url = underDevelopment
-    ? "https://dev-api.dka-calculator.co.uk/config"
-    : "https://api.dka-calculator.co.uk/config";
+    ? "https://api.msf.dka-calculator.co.uk/config"
+    : "https://api.msf.dka-calculator.co.uk/config";
   const timeoutDuration = 15000;
 
   const controller = new AbortController();

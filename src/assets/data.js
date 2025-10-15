@@ -33,25 +33,6 @@ const checkNumberRange = (val, units, min, max, errors, fieldName) => {
 };
 
 /**
- * Formats a UK postcode by converting to uppercase and removing spaces.
- * @param {string} val - The postcode to format.
- * @returns {string} - The formatted postcode.
- */
-const formatPostcode = (val) => val.toUpperCase().replace(/\s/g, "");
-
-/**
- * Builds an ISO string for the given date.
- * @param {Date} date - The date to format.
- * @returns {string} - The formatted date string.
- */
-const buildDateString = (date) => {
-  const pad = (num) => (num < 10 ? `0${num}` : num);
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-    date.getDate()
-  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-};
-
-/**
  * Calculates age in years (as a decimal) from the given date of birth.
  * @param {string} dob - Date of birth in ISO format.
  * @returns {number} - Age in years (including decimal).
@@ -83,48 +64,70 @@ export const data = ref({
           if (input.optionalForForms.includes(formIndex)) isOptional = true;
         }
         if (input.form.includes(formIndex)) {
+          //console.log(`Validating ${i}`, input.isValid(isOptional));
           if (!input.isValid(isOptional)) isValid = false;
         }
       }
       return isValid;
+    },
+    joeBloggs() {
+      data.value.inputs.legalAgreement.val = "true";
+      data.value.inputs.episodeType.val = "test";
+      data.value.inputs.patientDOB.val = "2019-03-31";
+      data.value.inputs.patientSex.val = "male";
+      data.value.inputs.weight.val = 20;
+      data.value.inputs.operationalCentre.val = "Paris";
+      data.value.inputs.operationalCentre.isValid();
+      data.value.inputs.project.val = "OCP-12345-ProjectName";
+
+      data.value.inputs.bloodGasAvailable.val = "false";
+      data.value.inputs.bloodKetonesAvailable.val = "false";
+      data.value.inputs.syringeDriverAvailable.val = "true";
+
+      data.value.inputs.glucose.val = 250;
+      data.value.inputs.urineKetones.val = 3;
+      data.value.inputs.diagnosticFeatures.val = "true";
+      data.value.inputs.shockPresent.val = "false";
+      data.value.inputs.gcs.val = 14;
+      data.value.inputs.respiratorySupport.val = "false";
+
+      console.log("Joe Bloggs data filled");
     },
   },
   inputs: {
     legalAgreement: {
       val: false,
       label: "Agreement to legal disclaimer",
-      info: "Your agreement to the legal disclaimer is recorded.",
+      privacyInfo: "Your agreement to the legal disclaimer is recorded.",
       form: [0],
       isValid() {
         return this.val;
       },
     },
-    patientName: {
+    episodeType: {
       val: "",
-      label: "Full name",
+      label: "What is this protocol being used for?",
+      privacyLabel: "Episode type",
       form: [1],
-      info: "Patient name is printed onto the generated care pathway document in the patient demographics area. It is not stored by the DKA Calculator.",
-      minLength: 5,
-      maxLength: 80,
+      info: "If you are just trying out the calculator and do not intend to use the calculations for a real clinical case, select 'For testing or training purposes' to exclude the case from data analysis of real cases.",
+      privacyInfo:
+        "Episode type (real / test) is stored by the calculator for audit purposes and to allow exclusion of test cases from data analysis.",
       /**
-       * Validates the patient name.
-       * @returns {boolean} - True if the name is valid, false otherwise.
+       * Validates the episode type.
+       * @returns {boolean} - True if the type is selected, false otherwise.
        */
       isValid() {
-        const errors = [];
-        checkLength(this.val, this.minLength, this.maxLength, errors, "Name");
-        this.errors = errors.join(" ");
-        return !errors.length;
+        this.errors = "";
+        if (!this.val) this.errors += "Episode type must be selected. ";
+        return !this.errors;
       },
       errors: "",
     },
     patientDOB: {
       val: "",
       label: "Date of birth",
-      form: [1, 4],
-      info: "Patient date of birth is printed onto the generated care pathway document in the patient demographics area. It is not stored directly by the DKA Calculator, but is used to calculate a patient age (in decimal years) which is used to check the patient weight is within the expected range. The decimal age is stored for audit purposes. To allow linkage of audit data between episodes the patient date of birth is also used (together with the NHS number) to generate a unique patient ID which is stored. The patient date of birth cannot be found from the calculated unique patient ID (<a href='https://www.codecademy.com/resources/blog/what-is-hashing/' target='_blank'>read more about secure cryptographic hashing</a>).",
-      updateInfo:
-        "Patient date of birth is not stored directly by the DKA Calculator. It is used to generate a unique patient ID which is compared with the unique ID generated when the episode was created to ensure the correct record is being updated. The patient date of birth cannot be found from the calculated unique patient ID (<a href='https://www.codecademy.com/resources/blog/what-is-hashing/' target='_blank'>read more about secure cryptographic hashing</a>).",
+      form: [1],
+      info: "Patient date of birth is used to find the patient age which is used to check the weight against a sex-specific age-based safety range, to select the IV insulin rate or IM insulin doses. The date of birth is not stored by the calculator but the patient age is stored for audit and data analysis.",
       /**
        * Builds the patient's age in years from the date of birth.
        */
@@ -155,7 +158,7 @@ export const data = ref({
        * Validates the date of birth.
        * @returns {boolean} - True if the date of birth is valid, false otherwise.
        */
-      isValid() {
+      isValid(triggerFunc) {
         const errors = [];
         const dateVal = new Date(this.val);
         if (isNaN(Date.parse(this.val)))
@@ -173,6 +176,9 @@ export const data = ref({
         }
 
         this.errors = errors.join(" ");
+
+        if (triggerFunc != "weightIsValid") data.value.inputs.weight.isValid();
+
         return !errors.length;
       },
       errors: "",
@@ -181,392 +187,14 @@ export const data = ref({
       val: "",
       label: "Patient sex",
       form: [1],
-      info: "Patient sex is printed onto the generated care pathway. It is stored by the DKA Calculator for audit purposes.",
+      info: "Patient sex is used to check the weight against a sex-specific age-based safety range. It is stored by the calculator for audit and data analysis.",
       /**
        * Validates the patient sex.
        * @returns {boolean} - True if the sex is selected, false otherwise.
        */
-      isValid() {
+      isValid(triggerFunc) {
         this.errors = this.val ? "" : "Patient sex must be selected.";
-        return !this.errors;
-      },
-      errors: "",
-    },
-    patientNHS: {
-      val: "",
-      label: "NHS number",
-      form: [1, 4],
-      info: "If provided, patient NHS number is printed onto the generated care pathway document in the patient demographics area. It is not stored directly by the DKA Calculator. To allow linkage of audit data between episodes the NHS number is used to generate a unique patient ID which is stored. The patient NHS number cannot be found from the calculated unique patient ID (<a href='https://www.codecademy.com/resources/blog/what-is-hashing/' target='_blank'>read more about secure cryptographic hashing</a>).",
-      updateInfo:
-        "Patient NHS number is not stored directly by the DKA Calculator. It is used to generate a unique patient ID which is compared with the unique ID generated when the episode was created to ensure the correct record is being updated. The patient NHS number cannot be found from the calculated unique patient ID (<a href='https://www.codecademy.com/resources/blog/what-is-hashing/' target='_blank'>read more about secure cryptographic hashing</a>).",
-      min: 1000000000, //a 10 digit integer (length of an NHS number) cannot have a value less than this
-      max: 9999999999, //a 10 digit integer (length of an NHS number) cannot have a value greater than this
-      /**
-       * Validates the NHS number.
-       * @returns {boolean} - True if the NHS number is valid, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (this.optOut.val) return true;
-        if (this.val < this.min)
-          this.errors +=
-            "NHS number must be at least " +
-            this.min.toString().length +
-            " characters in length. ";
-
-        if (this.val > this.max)
-          this.errors +=
-            "NHS number must be no more than " +
-            this.max.toString().length +
-            " characters in length. ";
-        return !this.errors;
-      },
-      errors: "",
-      optOut: {
-        val: false,
-        label: "I don't have an NHS number for my patient",
-        msg: {
-          text: "Please consider using an NHS number rather than a local patient ID number. This allows linkage of anonymous audit data from different episodes.",
-          show: true,
-        },
-      },
-    },
-    patientHospNum: {
-      val: "",
-      label: "Hospital number",
-      form: [1],
-      info: "If used instead of the patient NHS number, patient hospital number is printed onto the generated care pathway document in the patient demographics area. It is not stored by the DKA Calculator.",
-      minLength: 4,
-      maxLength: 20,
-      /**
-       * Validates the hospital number.
-       * @returns {boolean} - True if the hospital number is valid, false otherwise.
-       */
-      isValid() {
-        const errors = [];
-        if (!data.value.inputs.patientNHS.optOut.val) return true;
-        checkLength(
-          this.val,
-          this.minLength,
-          this.maxLength,
-          errors,
-          "Hospital number"
-        );
-        this.errors = errors.join(" ");
-        return !errors.length;
-      },
-      errors: "",
-    },
-    patientPostcode: {
-      val: "",
-      label: "Postcode",
-      form: [1],
-      info: "The patient postcode is not stored by the DKA Calculator. If provided, it is used to find an Index of Multiple Deprivation (IMD) decile which is stored for audit purposes.",
-      minLength: 5, //valid postcodes will never be shorter than this
-      maxLength: 8, //valid postcodes will never be longer than this
-      pattern:
-        "([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))s?[0-9][A-Za-z]{2})",
-      /**
-       * Formats the postcode by converting to uppercase and removing spaces.
-       */
-      formatVal() {
-        this.val = formatPostcode(this.val);
-      },
-      /**
-       * Validates the postcode
-
-.
-       * @returns {boolean} - True if the postcode is valid, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        const errors = [];
-        if (this.optOut.val) {
-          return true;
-        }
-        this.formatVal();
-        checkLength(
-          this.val,
-          this.minLength,
-          this.maxLength,
-          errors,
-          "Postcode"
-        );
-        if (!new RegExp(this.pattern).test(this.val))
-          errors.push("Postcode must match the pattern.");
-        this.errors = errors.join(" ");
-        return !errors.length;
-      },
-      errors: "",
-      optOut: {
-        val: false,
-        label: "I don't have a postcode for my patient",
-        msg: {
-          text: "Please consider providing a postcode. This allows us to audit patient's Index of Multiple Deprivation (IMD) deciles for DKA episodes.",
-          show: true,
-        },
-      },
-    },
-    protocolStartDatetime: {
-      val: "",
-      label: "Protocol start date/time",
-      form: [2],
-      info: "The protocol start date/time is used to calculate recommended review date/times on the serial data sheet on the care pathway. It is stored by the DKA Calculator for audit purposes.",
-      todayString: {
-        /**
-         * Generates a string for today's date and assigns it to this.val.
-         */
-        build() {
-          this.val = buildDateString(new Date());
-        },
-        val: "",
-      },
-      minDate: {
-        /**
-         * Generates a datetime object of the earliest allowable time the protocolStartDatetime can be set to and assigns it to this.val.
-         */
-        build() {
-          const today = new Date();
-          this.val = new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate(),
-            today.getHours() -
-              config.value.validation.protocolStartDatetime.withinPastHours,
-            today.getMinutes()
-          );
-        },
-        val: null,
-      },
-      minDateString: {
-        /**
-         * Generates a string for minDate and assigns that value to this.val.
-         */
-        build() {
-          this.val = buildDateString(
-            data.value.inputs.protocolStartDatetime.minDate.val
-          );
-        },
-        val: "",
-      },
-      maxDate: {
-        /**
-         * Generates a datetime object of the latest allowable time the protocolStartDatetime can be set to and assigns it to this.val.
-         */
-        build() {
-          const today = new Date();
-          this.val = new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate(),
-            today.getHours() +
-              config.value.validation.protocolStartDatetime.withinFutureHours,
-            today.getMinutes()
-          );
-        },
-        val: null,
-      },
-      maxDateString: {
-        /**
-         * Generates a string for maxDate and assigns that value to this.val.
-         */
-        build() {
-          this.val = buildDateString(
-            data.value.inputs.protocolStartDatetime.maxDate.val
-          );
-        },
-        val: "",
-      },
-      /**
-       * Validates the protocol start date/time.
-       * @returns {boolean} - True if the date/time is valid, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (isNaN(Date.parse(this.val))) {
-          this.errors =
-            "A valid date/time must be entered for protocol start date/time. ";
-          return false;
-        }
-        const dateVal = new Date(this.val);
-        if (dateVal < this.minDate.val) {
-          this.errors = `Protocol start must be within the past ${config.value.validation.protocolStartDatetime.withinPastHours} hours of the current date/time. `;
-          return false;
-        }
-        if (dateVal > this.maxDate.val) {
-          this.errors = `Protocol start must be no more than ${
-            config.value.validation.protocolStartDatetime.withinFutureHours
-          } ${
-            config.value.validation.protocolStartDatetime.withinFutureHours ===
-            1
-              ? "hour"
-              : "hours"
-          } ahead of the current date/time. `;
-          return false;
-        }
-        return true;
-      },
-      errors: "",
-    },
-    pH: {
-      val: null,
-      label: "pH",
-      form: [2],
-      info: "pH is added to the relevant field in the care pathway. pH is used to determine DKA severity which is used in fluid deficit calculations. It is stored by the DKA Calculator for audit purposes.",
-      min() {
-        return config.value.validation.pH.min;
-      },
-      max() {
-        return config.value.validation.pH.max;
-      },
-      step: 0.01,
-      /**
-       * Validates the pH value.
-       * @returns {boolean} - True if the pH value is valid, false otherwise.
-       */
-      isValid() {
-        const errors = [];
-        if (this.val === null || isNaN(this.val) || this.val == "") {
-          errors.push("pH must be provided. ");
-        } else if (this.val >= config.value.severity.mild.pHRange.upper) {
-          // Diagnostic criteria not met based on pH alone. Now check if bicarbonate is provided and is below threshold
-          if (
-            isNaN(data.value.inputs.bicarbonate.val) ||
-            data.value.inputs.bicarbonate.val == null ||
-            data.value.inputs.bicarbonate.val == "" ||
-            data.value.inputs.bicarbonate.val >=
-              config.value.severity.mild.bicarbonateBelow
-          ) {
-            errors.push(
-              `To meet the diagnostic criteria for DKA, pH must be below ${config.value.severity.mild.pHRange.upper}, or bicarbonate must be below ${config.value.severity.mild.bicarbonateBelow}mmol/L. `
-            );
-          }
-        } else {
-          this.val = Number.parseFloat(this.val).toFixed(2);
-          checkNumberRange(this.val, "", this.min(), this.max(), errors, "pH");
-        }
-        this.errors = errors.join(" ");
-        return !this.errors;
-      },
-      errors: "",
-    },
-    bicarbonate: {
-      val: null,
-      label: "Bicarbonate",
-      form: [2],
-      info: "If provided, these values will be added to the relevant fields in the care pathway. Bicarbonate is used to determine DKA severity which is used in fluid deficit calculations. Bicarbonate, glucose and ketones are stored by the DKA Calculator for audit purposes.",
-      privacyInfo:
-        "If provided, bicarbonate will be added to the relevant field in the care pathway. Bicarbonate is used to determine DKA severity which is used in fluid deficit calculations. It is stored by the DKA Calculator for audit purposes.",
-      min() {
-        return config.value.validation.bicarbonate.min;
-      },
-      max() {
-        return config.value.validation.bicarbonate.max;
-      },
-      step: 0.1,
-      /**
-       * Validates the bicarbonate value.
-       * @returns {boolean} - True if the bicarbonate value is valid, false otherwise.
-       */
-      isValid() {
-        if (this.val === null || isNaN(this.val) || this.val == "") {
-          this.errors = "";
-          return true;
-        }
-        const errors = [];
-        this.val = Number.parseFloat(this.val).toFixed(1);
-        checkNumberRange(
-          this.val,
-          "mmol/L",
-          this.min(),
-          this.max(),
-          errors,
-          "Bicarbonate"
-        );
-        this.errors = errors.join(" ");
-        data.value.inputs.pH.isValid(); // Update pH validation (for diagnostic criteria message) when bicarbonate changes
-        return !this.errors;
-      },
-      errors: "",
-    },
-    glucose: {
-      val: null,
-      label: "Glucose",
-      privacyInfo:
-        "If provided, glucose will be added to the relevant field in the care pathway. It is stored by the DKA Calculator for audit purposes.",
-      form: [2, 5],
-      optionalForForms: [2],
-      min() {
-        return config.value.validation.glucose.min;
-      },
-      max() {
-        return config.value.validation.glucose.max;
-      },
-      step: 0.1,
-      /**
-       * Validates the glucose value.
-       * @returns {boolean} - True if the glucose value is valid, false otherwise.
-       */
-      isValid(optional) {
-        if (
-          optional &&
-          (this.val === null || isNaN(this.val) || this.val == "")
-        ) {
-          this.errors = "";
-          return true;
-        }
-        const errors = [];
-        if (this.val === null || isNaN(this.val) || this.val == "") {
-          errors.push("Glucose must be provided. ");
-        } else {
-          this.val = Number.parseFloat(this.val).toFixed(1);
-          checkNumberRange(
-            this.val,
-            "mmol/L",
-            this.min(),
-            this.max(),
-            errors,
-            "Glucose"
-          );
-        }
-        this.errors = errors.join(" ");
-        return !this.errors;
-      },
-      errors: "",
-    },
-    ketones: {
-      val: null,
-      label: "Ketones",
-      privacyInfo:
-        "If provided, ketone level will be added to the relevant field in the care pathway. Ketone level is used to check the diagnostic threshold for DKA is reached. It is stored by the DKA Calculator for audit purposes.",
-      form: [2],
-      min() {
-        return config.value.validation.ketones.min;
-      },
-      max() {
-        return config.value.validation.ketones.max;
-      },
-      step: 0.1,
-      /**
-       * Validates the ketone level.
-       * @returns {boolean} - True if the ketone level is valid, false otherwise.
-       */
-      isValid() {
-        if (this.val === null || isNaN(this.val) || this.val == "") {
-          this.errors = "";
-          return true;
-        }
-        const errors = [];
-        this.val = Number.parseFloat(this.val).toFixed(1);
-        checkNumberRange(
-          this.val,
-          "mmol/L",
-          this.min(),
-          this.max(),
-          errors,
-          "Ketones"
-        );
-        this.errors = errors.join(" ");
+        if (triggerFunc != "weightIsValid") data.value.inputs.weight.isValid();
         return !this.errors;
       },
       errors: "",
@@ -574,8 +202,10 @@ export const data = ref({
     weight: {
       val: null,
       label: "Weight",
-      form: [2],
-      info: "Weight is used to calculate fluid volumes for boluses, deficit replacement and maintenance. It is stored by the DKA Calculator for audit purposes. If the weight provided falls outside 2 standard deviations of the mean for age, whether or not you override this limit is also recorded.",
+      form: [1],
+      info: "Weight is used to perform fluid and insulin calculations. If the weight provided falls outside 2 standard deviations of the mean for age you will need to override a warning, providing you are confident the value is correct.",
+      privacyInfo:
+        "Weight is used to perform fluid and insulin calculations. It is stored by the calculator for audit and data analysis. If the weight provided falls outside 2 standard deviations of the mean for age, whether or not you override this limit is also recorded.",
       min() {
         return config.value.validation.weight.min;
       },
@@ -616,8 +246,22 @@ export const data = ref({
        * @returns {boolean} - True if the weight is valid, false otherwise.
        */
       isValid() {
+        const errors = [];
+        this.errors = "";
         if (!this.val) {
           this.errors += "Weight must be provided. ";
+          return false;
+        }
+
+        if (!data.value.inputs.patientDOB.isValid("weightIsValid")) {
+          this.errors +=
+            "Cannot check weight against safety range without a valid date of birth. ";
+          return false;
+        }
+
+        if (!data.value.inputs.patientSex.isValid("weightIsValid")) {
+          this.errors +=
+            "Cannot check weight against safety range without a selected patient sex. ";
           return false;
         }
 
@@ -627,7 +271,6 @@ export const data = ref({
 
         this.val = Number.parseFloat(this.val).toFixed(2);
 
-        const errors = [];
         checkNumberRange(
           Number.parseFloat(this.val),
           "",
@@ -636,6 +279,7 @@ export const data = ref({
           errors,
           "Weight"
         );
+
         this.errors = errors.join(" ");
         if (errors.length) return false;
 
@@ -655,8 +299,365 @@ export const data = ref({
           this.limit.exceeded = false;
           this.limit.override = false;
         }
+
         if (this.errors) return false;
         return true;
+      },
+      errors: "",
+    },
+    operationalCentre: {
+      val: "",
+      label: "Select operational centre",
+      privacyLabel: "Operational centre",
+      form: [1],
+      info: "Operational centre is stored by the calculator for audit purposes.",
+      /**
+       * Validates the OC selection and updates the project options based on the selected OC.
+       * @returns {boolean} - True if the OC is selected, false otherwise.
+       */
+      isValid() {
+        this.errors = "";
+        if (!this.val) {
+          this.errors += "Operational centre must be selected. ";
+        } else {
+          for (let operationalCentre of config.value.operationalCentres) {
+            if (operationalCentre.name == this.val)
+              data.value.inputs.project.options = operationalCentre.projects;
+          }
+        }
+        return !this.errors;
+      },
+      errors: "",
+    },
+    project: {
+      val: "",
+      label: "Please select the project",
+      privacyLabel: "Project",
+      options: [],
+      form: [1],
+      info: "Project is stored by the calculator for audit purposes.",
+      /**
+       * Validates the project selection.
+       * @returns {boolean} - True if the project is selected, false otherwise.
+       */
+      isValid() {
+        this.errors = "";
+        if (!this.val) this.errors += "Project must be selected. ";
+        return !this.errors;
+      },
+      errors: "",
+    },
+    bloodGasAvailable: {
+      val: null,
+      label: "Blood gas available?",
+      form: [2],
+      info: "If blood gas is available you will be asked to provide a value for blood pH and (optionally) bicarbonate. These values are used to determine DKA severity which impacts on fluid calculations.",
+      privacyInfo:
+        "Blood gas availability is stored for audit and data analysis.",
+      isValid() {
+        this.errors = "";
+        if (!this.val)
+          this.errors += "Availability of blood gas must be selected. ";
+        if (this.val != "true") {
+          data.value.inputs.pH.val = null;
+          data.value.inputs.bicarbonate.val = null;
+        }
+        return !this.errors;
+      },
+      errors: "",
+    },
+    bloodKetonesAvailable: {
+      val: null,
+      label: "Blood ketones available?",
+      form: [2],
+      info: "If blood ketones are available this value is used to establish DKA diagnosis, whereas urine ketones will be used if not.",
+      privacyInfo:
+        "Blood ketone availability is stored for audit and data analysis.",
+      isValid() {
+        this.errors = "";
+        if (!this.val)
+          this.errors += "Availability of blood ketones must be selected. ";
+        if (this.val != "true") {
+          data.value.inputs.bloodKetones.val = null;
+        } else {
+          data.value.inputs.urineKetones.val = null;
+        }
+        return !this.errors;
+      },
+      errors: "",
+    },
+    syringeDriverAvailable: {
+      val: null,
+      label: "Syringe driver available?",
+      form: [2],
+      info: "If a syringe driver is available IV insulin infusion rate will be provided, otherwise 2-hourly IM doses.",
+      privacyInfo:
+        "Syringe driver availability is stored for audit and data analysis.",
+      isValid() {
+        this.errors = "";
+        if (!this.val)
+          this.errors += "Availability of syringe driver must be selected. ";
+        return !this.errors;
+      },
+      errors: "",
+    },
+    glucose: {
+      val: null,
+      unit: null,
+      unitChange() {
+        if (!this.unit) {
+          //set the default unit
+          this.unit = Object.keys(config.value.validation.glucose.units).find(
+            (key) => config.value.validation.glucose.units[key].default
+          );
+        } else {
+          //update the min/max and (if shown) the invalid message
+          this.min();
+          this.max();
+          this.isValid();
+        }
+      },
+      label: "Glucose",
+      info: "Glucose is used to confirm the diagnosis of DKA is correct. You can select your prefered unit: mg/dL or mmol/L using the drop-down select menu.",
+      privacyInfo:
+        "Glucose is used to confirm the diagnosis of DKA is correct and is stored for audit and data analysis.",
+      form: [3],
+      min() {
+        if (!this.unit) this.unitChange();
+        return config.value.validation.glucose.units[this.unit].min;
+      },
+      max() {
+        if (!this.unit) this.unitChange();
+        return config.value.validation.glucose.units[this.unit].max;
+      },
+      step: 0.1,
+      /**
+       * Validates the glucose value.
+       * @returns {boolean} - True if the glucose value is valid, false otherwise.
+       */
+      isValid() {
+        const errors = [];
+        if (!this.unit) this.unitChange();
+        if (this.val === null || isNaN(this.val) || this.val == "") {
+          errors.push("Glucose must be provided. ");
+        } else {
+          this.val = Number.parseFloat(this.val).toFixed(1);
+          checkNumberRange(
+            this.val,
+            this.unit,
+            this.min(),
+            this.max(),
+            errors,
+            "Glucose"
+          );
+        }
+        this.errors = errors.join(" ");
+        return !this.errors;
+      },
+      errors: "",
+    },
+    bloodKetones: {
+      val: null,
+      label: "Blood ketones",
+      info: "Blood ketone value is used to check the diagnostic threshold for DKA is reached. If you only have urine ketones available, go back to the previous page and update your answer to 'Blood ketones available?'",
+      privacyInfo:
+        "Blood ketone value (if provided) is used to check the diagnostic threshold for DKA is reached and is stored for audit and data analysis.",
+      form: [3],
+      min() {
+        return config.value.validation.bloodKetones.min;
+      },
+      max() {
+        return config.value.validation.bloodKetones.max;
+      },
+      step: 0.1,
+      /**
+       * Validates the bloodKetones level.
+       * @returns {boolean} - True if the bloodKetones level is valid, false otherwise.
+       */
+      isValid() {
+        if (data.value.inputs.bloodKetonesAvailable.val === "false")
+          return true;
+        if (this.val === null || isNaN(this.val) || this.val == "") {
+          this.errors = "Blood ketones must be provided. ";
+          return false;
+        } else if (this.val < config.value.validation.bloodKetones.min) {
+          this.errors = `Biochemical threshold for DKA not met: blood ketones should be >=${config.value.validation.bloodKetones.min}mmol/L.`;
+          return false;
+        }
+        const errors = [];
+        this.val = Number.parseFloat(this.val).toFixed(1);
+        checkNumberRange(
+          this.val,
+          "mmol/L",
+          this.min(),
+          this.max(),
+          errors,
+          "Blood ketones"
+        );
+        this.errors = errors.join(" ");
+        return !this.errors;
+      },
+      errors: "",
+      available: {
+        val: null,
+        label: "Blood ketones available?",
+        info: "If blood ketones are available this is used to confirm DKA diagnosis. It is stored for audit purposes.",
+        isValid() {
+          this.errors = "";
+          if (!this.val)
+            this.errors += "Availability of blood ketones must be selected. ";
+          if (this.val === "true") data.value.inputs.urineKetones.val = null;
+          if (this.val === "false") data.value.inputs.bloodKetones.val = null;
+          return !this.errors;
+        },
+        errors: "",
+      },
+    },
+    urineKetones: {
+      val: null,
+      setVal(newVal) {
+        this.val = newVal;
+        this.isValid();
+      },
+      label: "Urine ketones",
+      info: "Urine ketone value is used to check the diagnostic threshold for DKA is reached. If you have a blood ketone value go back to the previous page and update your answer to 'Blood ketones available?'",
+      privacyInfo:
+        "Urine ketone value (if provided) is used to check the diagnostic threshold for DKA is reached and is stored for audit and data analysis.",
+      form: [3],
+      min() {
+        return config.value.validation.urineKetones.min;
+      },
+      max() {
+        return config.value.validation.urineKetones.max;
+      },
+      step: 0.1,
+      /**
+       * Validates the urineKetones level.
+       * @returns {boolean} - True if the urineKetones level is valid, false otherwise.
+       */
+      isValid() {
+        if (data.value.inputs.bloodKetonesAvailable.val === "true") return true;
+        if (isNaN(this.val) || this.val === null || this.val == "") {
+          this.errors = "Urine ketones must be provided. ";
+          return false;
+        } else if (this.val < config.value.validation.urineKetones.min) {
+          this.errors = `Biochemical threshold for DKA not met: urine ketones should be >=${config.value.validation.urineKetones.min}+.`;
+          return false;
+        }
+        const errors = [];
+        this.val = Number.parseInt(this.val);
+        checkNumberRange(
+          this.val,
+          "+",
+          this.min(),
+          this.max(),
+          errors,
+          "Urine ketones"
+        );
+        this.errors = errors.join(" ");
+        return !this.errors;
+      },
+      errors: "",
+    },
+    diagnosticFeatures: {
+      val: null,
+      label: "Clinical features of DKA?",
+      form: [3],
+      info: "The presence of clinical features of DKA is used to check the diagnostic threshold for DKA is reached. One or more of the following clinical features are required: Kussmaul breathing, fruity breath, decreased level of consciousness, signs of dehydration, abdominal pain and/or vomiting, shock.",
+      privacyInfo:
+        "The presence of clinical features of DKA is used to check the diagnostic threshold for DKA is reached and is stored for audit and data analysis.",
+
+      isValid() {
+        this.errors = "";
+        if (this.val !== "true")
+          this.errors += "Diagnosis requires clinical features of DKA. ";
+        return !this.errors;
+      },
+      errors: "",
+    },
+    pH: {
+      val: null,
+      label: "pH",
+      form: [3],
+      info: "pH is used to determine DKA severity which is used in fluid deficit calculations. If you do not have a blood pH value available go back to the previous page and change your answer to 'Blood gas available?'.",
+      privacyInfo:
+        "pH (if provided) is used to determine DKA severity which is used in fluid deficit calculations and is stored by the calculator for audit purposes.",
+      min() {
+        return config.value.validation.pH.min;
+      },
+      max() {
+        return config.value.validation.pH.max;
+      },
+      step: 0.01,
+      /**
+       * Validates the pH value.
+       * @returns {boolean} - True if the pH value is valid, false otherwise.
+       */
+      isValid() {
+        if (data.value.inputs.bloodGasAvailable.val === "false") return true;
+        const errors = [];
+        if (this.val === null || isNaN(this.val) || this.val == "") {
+          errors.push("pH must be provided. ");
+        } else {
+          this.val = Number.parseFloat(this.val).toFixed(2);
+          checkNumberRange(this.val, "", this.min(), this.max(), errors, "pH");
+        }
+        this.errors = errors.join(" ");
+        return !this.errors;
+      },
+      errors: "",
+    },
+    bicarbonate: {
+      val: null,
+      label: "Bicarbonate",
+      form: [3],
+      info: `Bicarbonate is used to check the diagnostic threshold for DKA is reached. This is relevant if the pH is above the diagnostic threshold for DKA in which case bicarbonate can be used to establish the biochemical criteria for diagnosis instead.`,
+      privacyInfo:
+        "Bicarbonate (if provided) is used to check the diagnostic threshold for DKA is reached and is stored by the calculator for audit purposes.",
+      min() {
+        return config.value.validation.bicarbonate.min;
+      },
+      max() {
+        return config.value.validation.bicarbonate.max;
+      },
+      step: 0.1,
+      /**
+       * Validates the bicarbonate value.
+       * @returns {boolean} - True if the bicarbonate value is valid, false otherwise.
+       */
+      isValid() {
+        if (data.value.inputs.bloodGasAvailable.val === "false") return true;
+        if (
+          data.value.inputs.pH.val <
+          config.value.validation.pH.diagnosticThreshold
+        )
+          return true;
+        const errors = [];
+        if (isNaN(this.val)) {
+          errors.push(
+            `Bicarbonate must be provided if pH above diagnostic threshold of ${config.value.validation.pH.diagnosticThreshold}. `
+          );
+        } else {
+          this.val = Number.parseFloat(this.val).toFixed(1);
+          checkNumberRange(
+            this.val,
+            "mmol/L",
+            this.min(),
+            this.max(),
+            errors,
+            "Bicarbonate"
+          );
+        }
+        if (
+          data.value.inputs.pH.val <
+            config.value.validation.pH.diagnosticThreshold &&
+          this.val >= config.value.validation.bicarbonate.diagnosticThreshold
+        )
+          errors.push(
+            `Biochemical threshold for DKA not met: if blood gas testing available pH should be <${config.value.validation.pH.diagnosticThreshold} or bicarbonate should be <${config.value.validation.bicarbonate.diagnosticThreshold}.`
+          );
+        this.errors = errors.join(" ");
+        return !this.errors;
       },
       errors: "",
     },
@@ -664,8 +665,10 @@ export const data = ref({
       val: "",
       label: "Is the patient clinically shocked?",
       privacyLabel: "Clinical shock status",
-      form: [2],
-      info: "Clinical shock status is used to indicate initial resuscitation strategy on the care pathway and to determine if the initial bolus is subtracted from the fluid deficit as part of the fluid calculations. It is stored by the DKA Calculator for audit purposes.",
+      form: [3],
+      info: "Clinical shock status is used to determine bolus duration/rate, and DKA severity which impacts on fluid calculations.",
+      privacyInfo:
+        "Clinical shock status is used to determine bolus duration/rate, and DKA severity which impacts on fluid calculations. It is stored by the calculator for audit and data analysis.",
       /**
        * Validates the clinical shock status.
        * @returns {boolean} - True if the status is selected, false otherwise.
@@ -678,518 +681,64 @@ export const data = ref({
       },
       errors: "",
     },
-    insulinRate: {
-      val: "",
-      label: "What starting rate of insulin is required?",
-      privacyLabel: "Insulin starting rate",
-      form: [2],
-      info: "Insulin starting rate (in Units/kg/hour) is used to calculate an insulin rate in Units/hr. It is stored by the DKA Calculator for audit purposes.",
-      /**
-       * Validates the insulin starting rate.
-       * @returns {boolean} - True if the rate is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (!this.val)
-          this.errors += "Insulin starting rate must be selected. ";
-        return !this.errors;
-      },
-      errors: "",
-    },
-    preExistingDiabetes: {
-      val: "",
-      label:
-        "Was the patient known to have diabetes prior to the current episode of DKA?",
-      privacyLabel: "Pre-existing diabetes status",
-      form: [2, 4],
-      info: "If the patient has pre-existing diabetes, it is used to indicate the approach to managing existing insulin therapy on the care pathway. Pre-existing diabetes status also determines the preventable factors options that can be selected. It is stored by the DKA Calculator for audit purposes.",
-      updateInfo:
-        "Pre-existing diabetes status determines the preventable factors options that can be selected and is stored by the DKA Calculator for audit purposes.",
-      /**
-       * Validates the pre-existing diabetes status.
-       * @returns {boolean} - True if the status is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (this.val == "false")
-          data.value.inputs.insulinDeliveryMethod.val = "";
-        if (!this.val)
-          this.errors += "Pre-existing diabetes status must be selected. ";
-        return !this.errors;
-      },
-      isValidForUpdateView() {
-        this.isValid();
-        data.value.inputs.preventableFactors.val = [];
-        data.value.inputs.preventableFactors.options.val = [];
-        data.value.inputs.preventableFactors.categories.val = [];
-      },
-      errors: "",
-    },
-    insulinDeliveryMethod: {
-      val: "",
-      label: "Which insulin delivery method does the patient use?",
-      privacyLabel: "Insulin delivery method",
-      form: [2],
-      info: "The insulin delivery method that the patient uses (if they have pre-existing diabetes) is stored by the DKA Calculator for audit purposes.",
-      /**
-       * Validates the insulin delivery method.
-       * @returns {boolean} - True if the method is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (!this.val && data.value.inputs.preExistingDiabetes.val == "true")
-          this.errors += "Insulin delivery method must be selected. ";
-        return !this.errors;
-      },
-      errors: "",
-    },
-    episodeType: {
-      val: "",
-      label: "What is this protocol being used for?",
-      privacyLabel: "Episode type",
-      form: [3],
-      info: "Episode type is stored by the DKA Calculator for audit purposes.",
-      /**
-       * Validates the episode type.
-       * @returns {boolean} - True if the type is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (!this.val) this.errors += "Episode type must be selected. ";
-        return !this.errors;
-      },
-      errors: "",
-    },
-    region: {
-      val: "",
-      label: "Please select your region",
-      privacyLabel: "Region",
-      form: [3],
-      info: "Region is stored by the DKA Calculator for audit purposes.",
-      /**
-       * Validates the region selection and updates the centre options based on the selected region.
-       * @returns {boolean} - True if the region is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (!this.val) {
-          this.errors += "Region must be selected. ";
-        } else {
-          for (let region of config.value.regions) {
-            if (region.name == this.val)
-              data.value.inputs.centre.options = region.centres;
-          }
-        }
-        return !this.errors;
-      },
-      errors: "",
-    },
-    centre: {
-      val: "",
-      label: "Please select the treating centre",
-      privacyLabel: "Treating centre",
-      options: [],
-      form: [3],
-      info: "Treating centre is stored by the DKA Calculator for audit purposes.",
-      /**
-       * Validates the treating centre selection.
-       * @returns {boolean} - True if the centre is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (!this.val) this.errors += "Treating centre must be selected. ";
-        return !this.errors;
-      },
-      errors: "",
-    },
-    ethnicGroup: {
-      val: "",
-      label: "Please select patient ethnic group",
-      privacyLabel: "Patient ethnic group",
-      form: [3],
-      info: "Patient ethnic group is stored by the DKA Calculator for audit purposes. The list of ethnic groups is taken from the Office for National Statistics.",
-      /**
-       * Validates the patient ethnic group selection and updates the ethnic subgroup options based on the selected group.
-       * @returns {boolean} - True if the ethnic group is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (!this.val) {
-          this.errors += "Patient ethnic group must be selected. ";
-        } else {
-          for (let ethnicGroup of config.value.ethnicGroups) {
-            if (ethnicGroup.name == this.val)
-              data.value.inputs.ethnicSubgroup.options = ethnicGroup.subgroups;
-          }
-        }
-        return !this.errors;
-      },
-      errors: "",
-    },
-    ethnicSubgroup: {
-      val: "",
-      label: "Please select patient ethnic subgroup",
-      privacyLabel: "Patient ethnic subgroup",
-      options: [],
-      form: [3],
-      info: "Patient ethnic subgroup is stored by the DKA Calculator for audit purposes. The list of ethnic groups is taken from the Office for National Statistics.",
-      /**
-       * Validates the patient ethnic subgroup selection.
-       * @returns {boolean} - True if the ethnic subgroup is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (!this.val)
-          this.errors += "Patient ethnic subgroup must be selected. ";
-        return !this.errors;
-      },
-      errors: "",
-    },
-    preventableFactors: {
-      val: [],
-      label:
-        "Were there any preventable factors which may have contributed to this episode of DKA?",
-      privacyLabel: "Preventable factors",
-      options: {
-        val: [],
-        list: ["Yes", "No", "Not yet known"],
-        /**
-         * Updates the preventable factors and resets or sets categories based on the selected option.
-         * @param {string} selected - The selected option for preventable factors.
-         */
-        change(selected) {
-          this.val = [];
-          this.val.push(selected);
-          if (selected === "Yes") {
-            data.value.inputs.preventableFactors.categories.val = [];
-            data.value.inputs.preventableFactors.val = [];
-          } else {
-            data.value.inputs.preventableFactors.categories.val = [selected];
-            data.value.inputs.preventableFactors.val = [selected];
-          }
-          data.value.inputs.preventableFactors.isValid();
-        },
-      },
-      categories: {
-        val: [],
-        list: [
-          {
-            name: "Missed/delayed diagnosis",
-            preExistingDiabetes: ["false"],
-          },
-          {
-            name: "Diabetes technology issue",
-            preExistingDiabetes: ["true"],
-          },
-          {
-            name: "Lack of adherence",
-            preExistingDiabetes: ["true"],
-          },
-          {
-            name: "Social factors",
-            preExistingDiabetes: ["true", "false"],
-          },
-        ],
-      },
-      factors: [
-        {
-          val: "Lack of family awareness of diabetes symptoms",
-          categories: ["Missed/delayed diagnosis"],
-        },
-        {
-          val: "Lack of or delayed access to primary care appointment",
-          categories: ["Missed/delayed diagnosis"],
-        },
-        {
-          val: "Missed or delayed diagnosis in primary care",
-          categories: ["Missed/delayed diagnosis"],
-        },
-        {
-          val: "Suboptimal or incorrect investigation/referral by primary care",
-          categories: ["Missed/delayed diagnosis"],
-        },
-        {
-          val: "Missed or delayed diagnosis in secondary/tertiary care",
-          categories: ["Missed/delayed diagnosis"],
-        },
-        {
-          val: "Suboptimal or incorrect management by secondary/tertiary care",
-          categories: ["Missed/delayed diagnosis"],
-        },
-        {
-          val: "Other diagnosis issue",
-          categories: ["Missed/delayed diagnosis"],
-        },
-        {
-          val: "Concern of insulin pump malfunction",
-          categories: ["Diabetes technology issue"],
-        },
-        {
-          val: "Concern insulin pump used incorrectly",
-          categories: ["Diabetes technology issue", "Lack of adherence"],
-        },
-        {
-          val: "Concern of glucose sensor malfunction",
-          categories: ["Diabetes technology issue"],
-        },
-        {
-          val: "Other technology issue",
-          categories: ["Diabetes technology issue"],
-        },
-        {
-          val: "Concern of inadequate supervision by parent/carer",
-          categories: ["Lack of adherence", "Social factors"],
-        },
-        {
-          val: "Concern of lack of adherence to usual insulin therapy by child/young person",
-          categories: ["Lack of adherence"],
-        },
-        {
-          val: "Suboptimal monitoring of glucose or ketones",
-          categories: ["Lack of adherence"],
-        },
-        {
-          val: "Sick day rules not followed optimally",
-          categories: ["Lack of adherence"],
-        },
-        {
-          val: "Other adherance issue",
-          categories: ["Lack of adherence"],
-        },
-        {
-          val: "Language barrier",
-          categories: ["Social factors"],
-        },
-        {
-          val: "Other social factor",
-          categories: ["Social factors"],
-        },
-      ],
-      form: [3, 4],
-      info: "Preventable factors are stored by the DKA Calculator for audit purposes.",
-      /**
-       * Validates the preventable factors selection.
-       * @returns {boolean} - True if an option is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (!this.val.length) {
-          this.errors += "An option for preventable factors must be selected. ";
-        }
-        return !this.errors;
-      },
-      errors: "",
-    },
-    auditID: {
-      val: "",
-      label: "Audit ID",
-      form: [4],
-      info: "Audit ID is required when updating the audit data for an episode. It is used to find the correct episode record.",
-      minLength() {
-        return config.value.validation.auditID.length;
-      },
-      maxLength() {
-        return config.value.validation.auditID.length;
-      },
-      /**
-       * Validates the auditID.
-       * @returns {boolean} - True if the name is valid, false otherwise.
-       */
-      isValid() {
-        const errors = [];
-        checkLength(
-          this.val,
-          this.minLength(),
-          this.maxLength(),
-          errors,
-          "Audit ID"
-        );
-        this.errors = errors.join(" ");
-        return !errors.length;
-      },
-      errors: "",
-    },
-    protocolEndDatetime: {
-      val: "",
-      label: "Protocol end date/time",
-      help: "Use the date/time of the first subcutaneous insulin dose as the end of the DKA protocol",
-      form: [4],
-      info: "The protocol end date/time is used is stored by the DKA Calculator for audit purposes.",
-      minDate: {
-        /**
-         * Generates a datetime object of the earliest allowable time the protocolEndDatetime can be set to and assigns it to this.val.
-         */
-        build() {
-          const today = new Date();
-          this.val = new Date(
-            today.getFullYear() -
-              config.value.validation.protocolEndDatetime.withinPastYears,
-            today.getMonth(),
-            today.getDate(),
-            today.getHours(),
-            today.getMinutes()
-          );
-        },
-        val: null,
-      },
-      minDateString: {
-        /**
-         * Generates a string for minDate and assigns that value to this.val.
-         */
-        build() {
-          this.val = buildDateString(
-            data.value.inputs.protocolEndDatetime.minDate.val
-          );
-        },
-        val: "",
-      },
-      maxDate: {
-        /**
-         * Generates a datetime object of the latest allowable time the protocolEndDatetime can be set to and assigns it to this.val.
-         */
-        build() {
-          this.val = new Date(
-            Date.now() +
-              config.value.validation.protocolEndDatetime.withinFutureMinutes *
-                60 *
-                1000
-          );
-        },
-        val: null,
-      },
-      maxDateString: {
-        /**
-         * Generates a string for maxDate and assigns that value to this.val.
-         */
-        build() {
-          this.val = buildDateString(
-            data.value.inputs.protocolEndDatetime.maxDate.val
-          );
-        },
-        val: "",
-      },
-      /**
-       * Validates the protocol start date/time.
-       * @returns {boolean} - True if the date/time is valid, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (isNaN(Date.parse(this.val))) {
-          this.errors =
-            "A valid date/time must be entered for protocol end date/time. ";
-          return false;
-        }
-        const dateVal = new Date(this.val);
-        if (dateVal < this.minDate.val) {
-          this.errors = `Protocol end must be within the past ${config.value.validation.protocolEndDatetime.withinPastYears} years of the current date/time. `;
-          return false;
-        }
-        if (dateVal > this.maxDate.val) {
-          this.errors = `Protocol end must cannot be in the future. `;
-          return false;
-        }
-        return true;
-      },
-      errors: "",
-    },
-    cerebralOedemaConcern: {
-      val: "",
-      label:
-        "Were there any concerns of cerebral oedema during this episode of DKA?",
-      privacyLabel: "Cerebral oedema concern",
-      form: [4],
-      info: "If there were any concerns regarding cerebral oedema during the episode of DKA questions about treatment and imaging will also be asked. These responses are recorded for audit purposes.",
-      /**
-       * Validates the cerebral oedema status.
-       * @returns {boolean} - True if the status is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (this.val === "false") {
-          data.value.inputs.cerebralOedemaImaging.val = "";
-          data.value.inputs.cerebralOedemaTreatment.val = [];
-        }
-        if (!this.val)
-          this.errors += "Cerebral oedema concern option must be selected. ";
-        return !this.errors;
-      },
-      errors: "",
-    },
-    cerebralOedemaImaging: {
-      val: "",
-      label:
-        "If imaging was performed did it show any evidence of cerebral oedema?",
-      privacyLabel: "Cerebral oedema imaging",
-      form: [4],
-      info: "Evidence of cerebral oedema on imaging is recorded for audit purposes",
-      /**
-       * Validates the cerebral oedema imaging status.
-       * @returns {boolean} - True if the status is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (data.value.inputs.cerebralOedemaConcern.val === "false")
-          return true;
-        if (!this.val)
-          this.errors += "Cerebral oedema imaging option must be selected. ";
-        return !this.errors;
-      },
-      errors: "",
-    },
-    cerebralOedemaTreatment: {
-      val: [],
-      label: "Was any treatment given for cerebral oedema?",
-      privacyLabel: "Cerebral oedema treatment",
-      form: [4],
-      info: "Treatment type given for cerebral oedema is recorded for audit purposes",
-      /**
-       * Validates the cerebral oedema treatment status.
-       * @returns {boolean} - True if the status is selected, false otherwise.
-       */
-      isValid() {
-        this.errors = "";
-        if (this.val.includes("no")) this.val = ["no"];
-        if (data.value.inputs.cerebralOedemaConcern.val === "false")
-          return true;
-        if (!this.val.length)
-          this.errors += "Cerebral oedema treatment option must be selected. ";
-        return !this.errors;
-      },
-      errors: "",
-    },
-    sodium: {
+    gcs: {
       val: null,
-      label: "Sodium",
+      label: "GCS",
+      form: [3],
+      info: "GCS is used to determine DKA severity which impacts on fluid calculations.",
       privacyInfo:
-        "Sodium is used to calculate corrected sodium and effective osmolality using the relevant standalone calculator <a href='/sodium-osmo'>found here</a>. It is stored for audit purposes.",
-      form: [5],
+        "GCS is used to determine DKA severity which impacts on fluid calculations. It is stored by the calculator for audit and data analysis.",
       min() {
-        return config.value.validation.sodium.min;
+        return config.value.validation.gcs.min;
       },
       max() {
-        return config.value.validation.sodium.max;
+        return config.value.validation.gcs.max;
       },
-      step: 0.1,
+      step: 1,
       /**
-       * Validates the sodium value.
-       * @returns {boolean} - True if the sodium value is valid, false otherwise.
+       * Validates the gcs value.
+       * @returns {boolean} - True if the gcs value is valid, false otherwise.
        */
       isValid() {
         const errors = [];
+        if (data.value.inputs.shockPresent.val == "true") return true;
         if (this.val === null || isNaN(this.val) || this.val == "") {
-          errors.push("Sodium must be provided. ");
+          errors.push("GCS must be provided. ");
         } else {
-          this.val = Number.parseFloat(this.val).toFixed(1);
-          checkNumberRange(
-            this.val,
-            "mmol/L",
-            this.min(),
-            this.max(),
-            errors,
-            "Sodium"
-          );
+          this.val = Number.parseFloat(this.val).toFixed(0);
+          checkNumberRange(this.val, "", this.min(), this.max(), errors, "GCS");
         }
         this.errors = errors.join(" ");
+        return !this.errors;
+      },
+      errors: "",
+    },
+    respiratorySupport: {
+      val: "",
+      label: "Is the patient on oxygen or respiratory support?",
+      privacyLabel: "Respiratory support status",
+      form: [3],
+      info: "Respiratory support status is used to determine DKA severity which impacts on fluid calculations.",
+      privacyInfo:
+        "Respiratory support status is used to determine DKA severity which impacts on fluid calculations. It is stored by the calculator for audit and data analysis.",
+      /**
+       * Validates the respiratory support status.
+       * @returns {boolean} - True if the status is selected, false otherwise.
+       */
+      isValid() {
+        this.errors = "";
+        if (data.value.inputs.shockPresent.val == "true") return true;
+        if (
+          data.value.inputs.gcs.val <=
+          config.value.validation.gcs.severeThreshold
+        )
+          return true;
+        if (
+          data.value.inputs.pH.val < config.value.validation.pH.severeThreshold
+        )
+          return true;
+        if (!this.val)
+          this.errors += "Respiratory support status must be selected. ";
         return !this.errors;
       },
       errors: "",
@@ -1198,7 +747,7 @@ export const data = ref({
       privacyLabel: "Other data recorded",
       form: [],
       privacyInfo:
-        "In addition to the input fields above, the following data are recorded to enable audit, security and performance monitoring: <ul><li>The audit ID (unique to for each care pathway generated) which is also printed on the generated PDF document and can be used for audit data linkage</li><li>Software version of the DKA Calculator used for the episode</li><li>The results of the calculations performed by the DKA Calculator including DKA severity, fluid and insulin calculations, corrected sodium and effective osmolality calculations</li><li>The date/time when the protocol was generated</li><li>The browser type (useragent) used to access the DKA Calculator</li><li>The IP address of the device used to access the DKA Calculator</li></ul>",
+        "In addition to the input fields above, the following data are recorded to enable audit, security and performance monitoring: <ul><li>The audit ID (unique to each set of calculations performed) which should also be recorded in the patient notes and can be used for audit data linkage</li><li>Software version of the calculator used for the episode</li><li>The results of the calculations performed by the calculator including DKA severity, fluid and insulin calculations</li><li>The date/time when the protocol was generated</li><li>The browser type (useragent) used to access the calculator</li><li>The IP address of the device used to access the calculator</li></ul>",
     },
   },
   calculations: {},

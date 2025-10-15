@@ -1,0 +1,409 @@
+forms:
+  Legal disclaimer:
+    description: A form to require users read and accept the legal terms before using the application.
+    inputs:
+      legalAgreement:
+        type: bolean
+        description: indicates if the user has accepted the legal agreement
+        validation: must be true
+        required: true
+        auditable: true
+        encrypted: false
+  Patient details:
+    description: A form to collect patient demographics. Used to ensure calculated outputs are used for the correct patient.
+    inputs:
+      episodeType:
+        type: string
+        description: if the episode is for a real patient or a test case
+        options: real, test
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: false
+      patientDOB:
+        type: date
+        description: The patient's date of birth.
+        validation: must be a valid date in the past, not more than 19 years ago
+        required: true
+        auditable: false
+        encrypted: n/a
+      patientSex:
+        type: string
+        description: The patient's sex.
+        options: male, female
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: true
+      weight:
+        type: float
+        description: The patient's weight in kilograms.
+        validation: must be a floating-point number between 2 and 150
+        required: true
+        auditable: true
+        encrypted: true
+      operationalCentre:
+        type: string
+        description: The operational centre for the project.
+        options: Paris, Amsterdam, Geneva, Barcelona-Athens, Brussels, West and Central Africa, Other
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: false
+      project:
+        type: string
+        description: The project name.
+        options: tbc
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: false
+      weightLimitOverride:
+        type: boolean
+        description: Indicates if the weight limit override is used.
+        validation: must be true or false
+        required: true
+        auditable: true
+        encrypted: false
+      use2SD:
+        type: boolean
+        description: Indicates if reduce weight to +2SD function is used.
+        validation: must be true or false
+        required: true
+        auditable: true
+        encrypted: false
+    derived values:
+      patientAge:
+        type: float
+        description: The patient's age in decimal years, calculated from the date of birth.
+        auditable: true
+        encrypted: true
+  Equipment availability:
+    description: A form to collect information about the availability of medical equipment.
+    inputs:
+      bloodGasAvailable:
+        type: boolean
+        description: Indicates if blood gas testing is available.
+        options: true, false
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: false
+      bloodKetonesAvailable:
+        type: boolean
+        description: Indicates if blood ketone testing is available.
+        options: true, false
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: false
+      syringeDriverAvailable:
+        type: boolean
+        description: Indicates if syringe drivers are available.
+        options: true, false
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: false
+  Clinical details:
+    description: A form to collect clinical details about the patient's condition.
+    inputs:
+      glucose:
+        type: float
+        description: The patient's blood glucose level.
+        validation: must be a floating-point number >=11.1mmol/L or >=200mg/dL
+        required: true
+        auditable: true
+        encrypted: true
+      glucoseUnit:
+        type: string
+        description: The units for the blood glucose.
+        options: mmol/L, mg/dL
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: true
+      bloodKetones:
+        type: float
+        description: The patient's blood ketone level in mmol/L.
+        conditions: bloodKetonesAvailable is true
+        validation: must be a floating-point number >=3
+        required: true, if conditions met
+        auditable: true
+        encrypted: true
+      urineKetones:
+        type: int
+        description: The patient's urine ketone level.
+        conditions: bloodKetonesAvailable is false
+        validation: must be integer between 2 and 4
+        required: true, if conditions met
+        auditable: true
+        encrypted: true
+      diagnosticFeatures:
+        type: boolean
+        description: Indicates if the patient has diagnostic features of diabetic ketoacidosis (DKA).
+        options: true, false
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: true
+      pH:
+        type: float
+        description: The patient's blood pH level.
+        conditions: bloodGasAvailable is true
+        validation: must be a floating-point number >=6.0 and <7.3
+        required: true, if conditions met
+        auditable: true
+        encrypted: true
+      bicarbonate:
+        type: float
+        description: The patient's blood bicarbonate level in mmol/L.
+        conditions: bloodGasAvailable is true, and pH is >=7.3
+        validation: must be a floating-point number between 0 and 30
+        required: true, if conditions met
+        auditable: true
+        encrypted: true
+      shockPresent:
+        type: boolean
+        description: Indicates if the patient is in shock.
+        options: true, false
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: true
+      gcs:
+        type: int
+        description: The patient's Glasgow Coma Scale (GCS) score.
+        validation: must be an integer between 3 and 15
+        conditions: shockPresent is false
+        required: true
+        auditable: true
+        encrypted: true
+      respiratorySupport:
+        type: boolean
+        description: Indicates if the patient is receiving respiratory support or O2.
+        options: true, false
+        validation: must be one of the provided options
+        conditions: shockPresent is false and gcs is >13 and pH >=7.1
+        required: true
+        auditable: true
+        encrypted: true
+server:
+  auditID:
+    type: string
+    description: A unique identifier for each form submission, used for assurance and audit.
+    auditable: true
+    encrypted: false
+  appVersion:
+    type: string
+    description: The client and API version of the application used.
+    auditable: true
+    encrypted: false
+  serverCalculations:
+    type: boolean
+    description: If the calculations were performed on the server side or not
+    auditable: true
+    encrypted: false
+  timestamp:
+    type: datetime
+    description: The sever UTC datetime the form was submitted.
+    auditable: true
+    encrypted: false
+  browseragent:
+    type: string
+    description: The browser user-agent string of the client used to submit the form.
+    auditable: true
+    encrypted: false
+  ip:
+    type: string
+    description: The IP address of the client used to submit the form.
+    auditable: true
+    encrypted: false
+  calculations:
+    type: object
+    description: The outputs of the calculator.
+    auditable: true
+    encrypted: true
+    properties:
+      severity:
+        type: object
+        description: The severity of the diabetic ketoacidosis (DKA) based on pH, bicarbonate, GCS, shockPresent and/or respiratorySupport.
+        properties:
+          val:
+            type: string
+            description: The severity classification.
+            options: standard, severe, null (not DKA)
+          formula:
+            type: string
+            description: The formula used to determine the severity classification.
+          working:
+            type: string
+            description: The working used to determine the severity classification.
+      bolus:
+        type: object
+        description: The recommended fluid bolus.
+        properties:
+          val:
+            type: int
+            description: The volume of the fluid bolus in mL.
+          rate:
+            type: float
+            description: The rate at which the fluid bolus should be administered.
+          mlsPerKg:
+            type: int
+            description: The multilplier of the patient's weight used to determine the fluid bolus volume.
+          limit:
+            type: int
+            description: The maximum volume of the fluid bolus in mL.
+          isCapped:
+            type: boolean
+            description: Indicates if the fluid bolus volume is capped at the limit.
+            values: true, false
+          formula:
+            type: string
+            description: The formula used to determine the fluid bolus volume.
+          working:
+            type: string
+            description: The working used to determine the fluid bolus volume.
+      deficit:
+        type: object
+        description: The fluid deficit to be replaced.
+        properties:
+          percentage:
+            type: object
+            description: The percentage fluid deficit used.
+            properties:
+              val:
+                type: float
+                description: The percentage fluid deficit.
+              formula:
+                type: string
+                description: The formula used to determine the percentage fluid deficit.
+              working:
+                type: string
+                description: The working used to determine the percentage fluid deficit.
+          volume:
+            type: object
+            description: The volume of the fluid deficit.
+            properties:
+              val:
+                type: float
+                description: The volume of the fluid deficit in mL.
+              limit:
+                type: int
+                description: The maximum volume of the fluid deficit in mL.
+              isCapped:
+                type: boolean
+                description: Indicates if the fluid deficit volume is capped at the limit.
+              formula:
+                type: string
+                description: The formula used to determine the fluid deficit volume.
+              working:
+                type: string
+                description: The working used to determine the fluid deficit volume.
+          rate:
+            type: object
+            description: The rate to replace the fluid deficit.
+            properties:
+              val:
+                type: float
+                description: The rate to replace the fluid deficit in mL/hour.
+              formula:
+                type: string
+                description: The formula used to determine the rate to replace the fluid deficit.
+              working:
+                type: string
+                description: The working used to determine the rate to replace the fluid deficit.
+      maintenance:
+        type: object
+        description: The maintenance fluid requirement.
+        properties:
+          volume:
+            type: object
+            description: The volume of the maintenance fluid requirement.
+            properties:
+              val:
+                type: float
+                description: The volume of the maintenance fluid requirement in mL/day.
+              limit:
+                type: int
+                description: The maximum volume of the maintenance fluid requirement in mL/day.
+              isCapped:
+                type: boolean
+                description: Indicates if the maintenance fluid requirement volume is capped at the limit.
+              formula:
+                type: string
+                description: The formula used to determine the volume of the maintenance fluid requirement.
+              working:
+                type: string
+                description: The working used to determine the volume of the maintenance fluid requirement.
+          rate:
+            type: object
+            description: The rate to deliver maintenance fluids.
+            properties:
+              val:
+                type: float
+                description: The rate of the maintenance fluid requirement in mL/hour.
+              formula:
+                type: string
+                description: The formula used to determine the rate of the maintenance fluid requirement.
+              working:
+                type: string
+                description: The working used to determine the rate of the maintenance fluid requirement.
+      totalFluidRate:
+        type: object
+        description: The total fluid rate combining deficit replacement and maintenance.
+        properties:
+          val:
+            type: float
+            description: The total fluid rate in mL/hour.
+          formula:
+            type: string
+            description: The formula used to determine the total fluid rate.
+          working:
+            type: string
+            description: The working used to determine the total fluid rate.
+      insulin:
+        type: object
+        description: The recommended insulin regime.
+        properties:
+          route:
+            type: float
+            description: The insulin administration route.
+          imDose:
+            type: object
+            description: The dose of intramuscular insulin in units.
+            conditions: syringeDriversAvailable is false
+            properties:
+              val:
+                type: float
+                description: The dose of intramuscular insulin in units.
+              formula:
+                type: string
+                description: The formula used to determine the dose of intramuscular insulin.
+              working:
+                type: string
+                description: The working used to determine the dose of intramuscular insulin.
+          ivRate:
+            type: object
+            description: The rate of intravenous insulin infusion in units/hour.
+            conditions: syringeDriversAvailable is true
+            properties:
+              val:
+                type: float
+                description: The rate of intravenous insulin infusion in units/hour.
+              unitsPerKgPerHour:
+                type: float
+                description: The insulin infusion rate in units per kg per hour.
+              limit:
+                type: float
+                description: The maximum rate of intravenous insulin infusion in units/hour.
+              isCapped:
+                type: boolean
+                description: Indicates if the intravenous insulin infusion rate is capped at the limit.
+              formula:
+                type: string
+                description: The formula used to determine the rate of intravenous insulin infusion.
+              working:
+                type: string
+                description: The working used to determine the rate of intravenous insulin infusion.

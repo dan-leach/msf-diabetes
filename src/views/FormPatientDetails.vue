@@ -1,8 +1,9 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
-import Swal from "sweetalert2";
 import router from "../router";
+import { inject } from "vue";
+const config = inject("config");
 
 // Reactive variable to control error display.
 let showErrors = ref(false);
@@ -17,7 +18,10 @@ const continueClick = () => {
     .getElementById("form-patient-details")
     .classList.add("was-validated");
   if (data.value.form.isValid(1)) {
-    router.push("/form-clinical-details");
+    const nextRoute = data.value.inputs.weight.limit.override
+      ? "/form-override-confirm"
+      : "/form-equipment-availability";
+    router.push(nextRoute);
   }
 };
 
@@ -35,41 +39,14 @@ const setMinMaxPatientDOB = () => {
     .substring(0, 10);
 };
 
-/**
- * Handles the opt-out click event for the NHS number or postcode inputs.
- * Displays an alert if not shown previously, and clears input value if opt-out confirmed.
- * @param {string} i - The input identifier.
- */
-const optOutClick = (i) => {
-  let input = data.value.inputs[i];
-  if (input.optOut.msg.show) {
-    Swal.fire({
-      text: input.optOut.msg.text,
-      confirmButtonColor: "#0d6efd",
-    });
-  }
-  input.optOut.msg.show = false;
-  if (input.optOut.val) {
-    input.val = "";
-  }
-  if (!input.optOut.val && i === "patientNHS") {
-    data.value.inputs.patientHospNum.val = "";
-  }
-};
+if (!data.value.form.isValid(0)) {
+  router.push("/form-disclaimer");
+  //data.value.form.joeBloggs();
+}
 
-/**
- * Lifecycle hook that runs when the component is mounted.
- * Checks the validity of previous form steps and redirects if necessary.
- * Scrolls to the top of the page.
- */
 onMounted(() => {
-  if (!data.value.form.isValid(0)) {
-    router.push("/form-disclaimer");
-  } else {
-    setMinMaxPatientDOB();
-    // Scroll to top
-    window.scrollTo(0, 0);
-  }
+  setMinMaxPatientDOB();
+  window.scrollTo(0, 0);
 });
 </script>
 
@@ -77,48 +54,70 @@ onMounted(() => {
   <form id="form-patient-details" class="container my-4 needs-validation">
     <h2 class="display-3">Patient details</h2>
     <p class="mx-1">
-      To generate a care pathway for your patient please complete the form
-      below. For more information about how this data is used click the
-      <font-awesome-icon :icon="['fas', 'circle-info']" /> icon by each field or
-      refer to the
+      To calculate values for your patient please complete the form below. For
+      more information about how this data is used refer to the
       <RouterLink to="/privacy-policy" target="_blank" class=""
         >privacy policy</RouterLink
       >.
     </p>
-    <!--patientName-->
+    <p class="mx-1">
+      For more information about each field click the
+      <font-awesome-icon :icon="['fas', 'circle-info']" /> icon.
+    </p>
+    <!--episodeType-->
     <div class="mb-4">
-      <div class="input-group">
-        <div class="form-floating">
+      <p class="text-center m-2">
+        {{ data.inputs.episodeType.label }}
+        <font-awesome-icon
+          :icon="['fas', 'circle-info']"
+          data-bs-toggle="collapse"
+          data-bs-target="#episodeTypeInfo"
+          class="ms-2"
+        />
+      </p>
+      <div class="d-flex justify-content-center">
+        <div>
           <input
-            type="text"
-            class="form-control"
-            id="patientName"
-            v-model="data.inputs.patientName.val"
-            @change="data.inputs.patientName.isValid()"
-            placeholder="x"
-            :minlength="data.inputs.patientName.minLength"
-            :maxlength="data.inputs.patientName.maxLength"
+            type="radio"
+            class="btn-check"
+            name="episodeType"
+            id="episodeTypeReal"
+            value="real"
+            v-model="data.inputs.episodeType.val"
+            @change="data.inputs.episodeType.isValid()"
+            autocomplete="off"
             required
+          />
+          <label
+            class="btn btn-outline-secondary me-2 episode-type-btn py-3"
+            for="episodeTypeReal"
+            >For a real patient</label
+          >
+
+          <input
+            type="radio"
+            class="btn-check"
+            name="episodeType"
+            id="episodeTypeTest"
+            value="test"
+            v-model="data.inputs.episodeType.val"
+            @change="data.inputs.episodeType.isValid()"
             autocomplete="off"
           />
-          <label for="patientName">{{ data.inputs.patientName.label }}</label>
+          <label class="btn btn-outline-secondary" for="episodeTypeTest"
+            >For testing or training purposes</label
+          >
         </div>
-        <span
-          class="input-group-text"
-          data-bs-toggle="collapse"
-          data-bs-target="#patientNameInfo"
-          ><font-awesome-icon :icon="['fas', 'circle-info']"
-        /></span>
       </div>
       <div
         v-if="showErrors"
-        class="form-text text-danger mx-1"
-        id="patientNameErrors"
+        class="form-text text-danger text-center mx-1"
+        id="episodeTypeErrors"
       >
-        {{ data.inputs.patientName.errors }}
+        {{ data.inputs.episodeType.errors }}
       </div>
-      <div class="collapse form-text mx-1" id="patientNameInfo">
-        {{ data.inputs.patientName.info }}
+      <div class="collapse form-text text-center mx-1" id="episodeTypeInfo">
+        {{ data.inputs.episodeType.info }}
       </div>
     </div>
     <!--patientDOB-->
@@ -209,156 +208,147 @@ onMounted(() => {
         {{ data.inputs.patientSex.info }}
       </div>
     </div>
-    <!--patientNHS-->
+    <!--weight-->
     <div class="mb-4">
       <div class="input-group">
         <div class="form-floating">
           <input
             type="number"
             class="form-control"
-            id="patientNHS"
-            v-model="data.inputs.patientNHS.val"
-            @change="data.inputs.patientNHS.isValid()"
+            id="weight"
+            v-model="data.inputs.weight.val"
+            @change="data.inputs.weight.isValid()"
             placeholder="x"
-            :min="data.inputs.patientNHS.min"
-            :max="data.inputs.patientNHS.max"
-            :disabled="data.inputs.patientNHS.optOut.val"
+            :min="data.inputs.weight.min()"
+            :max="data.inputs.weight.max()"
+            :step="data.inputs.weight.step"
             autocomplete="off"
             required
           />
-          <label for="patientNHS">{{ data.inputs.patientNHS.label }}</label>
+          <label for="weight">{{ data.inputs.weight.label }}</label>
         </div>
+        <span class="input-group-text">kg</span>
         <span
           class="input-group-text"
           data-bs-toggle="collapse"
-          data-bs-target="#patientNHSInfo"
+          data-bs-target="#weightInfo"
           ><font-awesome-icon :icon="['fas', 'circle-info']"
         /></span>
       </div>
       <div
-        v-if="showErrors && !data.inputs.patientNHS.optOut.val"
+        v-if="showErrors || data.inputs.weight.limit.exceeded"
         class="form-text text-danger mx-1"
-        id="patientNHSErrors"
+        id="weightErrors"
       >
-        {{ data.inputs.patientNHS.errors }}
+        {{ data.inputs.weight.errors }}
       </div>
-      <div class="form-check form-switch ms-1 my-1">
+      <div
+        class="form-check form-switch ms-1 my-1"
+        v-if="
+          data.inputs.weight.limit.exceeded &&
+          data.inputs.weight.val < data.inputs.weight.max()
+        "
+      >
         <input
           class="form-check-input"
           type="checkbox"
-          v-model="data.inputs.patientNHS.optOut.val"
-          @change="optOutClick('patientNHS')"
-          id="optOutNHS"
+          v-model="data.inputs.weight.limit.override"
+          @change="data.inputs.weight.isValid()"
+          id="weightLimitOverride"
         />
-        <label class="form-check-label" for="flexSwitchCheckDefault">{{
-          data.inputs.patientNHS.optOut.label
+        <label class="form-check-label" for="weightLimitOverride">{{
+          data.inputs.weight.limit.overrideLabel
         }}</label>
       </div>
       <div
         class="collapse form-text mx-1"
-        id="patientNHSInfo"
-        v-html="data.inputs.patientNHS.info"
-        v-if="!data.inputs.patientNHS.optOut.val"
+        id="weightInfo"
+        v-html="data.inputs.weight.info"
       ></div>
     </div>
-    <!--hospital number alternative-->
-    <Transition>
+    <!--operationalCentre-->
+    <div class="mb-4">
+      <div class="input-group">
+        <select
+          name="operationalCentre"
+          class="form-select"
+          v-model="data.inputs.operationalCentre.val"
+          @change="data.inputs.operationalCentre.isValid()"
+          autocomplete="off"
+          required
+        >
+          <option value="" disabled>
+            {{ data.inputs.operationalCentre.label }}
+          </option>
+          <option
+            v-for="operationalCentre in config.operationalCentres"
+            :value="operationalCentre.name"
+          >
+            {{ operationalCentre.name }}
+          </option>
+          <option value="Other">Other</option>
+        </select>
+
+        <span
+          class="input-group-text"
+          data-bs-toggle="collapse"
+          data-bs-target="#operationalCentreInfo"
+          ><font-awesome-icon :icon="['fas', 'circle-info']"
+        /></span>
+      </div>
       <div
-        class="mb-4"
-        id="patientHospNumCollapse"
-        v-if="data.inputs.patientNHS.optOut.val"
+        v-if="showErrors"
+        class="form-text text-danger mx-1"
+        id="operationalCentreErrors"
       >
+        {{ data.inputs.operationalCentre.errors }}
+      </div>
+      <div class="collapse form-text mx-1" id="operationalCentreInfo">
+        {{ data.inputs.operationalCentre.info }}
+      </div>
+    </div>
+    <!--project-->
+    <transition>
+      <div class="mb-4" v-if="data.inputs.operationalCentre.val">
         <div class="input-group">
-          <div class="form-floating">
-            <input
-              type="text"
-              class="form-control"
-              id="patientHospNum"
-              v-model="data.inputs.patientHospNum.val"
-              @change="data.inputs.patientHospNum.isValid()"
-              placeholder="x"
-              :minlength="data.inputs.patientHospNum.minLength"
-              :maxlength="data.inputs.patientHospNum.maxLength"
-              autocomplete="off"
-              required
-            />
-            <label for="patientHospNum">{{
-              data.inputs.patientHospNum.label
-            }}</label>
-          </div>
+          <select
+            name="project"
+            class="form-select"
+            v-model="data.inputs.project.val"
+            @change="data.inputs.project.isValid()"
+            autocomplete="off"
+            required
+            :disabled="!data.inputs.operationalCentre.val"
+          >
+            <option value="" disabled>{{ data.inputs.project.label }}</option>
+            <option
+              v-for="projectOption in data.inputs.project.options"
+              :value="projectOption"
+            >
+              {{ projectOption }}
+            </option>
+            <option value="Other">Other</option>
+          </select>
+
           <span
             class="input-group-text"
             data-bs-toggle="collapse"
-            data-bs-target="#patientHospNumInfo"
+            data-bs-target="#projectInfo"
             ><font-awesome-icon :icon="['fas', 'circle-info']"
           /></span>
         </div>
         <div
           v-if="showErrors"
           class="form-text text-danger mx-1"
-          id="patientHospNum"
+          id="projectErrors"
         >
-          {{ data.inputs.patientHospNum.errors }}
+          {{ data.inputs.project.errors }}
         </div>
-        <div
-          class="collapse form-text mx-1"
-          id="patientHospNumInfo"
-          v-html="data.inputs.patientHospNum.info"
-        ></div>
-      </div>
-    </Transition>
-    <!--patientPostcode-->
-    <div class="mb-4">
-      <div class="input-group">
-        <div class="form-floating">
-          <input
-            type="text"
-            class="form-control"
-            id="patientName"
-            v-model="data.inputs.patientPostcode.val"
-            @change="data.inputs.patientPostcode.isValid()"
-            placeholder="x"
-            :minlength="data.inputs.patientPostcode.minLength"
-            :maxlength="data.inputs.patientPostcode.maxLength"
-            :pattern="data.inputs.patientPostcode.pattern"
-            required
-            :disabled="data.inputs.patientPostcode.optOut.val"
-            autocomplete="off"
-          />
-          <label for="patientPostcode">{{
-            data.inputs.patientPostcode.label
-          }}</label>
+        <div class="collapse form-text mx-1" id="projectInfo">
+          {{ data.inputs.project.info }}
         </div>
-        <span
-          class="input-group-text"
-          data-bs-toggle="collapse"
-          data-bs-target="#patientPostcodeInfo"
-          ><font-awesome-icon :icon="['fas', 'circle-info']"
-        /></span>
       </div>
-      <div class="form-check form-switch ms-1 my-1">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          v-model="data.inputs.patientPostcode.optOut.val"
-          @change="optOutClick('patientPostcode')"
-          id="optOutPostcode"
-        />
-        <label class="form-check-label" for="flexSwitchCheckDefault">{{
-          data.inputs.patientPostcode.optOut.label
-        }}</label>
-      </div>
-      <div
-        v-if="showErrors"
-        class="form-text text-danger mx-1"
-        id="patientPostcodeErrors"
-      >
-        {{ data.inputs.patientPostcode.errors }}
-      </div>
-      <div class="collapse form-text mx-1" id="patientPostcodeInfo">
-        {{ data.inputs.patientPostcode.info }}
-      </div>
-    </div>
+    </transition>
 
     <div class="d-flex flex-row justify-content-evenly">
       <!--back-->

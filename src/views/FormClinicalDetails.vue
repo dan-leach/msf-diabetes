@@ -2,6 +2,8 @@
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
+import { inject } from "vue";
+const config = inject("config");
 
 // Reactive variable to control error display.
 const showErrors = ref(false);
@@ -16,288 +18,327 @@ const continueClick = () => {
     .getElementById("form-clinical-details")
     .classList.add("was-validated");
 
-  if (data.value.form.isValid(2)) {
-    const nextRoute = data.value.inputs.weight.limit.override
-      ? "/form-override-confirm"
-      : "/form-audit-details";
-    router.push(nextRoute);
+  if (data.value.form.isValid(3)) {
+    router.push("/calculate");
   }
 };
 
-/**
- * Lifecycle hook that runs when the component is mounted.
- * Checks the validity of previous form steps and redirects if necessary.
- * Sets initial form state.
- * Scrolls to the top of the page.
- */
-onMounted(() => {
-  if (!data.value.form.isValid(0)) {
-    router.push("/form-disclaimer");
-  } else if (!data.value.form.isValid(1)) {
-    router.push("/form-patient-details");
-  } else {
-    // Scroll to top
-    window.scrollTo(0, 0);
+if (!data.value.form.isValid(1)) router.push("/form-equipment-availability");
 
-    // Build date-related values and set input min/max attributes
-    const { protocolStartDatetime } = data.value.inputs;
-    protocolStartDatetime.todayString.build();
-    protocolStartDatetime.val = protocolStartDatetime.todayString.val;
-    protocolStartDatetime.minDate.build();
-    protocolStartDatetime.minDateString.build();
-    protocolStartDatetime.maxDate.build();
-    protocolStartDatetime.maxDateString.build();
-
-    const protocolInput = document.getElementById("protocolStartDatetime");
-    protocolInput.min = protocolStartDatetime.minDateString.val;
-    protocolInput.max = protocolStartDatetime.maxDateString.val;
-  }
-});
+onMounted(() => window.scrollTo(0, 0));
 </script>
 
 <template>
   <form id="form-clinical-details" class="container my-4 needs-validation">
     <h2 class="display-3">Clinical details</h2>
-    <!--protocolStartDatetime-->
-    <div class="mb-4">
+    <!--glucose-->
+    <div class="mb-4 flex-grow-1">
       <div class="input-group">
         <div class="form-floating">
           <input
-            type="datetime-local"
+            type="number"
             class="form-control"
-            id="protocolStartDatetime"
-            v-model="data.inputs.protocolStartDatetime.val"
-            @change="data.inputs.protocolStartDatetime.isValid()"
+            id="glucose"
+            v-model="data.inputs.glucose.val"
+            @change="data.inputs.glucose.isValid()"
             placeholder="x"
-            min=""
-            max=""
-            required
+            :min="data.inputs.glucose.min()"
+            :max="data.inputs.glucose.max()"
+            :step="data.inputs.glucose.step"
             autocomplete="off"
+            required
           />
-          <label for="protocolStartDatetime">{{
-            data.inputs.protocolStartDatetime.label
-          }}</label>
+          <label for="glucose">{{ data.inputs.glucose.label }}</label>
         </div>
+        <select
+          class="form-select w-auto glucose-unit-select"
+          id="glucoseUnitSelect"
+          v-model="data.inputs.glucose.unit"
+          @change="data.inputs.glucose.unitChange()"
+        >
+          <option
+            v-for="(unit, unitKey) in config.validation.glucose.units"
+            :key="unitKey"
+            :value="unitKey"
+            :selected="unit.default === true"
+          >
+            {{ unitKey }}
+          </option>
+        </select>
         <span
           class="input-group-text"
           data-bs-toggle="collapse"
-          data-bs-target="#protocolStartDatetimeInfo"
+          data-bs-target="#glucoseInfo"
           ><font-awesome-icon :icon="['fas', 'circle-info']"
         /></span>
       </div>
       <div
         v-if="showErrors"
         class="form-text text-danger mx-1"
-        id="protocolStartDatetimeErrors"
+        id="glucoseErrors"
       >
-        {{ data.inputs.protocolStartDatetime.errors }}
+        {{ data.inputs.glucose.errors }}
       </div>
-      <div class="collapse form-text mx-1" id="protocolStartDatetimeInfo">
-        {{ data.inputs.protocolStartDatetime.info }}
-      </div>
+      <div
+        class="collapse form-text mx-1"
+        id="glucoseInfo"
+        v-html="data.inputs.glucose.info"
+      ></div>
     </div>
-    <!--pH-->
-    <div class="mb-4">
+    <!--bloodKetones-->
+    <div class="mb-4" v-if="data.inputs.bloodKetonesAvailable.val === 'true'">
       <div class="input-group">
         <div class="form-floating">
           <input
             type="number"
             class="form-control"
             id="pH"
-            v-model="data.inputs.pH.val"
-            @change="data.inputs.pH.isValid()"
+            v-model="data.inputs.bloodKetones.val"
+            @change="data.inputs.bloodKetones.isValid()"
             placeholder="x"
-            :min="data.inputs.pH.min()"
-            :max="data.inputs.pH.max()"
-            :step="data.inputs.pH.step"
+            :min="data.inputs.bloodKetones.min()"
+            :max="data.inputs.bloodKetones.max()"
+            :step="data.inputs.bloodKetones.step"
             autocomplete="off"
             required
           />
-          <label for="pH">{{ data.inputs.pH.label }}</label>
+          <label for="bloodKetones">{{ data.inputs.bloodKetones.label }}</label>
         </div>
+        <span class="input-group-text">mmol/L</span>
         <span
           class="input-group-text"
           data-bs-toggle="collapse"
-          data-bs-target="#pHInfo"
+          data-bs-target="#bloodKetonesInfo"
           ><font-awesome-icon :icon="['fas', 'circle-info']"
         /></span>
       </div>
-      <div v-if="showErrors" class="form-text text-danger mx-1" id="pHErrors">
-        {{ data.inputs.pH.errors }}
+      <div
+        v-if="showErrors"
+        class="form-text text-danger mx-1"
+        id="bloodKetonesErrors"
+      >
+        {{ data.inputs.bloodKetones.errors }}
       </div>
       <div
         class="collapse form-text mx-1"
-        id="pHInfo"
-        v-html="data.inputs.pH.info"
+        id="bloodKetonesInfo"
+        v-html="data.inputs.bloodKetones.info"
       ></div>
     </div>
-    <!--optional values-->
-    <div class="card mb-4 bg-transparent">
-      <div class="card-header d-flex flex-row flex-wrap">
-        <span class="align-middle"
-          >Optional values &nbsp;<font-awesome-icon
-            :icon="['fas', 'circle-info']"
-            data-bs-toggle="collapse"
-            data-bs-target="#bicarbonateInfo"
-        /></span>
+    <!--urineKetones-->
+    <div class="mb-4" v-else>
+      <p class="text-center m-2">
+        {{ data.inputs.urineKetones.label }}
+        <font-awesome-icon
+          :icon="['fas', 'circle-info']"
+          data-bs-toggle="collapse"
+          data-bs-target="#urineKetonesInfo"
+          class="ms-2"
+        />
+      </p>
+      <div
+        class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-2"
+      >
+        <button
+          class="btn btn-outline-secondary btn-urineKetones"
+          :class="{ urineKetonesActive: data.inputs.urineKetones.val === 0 }"
+          type="button"
+          @click="data.inputs.urineKetones.setVal(0)"
+        >
+          -
+        </button>
+
+        <button
+          class="btn btn-outline-secondary btn-urineKetones"
+          :class="{ urineKetonesActive: data.inputs.urineKetones.val === 1 }"
+          type="button"
+          @click="data.inputs.urineKetones.setVal(1)"
+        >
+          +
+        </button>
+
+        <button
+          class="btn btn-outline-secondary btn-urineKetones"
+          :class="{ urineKetonesActive: data.inputs.urineKetones.val === 2 }"
+          type="button"
+          @click="data.inputs.urineKetones.setVal(2)"
+        >
+          ++
+        </button>
+
+        <button
+          class="btn btn-outline-secondary btn-urineKetones"
+          :class="{ urineKetonesActive: data.inputs.urineKetones.val === 3 }"
+          type="button"
+          @click="data.inputs.urineKetones.setVal(3)"
+        >
+          +++
+        </button>
+
+        <button
+          class="btn btn-outline-secondary btn-urineKetones"
+          :class="{ urineKetonesActive: data.inputs.urineKetones.val === 4 }"
+          type="button"
+          @click="data.inputs.urineKetones.setVal(4)"
+        >
+          ++++
+        </button>
       </div>
-      <div class="card-body">
-        <div class="d-flex flex-row flex-wrap">
-          <!--bicarbonate-->
-          <div class="mb-1 flex-grow-1">
-            <div class="input-group">
-              <div class="form-floating">
-                <input
-                  type="number"
-                  class="form-control"
-                  id="bicarbonate"
-                  v-model="data.inputs.bicarbonate.val"
-                  @change="data.inputs.bicarbonate.isValid()"
-                  placeholder="x"
-                  :min="data.inputs.bicarbonate.min()"
-                  :max="data.inputs.bicarbonate.max()"
-                  :step="data.inputs.bicarbonate.step"
-                  autocomplete="off"
-                />
-                <label for="bicarbonate">{{
-                  data.inputs.bicarbonate.label
-                }}</label>
-              </div>
-              <span class="input-group-text">mmol/L</span>
-            </div>
-            <div
-              v-if="showErrors"
-              class="form-text text-danger mx-1"
-              id="bicarbonateErrors"
-            >
-              {{ data.inputs.bicarbonate.errors }}
-            </div>
+      <div
+        v-if="showErrors"
+        class="text-center form-text text-danger mx-1"
+        id="urineKetonesErrors"
+      >
+        {{ data.inputs.urineKetones.errors }}
+      </div>
+      <div
+        class="text-center collapse form-text mx-1"
+        id="urineKetonesInfo"
+        v-html="data.inputs.urineKetones.info"
+      ></div>
+    </div>
+    <!--diagnosticFeatures-->
+    <div class="mb-4 text-center">
+      <p class="m-2">
+        {{ data.inputs.diagnosticFeatures.label }}
+        <font-awesome-icon
+          :icon="['fas', 'circle-info']"
+          data-bs-toggle="collapse"
+          data-bs-target="#diagnosticFeaturesInfo"
+          class="ms-2"
+        />
+      </p>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <input
+          type="radio"
+          class="btn-check"
+          name="diagnosticFeatures"
+          id="diagnosticFeaturesTrue"
+          value="true"
+          v-model="data.inputs.diagnosticFeatures.val"
+          @change="data.inputs.diagnosticFeatures.isValid()"
+          autocomplete="off"
+          required
+        />
+        <label class="btn btn-outline-secondary" for="diagnosticFeaturesTrue"
+          >Yes</label
+        >
+
+        <input
+          type="radio"
+          class="btn-check"
+          name="diagnosticFeatures"
+          id="diagnosticFeaturesFalse"
+          value="false"
+          v-model="data.inputs.diagnosticFeatures.val"
+          @change="data.inputs.diagnosticFeatures.isValid()"
+          autocomplete="off"
+        />
+        <label class="btn btn-outline-secondary" for="diagnosticFeaturesFalse"
+          >No</label
+        >
+      </div>
+      <div
+        v-if="showErrors"
+        class="form-text text-danger text-center mx-1"
+        id="diagnosticFeaturesErrors"
+      >
+        {{ data.inputs.diagnosticFeatures.errors }}
+      </div>
+      <div
+        class="collapse form-text text-center mx-1"
+        id="diagnosticFeaturesInfo"
+      >
+        {{ data.inputs.diagnosticFeatures.info }}
+      </div>
+    </div>
+    <div v-if="data.inputs.bloodGasAvailable.val === 'true'">
+      <!--pH-->
+      <div class="mb-4">
+        <div class="input-group">
+          <div class="form-floating">
+            <input
+              type="number"
+              class="form-control"
+              id="pH"
+              v-model="data.inputs.pH.val"
+              @change="data.inputs.pH.isValid()"
+              placeholder="x"
+              :min="data.inputs.pH.min()"
+              :max="data.inputs.pH.max()"
+              :step="data.inputs.pH.step"
+              autocomplete="off"
+              required
+            />
+            <label for="pH">{{ data.inputs.pH.label }}</label>
           </div>
-          <!--glucose-->
-          <div class="mb-1 flex-grow-1">
-            <div class="input-group">
-              <div class="form-floating">
-                <input
-                  type="number"
-                  class="form-control"
-                  id="glucose"
-                  v-model="data.inputs.glucose.val"
-                  @change="data.inputs.glucose.isValid()"
-                  placeholder="x"
-                  :min="data.inputs.glucose.min()"
-                  :max="data.inputs.glucose.max()"
-                  :step="data.inputs.glucose.step"
-                  autocomplete="off"
-                />
-                <label for="glucose">{{ data.inputs.glucose.label }}</label>
-              </div>
-              <span class="input-group-text">mmol/L</span>
-            </div>
-            <div
-              v-if="showErrors"
-              class="form-text text-danger mx-1"
-              id="glucoseErrors"
-            >
-              {{ data.inputs.glucose.errors }}
-            </div>
-          </div>
-          <!--ketones-->
-          <div class="mb-1 flex-grow-1">
-            <div class="input-group">
-              <div class="form-floating">
-                <input
-                  type="number"
-                  class="form-control"
-                  id="ketones"
-                  v-model="data.inputs.ketones.val"
-                  @change="data.inputs.ketones.isValid()"
-                  placeholder="x"
-                  :min="data.inputs.ketones.min()"
-                  :max="data.inputs.ketones.max()"
-                  :step="data.inputs.ketones.step"
-                  autocomplete="off"
-                />
-                <label for="ketones">{{ data.inputs.ketones.label }}</label>
-              </div>
-              <span class="input-group-text">mmol/L</span>
-            </div>
-            <div
-              v-if="showErrors"
-              class="form-text text-danger mx-1"
-              id="ketonesErrors"
-            >
-              {{ data.inputs.ketones.errors }}
-            </div>
-          </div>
+          <span
+            class="input-group-text"
+            data-bs-toggle="collapse"
+            data-bs-target="#pHInfo"
+            ><font-awesome-icon :icon="['fas', 'circle-info']"
+          /></span>
+        </div>
+        <div v-if="showErrors" class="form-text text-danger mx-1" id="pHErrors">
+          {{ data.inputs.pH.errors }}
         </div>
         <div
           class="collapse form-text mx-1"
-          id="bicarbonateInfo"
-          v-html="data.inputs.bicarbonate.info"
+          id="pHInfo"
+          v-html="data.inputs.pH.info"
         ></div>
       </div>
-    </div>
-    <!--weight-->
-    <div class="mb-4">
-      <div class="input-group">
-        <div class="form-floating">
-          <input
-            type="number"
-            class="form-control"
-            id="weight"
-            v-model="data.inputs.weight.val"
-            @change="data.inputs.weight.isValid()"
-            placeholder="x"
-            :min="data.inputs.weight.min()"
-            :max="data.inputs.weight.max()"
-            :step="data.inputs.weight.step"
-            autocomplete="off"
-            required
-          />
-          <label for="weight">{{ data.inputs.weight.label }}</label>
+      <!--bicarbonate-->
+      <transition>
+        <div
+          class="mb-4"
+          v-if="data.inputs.pH.val >= config.validation.pH.diagnosticThreshold"
+        >
+          <div class="input-group">
+            <div class="form-floating">
+              <input
+                type="number"
+                class="form-control"
+                id="bicarbonate"
+                v-model="data.inputs.bicarbonate.val"
+                @change="data.inputs.bicarbonate.isValid()"
+                placeholder="x"
+                :min="data.inputs.bicarbonate.min()"
+                :max="data.inputs.bicarbonate.max()"
+                :step="data.inputs.bicarbonate.step"
+                autocomplete="off"
+                required
+              />
+              <label for="bicarbonate">{{
+                data.inputs.bicarbonate.label
+              }}</label>
+            </div>
+            <span class="input-group-text">mmol/L</span>
+            <span
+              class="input-group-text"
+              data-bs-toggle="collapse"
+              data-bs-target="#bicarbonateInfo"
+              ><font-awesome-icon :icon="['fas', 'circle-info']"
+            /></span>
+          </div>
+          <div
+            v-if="showErrors"
+            class="form-text text-danger mx-1"
+            id="bicarbonateErrors"
+          >
+            {{ data.inputs.bicarbonate.errors }}
+          </div>
+          <div
+            class="collapse form-text mx-1"
+            id="bicarbonateInfo"
+            v-html="data.inputs.bicarbonate.info"
+          ></div>
         </div>
-        <span class="input-group-text">kg</span>
-        <span
-          class="input-group-text"
-          data-bs-toggle="collapse"
-          data-bs-target="#weightInfo"
-          ><font-awesome-icon :icon="['fas', 'circle-info']"
-        /></span>
-      </div>
-      <div
-        v-if="showErrors || data.inputs.weight.limit.exceeded"
-        class="form-text text-danger mx-1"
-        id="weightErrors"
-      >
-        {{ data.inputs.weight.errors }}
-      </div>
-      <div
-        class="form-check form-switch ms-1 my-1"
-        v-if="
-          data.inputs.weight.limit.exceeded &&
-          data.inputs.weight.val < data.inputs.weight.max()
-        "
-      >
-        <input
-          class="form-check-input"
-          type="checkbox"
-          v-model="data.inputs.weight.limit.override"
-          @change="data.inputs.weight.isValid()"
-          id="weightLimitOverride"
-        />
-        <label class="form-check-label" for="weightLimitOverride">{{
-          data.inputs.weight.limit.overrideLabel
-        }}</label>
-      </div>
-      <div
-        class="collapse form-text mx-1"
-        id="weightInfo"
-        v-html="data.inputs.weight.info"
-      ></div>
+      </transition>
     </div>
     <!--shockPresent-->
-    <div class="mb-4">
-      <p class="text-center m-2">
+    <div class="mb-4 text-center">
+      <p class="m-2">
         {{ data.inputs.shockPresent.label }}
         <font-awesome-icon
           :icon="['fas', 'circle-info']"
@@ -306,37 +347,35 @@ onMounted(() => {
           class="ms-2"
         />
       </p>
-      <div class="d-flex justify-content-center">
-        <div>
-          <input
-            type="radio"
-            class="btn-check"
-            name="shockPresent"
-            id="shockPresentTrue"
-            value="true"
-            v-model="data.inputs.shockPresent.val"
-            @change="data.inputs.shockPresent.isValid()"
-            autocomplete="off"
-            required
-          />
-          <label class="btn btn-outline-secondary me-2" for="shockPresentTrue"
-            >Yes</label
-          >
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <input
+          type="radio"
+          class="btn-check"
+          name="shockPresent"
+          id="shockPresentTrue"
+          value="true"
+          v-model="data.inputs.shockPresent.val"
+          @change="data.inputs.shockPresent.isValid()"
+          autocomplete="off"
+          required
+        />
+        <label class="btn btn-outline-secondary" for="shockPresentTrue"
+          >Yes</label
+        >
 
-          <input
-            type="radio"
-            class="btn-check"
-            name="shockPresent"
-            id="shockPresentFalse"
-            value="false"
-            v-model="data.inputs.shockPresent.val"
-            @change="data.inputs.shockPresent.isValid()"
-            autocomplete="off"
-          />
-          <label class="btn btn-outline-secondary" for="shockPresentFalse"
-            >No</label
-          >
-        </div>
+        <input
+          type="radio"
+          class="btn-check"
+          name="shockPresent"
+          id="shockPresentFalse"
+          value="false"
+          v-model="data.inputs.shockPresent.val"
+          @change="data.inputs.shockPresent.isValid()"
+          autocomplete="off"
+        />
+        <label class="btn btn-outline-secondary" for="shockPresentFalse"
+          >No</label
+        >
       </div>
       <div
         v-if="showErrors"
@@ -349,184 +388,108 @@ onMounted(() => {
         {{ data.inputs.shockPresent.info }}
       </div>
     </div>
-    <!--insulinRate-->
-    <div class="mb-4">
-      <p class="text-center m-2">
-        {{ data.inputs.insulinRate.label }}
-        <font-awesome-icon
-          :icon="['fas', 'circle-info']"
-          data-bs-toggle="collapse"
-          data-bs-target="#insulinRateInfo"
-          class="ms-2"
-        />
-      </p>
-      <div class="d-flex justify-content-center">
-        <div>
-          <input
-            type="radio"
-            class="btn-check"
-            name="insulinRate"
-            id="0.05"
-            value="0.05"
-            v-model="data.inputs.insulinRate.val"
-            @change="data.inputs.insulinRate.isValid()"
-            autocomplete="off"
-            required
-          />
-          <label class="btn btn-outline-secondary text-nowrap me-2" for="0.05"
-            >0.05 units/kg/hour<br />
-            (Default)</label
-          >
-
-          <input
-            type="radio"
-            class="btn-check"
-            name="insulinRate"
-            id="0.1"
-            value="0.1"
-            v-model="data.inputs.insulinRate.val"
-            @change="data.inputs.insulinRate.isValid()"
-            autocomplete="off"
-          />
-          <label
-            class="btn btn-outline-secondary text-nowrap insulin-rate-btn py-3"
-            for="0.1"
-            >0.1 units/kg/hour</label
-          >
+    <!--gcs-->
+    <transition>
+      <div class="mb-4" v-if="data.inputs.shockPresent.val === 'false'">
+        <div class="input-group">
+          <div class="form-floating">
+            <input
+              type="number"
+              class="form-control"
+              id="gcs"
+              v-model="data.inputs.gcs.val"
+              @change="data.inputs.gcs.isValid()"
+              placeholder="x"
+              :min="data.inputs.gcs.min()"
+              :max="data.inputs.gcs.max()"
+              :step="data.inputs.gcs.step"
+              autocomplete="off"
+              required
+            />
+            <label for="gcs">{{ data.inputs.gcs.label }}</label>
+          </div>
+          <span
+            class="input-group-text"
+            data-bs-toggle="collapse"
+            data-bs-target="#gcsInfo"
+            ><font-awesome-icon :icon="['fas', 'circle-info']"
+          /></span>
         </div>
+        <div
+          v-if="showErrors"
+          class="form-text text-danger mx-1"
+          id="gcsErrors"
+        >
+          {{ data.inputs.gcs.errors }}
+        </div>
+        <div
+          class="collapse form-text mx-1"
+          id="gcsInfo"
+          v-html="data.inputs.gcs.info"
+        ></div>
       </div>
+    </transition>
+    <!--respiratorySupport-->
+    <transition>
       <div
-        v-if="showErrors"
-        class="form-text text-danger text-center mx-1"
-        id="insulinRateErrors"
+        class="mb-4 text-center"
+        v-if="
+          data.inputs.shockPresent.val === 'false' &&
+          data.inputs.gcs.val > config.validation.gcs.severeThreshold &&
+          data.inputs.pH.val >= config.validation.pH.severeThreshold
+        "
       >
-        {{ data.inputs.insulinRate.errors }}
-      </div>
-      <div class="collapse form-text text-center mx-1" id="insulinRateInfo">
-        {{ data.inputs.insulinRate.info }}
-      </div>
-    </div>
-    <!--preExistingDiabetes-->
-    <div class="mb-4">
-      <p class="text-center m-2">
-        {{ data.inputs.preExistingDiabetes.label }}
-        <font-awesome-icon
-          :icon="['fas', 'circle-info']"
-          data-bs-toggle="collapse"
-          data-bs-target="#preExistingDiabetesInfo"
-          class="ms-2"
-        />
-      </p>
-      <div class="d-flex justify-content-center">
-        <div>
+        <p class="m-2">
+          {{ data.inputs.respiratorySupport.label }}
+          <font-awesome-icon
+            :icon="['fas', 'circle-info']"
+            data-bs-toggle="collapse"
+            data-bs-target="#respiratorySupportInfo"
+            class="ms-2"
+          />
+        </p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
           <input
             type="radio"
             class="btn-check"
-            name="preExistingDiabetes"
-            id="preExistingDiabetesTrue"
+            name="respiratorySupport"
+            id="respiratorySupportTrue"
             value="true"
-            v-model="data.inputs.preExistingDiabetes.val"
-            @change="data.inputs.preExistingDiabetes.isValid()"
+            v-model="data.inputs.respiratorySupport.val"
+            @change="data.inputs.respiratorySupport.isValid()"
             autocomplete="off"
             required
           />
-          <label
-            class="btn btn-outline-secondary me-2"
-            for="preExistingDiabetesTrue"
+          <label class="btn btn-outline-secondary" for="respiratorySupportTrue"
             >Yes</label
           >
 
           <input
             type="radio"
             class="btn-check"
-            name="preExistingDiabetes"
-            id="preExistingDiabetesFalse"
+            name="respiratorySupport"
+            id="respiratorySupportFalse"
             value="false"
-            v-model="data.inputs.preExistingDiabetes.val"
-            @change="data.inputs.preExistingDiabetes.isValid()"
+            v-model="data.inputs.respiratorySupport.val"
+            @change="data.inputs.respiratorySupport.isValid()"
             autocomplete="off"
           />
-          <label
-            class="btn btn-outline-secondary"
-            for="preExistingDiabetesFalse"
+          <label class="btn btn-outline-secondary" for="respiratorySupportFalse"
             >No</label
           >
-        </div>
-      </div>
-      <div
-        v-if="showErrors"
-        class="form-text text-danger text-center mx-1"
-        id="preExistingDiabetesErrors"
-      >
-        {{ data.inputs.preExistingDiabetes.errors }}
-      </div>
-      <div
-        class="collapse form-text text-center mx-1"
-        id="preExistingDiabetesInfo"
-      >
-        {{ data.inputs.preExistingDiabetes.info }}
-      </div>
-    </div>
-    <!--insulinDeliveryMethod-->
-    <transition>
-      <div class="mb-4" v-if="data.inputs.preExistingDiabetes.val == 'true'">
-        <p class="text-center m-2">
-          {{ data.inputs.insulinDeliveryMethod.label }}
-          <font-awesome-icon
-            :icon="['fas', 'circle-info']"
-            data-bs-toggle="collapse"
-            data-bs-target="#insulinDeliveryMethodInfo"
-            class="ms-2"
-          />
-        </p>
-        <div class="d-flex justify-content-center">
-          <div>
-            <input
-              type="radio"
-              class="btn-check"
-              name="insulinDeliveryMethod"
-              id="insulinDeliveryMethodPen"
-              value="pen"
-              v-model="data.inputs.insulinDeliveryMethod.val"
-              @change="data.inputs.insulinDeliveryMethod.isValid()"
-              autocomplete="off"
-              required
-            />
-            <label
-              class="btn btn-outline-secondary me-2"
-              for="insulinDeliveryMethodPen"
-              >Pen injections</label
-            >
-
-            <input
-              type="radio"
-              class="btn-check"
-              name="insulinDeliveryMethod"
-              id="insulinDeliveryMethodPump"
-              value="pump"
-              v-model="data.inputs.insulinDeliveryMethod.val"
-              @change="data.inputs.insulinDeliveryMethod.isValid()"
-              autocomplete="off"
-            />
-            <label
-              class="btn btn-outline-secondary"
-              for="insulinDeliveryMethodPump"
-              >Pump</label
-            >
-          </div>
         </div>
         <div
           v-if="showErrors"
           class="form-text text-danger text-center mx-1"
-          id="insulinDeliveryMethodErrors"
+          id="respiratorySupportErrors"
         >
-          {{ data.inputs.insulinDeliveryMethod.errors }}
+          {{ data.inputs.respiratorySupport.errors }}
         </div>
         <div
           class="collapse form-text text-center mx-1"
-          id="insulinDeliveryMethodInfo"
+          id="respiratorySupportInfo"
         >
-          {{ data.inputs.insulinDeliveryMethod.info }}
+          {{ data.inputs.respiratorySupport.info }}
         </div>
       </div>
     </transition>
@@ -536,7 +499,7 @@ onMounted(() => {
       <div class="text-center">
         <button
           type="button"
-          @click="router.push('/form-patient-details')"
+          @click="router.push('/form-equipment-availability')"
           class="btn btn-lg btn-secondary"
         >
           Back
@@ -561,7 +524,7 @@ onMounted(() => {
   max-width: 750px;
 }
 .btn-outline-secondary {
-  width: 150px;
+  width: 200px;
   background-color: white;
 }
 .flex-wrap {
@@ -575,5 +538,17 @@ onMounted(() => {
 }
 .v-enter-from {
   opacity: 0;
+}
+.urineKetonesActive {
+  background-color: #6c757d;
+  color: white;
+}
+.input-group > .glucose-unit-select {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  display: inline-block;
+  padding-right: 2em; /* optional */
 }
 </style>

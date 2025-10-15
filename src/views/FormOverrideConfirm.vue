@@ -12,7 +12,7 @@ const config = inject("config");
  */
 const continueClick = () => {
   data.value.inputs.weight.limit.overrideConfirm = true;
-  router.push("/form-audit-details");
+  router.push("/form-equipment-availability");
 };
 
 /**
@@ -20,7 +20,7 @@ const continueClick = () => {
  * Sets the patient weight to 2SD above mean for age and returns the user to the clinical details page to highlight the change
  */
 const use2SD = async () => {
-  router.push("/form-clinical-details");
+  router.push("/form-patient-details");
   await new Promise((resolve) => setTimeout(resolve, 1000));
   data.value.inputs.weight.val = data.value.inputs.weight.limit.upper();
   data.value.inputs.weight.limit.overrideConfirm = false;
@@ -36,22 +36,9 @@ const use2SD = async () => {
   });
 };
 
-/**
- * Lifecycle hook that runs when the component is mounted.
- * Checks the validity of previous form steps and redirects if necessary.
- * Scrolls to the top of the page.
- */
-onMounted(() => {
-  if (!data.value.form.isValid(0)) {
-    router.push("/form-disclaimer");
-  } else if (!data.value.form.isValid(1)) {
-    router.push("/form-patient-details");
-  } else if (!data.value.form.isValid(2)) {
-    router.push("/form-clinical-details");
-  }
-  // Scroll to top
-  window.scrollTo(0, 0);
-});
+if (!data.value.form.isValid(1)) router.push("/form-patient-details");
+
+onMounted(() => window.scrollTo(0, 0));
 </script>
 
 <template>
@@ -63,13 +50,13 @@ onMounted(() => {
       <p>
         You should only continue if you are sure {{ data.inputs.weight.val }}kg
         is the correct weight and you have considered using a maximum weight of
-        the 98th centile weight for age as per the care pathway.
+        the 98th centile weight for age.
       </p>
       <p>
         You can proceed with a weight that is outside the expected range,
         however the calculator has upper limits that cannot be overriden. These
-        are based on a maximum weight of 75kg as per the BSPED Guidelines. Any
-        calculated values that exceed this will be capped as follows:
+        are based on a maximum weight of 75kg. Any calculated values that exceed
+        this will be capped as follows:
       </p>
       <ul>
         <li>
@@ -81,20 +68,26 @@ onMounted(() => {
           dehydration for 75kg)
         </li>
         <li>
-          Deficit volume is capped at 3750mL for patients with mild or moderate
-          DKA (5% dehydration for 75kg)
+          Deficit volume is capped at 5625mL for patients with standard severity
+          DKA (7.5% dehydration for 75kg)
         </li>
         <li>Bolus volumes are capped at 750mL (10mL/kg for 75kg)</li>
         <li>
-          Insulin rate is capped at 7.5 Units/hour if insulin rate of 0.1
+          IV insulin rate is capped at 7.5 Units/hour if insulin rate of 0.1
           Units/kg/hour is selected (0.1 Units/kg/hour for 75kg patient)
         </li>
         <li>
-          Insulin rate is capped at 3.75 Units/hour if insulin rate of 0.05
+          IV insulin rate is capped at 3.75 Units/hour if insulin rate of 0.05
           Units/kg/hour is selected (0.05 Units/kg/hour for 75kg patient)
         </li>
-        <li>Glucose bolus is capped at 150mL (2mL/kg for 75kg patient)</li>
-        <li>HHS bolus is capped at 1500mL (20mL/kg for 75kg patient)</li>
+        <li>
+          IM insulin rate is capped at 15 Units if insulin dose of 0.2 Units/kg
+          is selected (0.2 Units/kg for 75kg patient)
+        </li>
+        <li>
+          IM insulin rate is capped at 7.5 Units if insulin dose of 0.2 Units/kg
+          is selected (0.1 Units/kg for 75kg patient)
+        </li>
       </ul>
       <p>
         <strong
@@ -116,7 +109,7 @@ onMounted(() => {
       <div class="text-center mb-2">
         <button
           type="button"
-          @click="router.push('/form-clinical-details')"
+          @click="router.push('/form-patient-details')"
           class="btn btn-lg btn-secondary"
         >
           Go back and review

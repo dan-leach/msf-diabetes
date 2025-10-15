@@ -6,63 +6,26 @@ const config = inject("config");
 <template>
   <footer id="footer" class="footer mt-auto">
     <nav
-      class="navbar bg-grey d-flex flex-column align-items-start justify-content-start"
+      class="navbar bg-grey d-flex flex-column align-items-center"
     >
-      <div class="mb-2 mx-4 d-none d-md-block">
-        <p class="footer-text">
-          <span
-            ><strong>{{ config.appName }}&nbsp;</strong> Client
-            <a :href="config.client.repo.changelog" target="_blank"
-              >v{{ config.client.version }}</a
-            >
-            | API
-            <a :href="config.api.repo.changelog" target="_blank"
-              >v{{ config.api.version }}</a
-            >
-            | ICP
-            <a :href="config.client.repo.icpChangelog" target="_blank"
-              >v{{ config.organisations.bsped.icpVersion }}</a
-            ></span
-          >
-        </p>
-        <p class="footer-text">
-          Created and maintained by
-          <a :href="config.author.url" target="_blank">{{
-            config.author.name
-          }}</a>
-          on behalf of
-          <a :href="config.organisations.bsped.main" target="_blank">BSPED</a>.
-          <span class="ms-4"
-            >Correspondance:
-            <a :href="'mailto:' + config.author.email">{{
-              config.author.email
-            }}</a></span
-          >
-        </p>
-        <p class="footer-text" v-if="config.author.contributors">
-          Contributors to the current version:
-          <span v-html="config.author.contributors.current"></span>.
-          <span class="ms-4"
-            ><a :href="config.author.contributors.url" target="_blank"
-              >See all contributors</a
-            >.</span
-          >
-        </p>
-      </div>
       <div
-        class="ukca-div mb-1 mx-4 d-flex align-items-center p-2"
+        class="device-label-div mb-1 mx-4 d-flex flex-column align-items-center p-2"
         data-bs-toggle="modal"
-        data-bs-target="#ukcaModal"
+        data-bs-target="#deviceLabelModal"
         style="cursor: pointer"
       >
-        <img class="ukca me-2" src="@/assets/UKCA.png" />
-        <p class="footer-text">
-          The
-          <a :href="config.organisations.bsped.main" target="_blank">BSPED</a>
-          {{ config.appName }} is registered as a medical device in the UK.<br />{{
-            config.disclaimer
-          }}
+        <p class="footer-text d-flex flex-row flex-wrap align-items-center justify-content-center text-center">
+          <span
+            ><strong>{{ config.appName }}&nbsp;</strong></span
+          >
+          <span class="text-decoration-underline mx-3">View device label</span>
         </p>
+        <div class="footer-text text-xxs text-center">
+        This application should only be used by medical professionals. Decisions
+        about patient care remain the treating clinician's responsibility.<br></br>You
+        must ensure the input values provided are accurate and that output
+        values are checked carefully for suitability before use.
+      </div>
       </div>
     </nav>
   </footer>
@@ -70,15 +33,15 @@ const config = inject("config");
   <!-- Modal -->
   <div
     class="modal fade"
-    id="ukcaModal"
+    id="deviceLabelModal"
     tabindex="-1"
-    aria-labelledby="ukcaModalLabel"
+    aria-labelledby="deviceLabelModalLabel"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">BSPED {{ config.appName }}</h5>
+          <h5 class="modal-title">{{ config.appName }}</h5>
           <button
             type="button"
             class="btn-close"
@@ -102,13 +65,6 @@ const config = inject("config");
                 <a :href="config.api.repo.changelog" target="_blank" class="p-0"
                   >v{{ config.api.version }}</a
                 >
-                | ICP
-                <a
-                  :href="config.client.repo.icpChangelog"
-                  target="_blank"
-                  class="p-0"
-                  >v{{ config.organisations.bsped.icpVersion }}</a
-                >
               </td>
             </tr>
             <br />
@@ -122,17 +78,17 @@ const config = inject("config");
                 <font-awesome-icon :icon="['fas', 'industry']" size="2xl" />
               </td>
               <td>
+                Created by <a class="p-0" :href="config.author.url">{{config.author.name}}</a> for<br></br>
                 <a
-                  :href="config.organisations.bsped.main"
+                  :href="config.organisations.msf.main"
                   target="_blank"
                   class="p-0"
-                  >British Society for Paediatric Endocrinology and Diabetes</a
+                  >{{ config.organisations.msf.fullName }}</a
                 ><br />
-                c/o BioScientifica Ltd<br />
-                Starling House<br />
-                1600 Bristol Parkway North<br />
-                Bristol<br />
-                BS34 8YU
+                La Fondation MSF<br />
+                Service donateurs<br />
+                14-34 avenue Jean Jaurès<br />
+                75019 Paris
               </td>
             </tr>
             <br />
@@ -164,16 +120,6 @@ const config = inject("config");
                 disclaimer and privacy policy.
               </td>
             </tr>
-            <br />
-            <tr>
-              <td class="ukca-col">
-                <img class="ukca-modal-img" src="@/assets/UKCA.png" />
-              </td>
-              <td>
-                The BSPED Paediatric DKA Calculator is registered as a medical
-                device in the UK.
-              </td>
-            </tr>
           </table>
         </div>
       </div>
@@ -182,15 +128,6 @@ const config = inject("config");
 </template>
 
 <style scoped>
-.ukca {
-  width: 40px;
-  height: 40px;
-}
-
-.ukca-modal-img {
-  width: 60px;
-  height: 60px;
-}
 .footer-text {
   color: black;
   text-decoration: none;
@@ -202,13 +139,13 @@ const config = inject("config");
   }
 }
 
-.ukca-div {
+.device-label-div {
   transition: all 0.3s ease;
   border: 2px solid #000000;
   border-radius: 8px;
 }
 
-.ukca-div:hover {
+.device-label-div:hover {
   background-color: rgba(255, 255, 102, 0.3); /* Light yellow highlight */
 }
 
@@ -217,12 +154,10 @@ const config = inject("config");
   float: right;
   margin-right: 25px;
 }
-.ukca-col {
-  display: flex;
-  justify-content: flex-end;
-  margin-right: 25px;
-}
 table {
   border-spacing: 0 25px; /* Adds 10px space between rows */
+}
+.text-xxs {
+  font-size: xx-small;
 }
 </style>
