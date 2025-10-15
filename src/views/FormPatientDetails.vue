@@ -40,8 +40,8 @@ const setMinMaxPatientDOB = () => {
 };
 
 if (!data.value.form.isValid(0)) {
-  //router.push("/form-disclaimer");
-  data.value.form.joeBloggs();
+  router.push("/form-disclaimer");
+  //data.value.form.joeBloggs();
 }
 
 onMounted(() => {
@@ -59,6 +59,10 @@ onMounted(() => {
       <RouterLink to="/privacy-policy" target="_blank" class=""
         >privacy policy</RouterLink
       >.
+    </p>
+    <p class="mx-1">
+      For more information about each field click the
+      <font-awesome-icon :icon="['fas', 'circle-info']" /> icon.
     </p>
     <!--episodeType-->
     <div class="mb-4">

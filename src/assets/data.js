@@ -418,7 +418,7 @@ export const data = ref({
         }
       },
       label: "Glucose",
-      info: "Glucose is used to confirm the diagnosis of DKA is correct.",
+      info: "Glucose is used to confirm the diagnosis of DKA is correct. You can select your prefered unit: mg/dL or mmol/L using the drop-down select menu.",
       privacyInfo:
         "Glucose is used to confirm the diagnosis of DKA is correct and is stored for audit and data analysis.",
       form: [3],
@@ -459,7 +459,7 @@ export const data = ref({
     bloodKetones: {
       val: null,
       label: "Blood ketones",
-      info: "Blood ketone value (if provided) is used to check the diagnostic threshold for DKA is reached.",
+      info: "Blood ketone value is used to check the diagnostic threshold for DKA is reached. If you only have urine ketones available, go back to the previous page and update your answer to 'Blood ketones available?'",
       privacyInfo:
         "Blood ketone value (if provided) is used to check the diagnostic threshold for DKA is reached and is stored for audit and data analysis.",
       form: [3],
@@ -520,7 +520,7 @@ export const data = ref({
         this.isValid();
       },
       label: "Urine ketones",
-      info: "Urine ketone value (if provided) is used to check the diagnostic threshold for DKA is reached.",
+      info: "Urine ketone value is used to check the diagnostic threshold for DKA is reached. If you have a blood ketone value go back to the previous page and update your answer to 'Blood ketones available?'",
       privacyInfo:
         "Urine ketone value (if provided) is used to check the diagnostic threshold for DKA is reached and is stored for audit and data analysis.",
       form: [3],
@@ -563,7 +563,7 @@ export const data = ref({
       val: null,
       label: "Clinical features of DKA?",
       form: [3],
-      info: "The presence of clinical features of DKA is used to check the diagnostic threshold for DKA is reached.",
+      info: "The presence of clinical features of DKA is used to check the diagnostic threshold for DKA is reached. One or more of the following clinical features are required: Kussmaul breathing, fruity breath, decreased level of consciousness, signs of dehydration, abdominal pain and/or vomiting, shock.",
       privacyInfo:
         "The presence of clinical features of DKA is used to check the diagnostic threshold for DKA is reached and is stored for audit and data analysis.",
 
@@ -579,7 +579,7 @@ export const data = ref({
       val: null,
       label: "pH",
       form: [3],
-      info: "pH (if provided) is used to determine DKA severity which is used in fluid deficit calculations. It is stored by the calculator for audit purposes.",
+      info: "pH is used to determine DKA severity which is used in fluid deficit calculations. If you do not have a blood pH value available go back to the previous page and change your answer to 'Blood gas available?'.",
       privacyInfo:
         "pH (if provided) is used to determine DKA severity which is used in fluid deficit calculations and is stored by the calculator for audit purposes.",
       min() {
@@ -609,9 +609,9 @@ export const data = ref({
     },
     bicarbonate: {
       val: null,
-      label: "Bicarbonate (optional)",
+      label: "Bicarbonate",
       form: [3],
-      info: "Bicarbonate (if provided) is used to check the diagnostic threshold for DKA is reached.",
+      info: `Bicarbonate is used to check the diagnostic threshold for DKA is reached. This is relevant if the pH is above the diagnostic threshold for DKA in which case bicarbonate can be used to establish the biochemical criteria for diagnosis instead.`,
       privacyInfo:
         "Bicarbonate (if provided) is used to check the diagnostic threshold for DKA is reached and is stored by the calculator for audit purposes.",
       min() {

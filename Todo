@@ -1,5 +1,3 @@
-Fix missing ) after kg in insulin rate
-
 Before launch
 
 - restore commented out redirects to start of form if blank

@@ -14,11 +14,12 @@ const config = inject("config");
         data-bs-target="#deviceLabelModal"
         style="cursor: pointer"
       >
-        <p class="footer-text">
+        <p class="footer-text d-flex flex-row flex-wrap align-items-center justify-content-center text-center">
           <span
             ><strong>{{ config.appName }}&nbsp;</strong></span
           >
-        <span class="text-decoration-underline mx-3">View device label</span></p>
+          <span class="text-decoration-underline mx-3">View device label</span>
+        </p>
         <div class="footer-text text-xxs text-center">
         This application should only be used by medical professionals. Decisions
         about patient care remain the treating clinician's responsibility.<br></br>You

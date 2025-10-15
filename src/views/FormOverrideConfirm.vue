@@ -50,13 +50,13 @@ onMounted(() => window.scrollTo(0, 0));
       <p>
         You should only continue if you are sure {{ data.inputs.weight.val }}kg
         is the correct weight and you have considered using a maximum weight of
-        the 98th centile weight for age as per the care pathway.
+        the 98th centile weight for age.
       </p>
       <p>
         You can proceed with a weight that is outside the expected range,
         however the calculator has upper limits that cannot be overriden. These
-        are based on a maximum weight of 75kg as per the BSPED Guidelines. Any
-        calculated values that exceed this will be capped as follows:
+        are based on a maximum weight of 75kg. Any calculated values that exceed
+        this will be capped as follows:
       </p>
       <ul>
         <li>
