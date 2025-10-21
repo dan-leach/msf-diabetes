@@ -7,17 +7,17 @@ const config = inject("config");
 <template>
   <nav id="header" class="navbar bg-grey">
     <div
-      class="container-fluid d-flex flex-row align-items-center justify-content-center justify-content-lg-between"
+      class="container-fluid d-flex flex-column align-items-center justify-content-center justify-content-lg-between"
     >
       <RouterLink
         to="/"
-        class="navbar-brand d-flex flex-row flex-wrap align-items-center justify-content-center"
-        ><img alt="MSF logo" class="logo" src="@/assets/msf-logo.jpg" />
+        class="navbar-brand d-flex flex-row flex-wrap align-items-center justify-content-center p-0 m-0"
+        ><img alt="MSF logo" class="logo" src="@/assets/images/msf-logo.jpg" />
         <h1 class="display-5 mx-1 my-0">
           {{ config.appName }}
         </h1>
       </RouterLink>
-      <h2 class="text-danger" v-if="config.underDevelopment">
+      <h2 class="text-danger align-middle" v-if="config.underDevelopment">
         Development version
       </h2>
     </div>

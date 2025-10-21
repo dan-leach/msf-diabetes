@@ -29,7 +29,11 @@ body {
 }
 
 .border-info {
-  border-color: #ec0000 !important;
+  border-color: #1400ec !important;
+}
+
+.btn-outline-info {
+  border-color: #1400ec !important;
 }
 
 a {

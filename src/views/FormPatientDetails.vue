@@ -40,8 +40,8 @@ const setMinMaxPatientDOB = () => {
 };
 
 if (!data.value.form.isValid(0)) {
-  router.push("/form-disclaimer");
-  //data.value.form.joeBloggs();
+  //router.push("/form-disclaimer");
+  data.value.form.joeBloggs();
 }
 
 onMounted(() => {
