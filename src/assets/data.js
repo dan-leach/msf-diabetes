@@ -83,6 +83,7 @@ export const data = ref({
       data.value.inputs.bloodGasAvailable.val = "false";
       data.value.inputs.bloodKetonesAvailable.val = "false";
       data.value.inputs.syringeDriverAvailable.val = "true";
+      data.value.inputs.infusionPumpAvailable.val = "true";
 
       data.value.inputs.glucose.val = 250;
       data.value.inputs.glucose.unit = "mg/dL";
@@ -398,6 +399,38 @@ export const data = ref({
         this.errors = "";
         if (!this.val)
           this.errors += "Availability of syringe driver must be selected. ";
+        return !this.errors;
+      },
+      errors: "",
+    },
+    infusionPumpAvailable: {
+      val: null,
+      label: "Infusion pump available?",
+      form: [2],
+      info: "If an infusion pump is not available, fluid rates will be provided both in mL/hour and drops/min.",
+      privacyInfo:
+        "Infusion pump availability is stored for audit and data analysis.",
+      isValid() {
+        this.errors = "";
+        if (!this.val)
+          this.errors += "Availability of infusion pump must be selected. ";
+        if (this.val === "true") data.value.inputs.dropFactor.val = null;
+        return !this.errors;
+      },
+      errors: "",
+    },
+    dropFactor: {
+      val: null,
+      label: "Select a drop factor.",
+      form: [2],
+      info: "You must select a drop factor based on the infusion set you are using to allow accurate drops/minute to be calculated.",
+      privacyInfo: "Drop factor is stored for audit and data analysis.",
+      isValid() {
+        this.errors = "";
+        if (data.value.inputs.infusionPumpAvailable.val === "true") return true;
+        if (!this.val)
+          this.errors +=
+            "Drop factor must be selected if infusion pump unavailable. ";
         return !this.errors;
       },
       errors: "",

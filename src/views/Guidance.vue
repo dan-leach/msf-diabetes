@@ -119,13 +119,14 @@ onMounted(() => window.scrollTo(0, 0));
         <div class="card-body">
           <h3>
             <ViewWorking :param="data.calculations.bolus.volume" paramKey="bolusVolume" heading="Bolus volume" unit="mL" :decimals="config.decimals.bolusVolume"/> over
-            <ViewWorking :param="data.calculations.bolus.duration" paramKey="bolusDuration" heading="Bolus duration" unit=" minutes"/>
+            <ViewWorking :param="data.calculations.bolus.duration" paramKey="bolusDuration" heading="Bolus duration" unit=" minutes"/> <br></br>
+            <p class="mt-2">at <ViewWorking :param="data.calculations.bolus.rate" paramKey="bolusRate" heading="Bolus rate" unit="mL/hour" :decimals="config.decimals.bolusRate"/> <span v-if="data.calculations.bolus.drops">which is <ViewWorking :param="data.calculations.bolus.drops" paramKey="bolusDrops" heading="Bolus drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span></p>
           </h3>
           <div class="mb-2" v-if="data.inputs.shockPresent.val">
             Administer a fluid bolus of
-            {{ data.calculations.bolus.volume.val.toFixed(0) }}mL Ringer lactate
+            {{ data.calculations.bolus.volume.val.toFixed(config.decimals.bolusVolume) }}mL Ringer lactate
             (or sodium chloride 0.9%) IV at
-            <ViewWorking :param="data.calculations.bolus.rate" paramKey="bolusRate" heading="Bolus rate" unit="mL/hour"/> then
+            {{ data.calculations.bolus.rate.val.toFixed(config.decimals.bolusRate) }}mL/hour <span v-if="data.calculations.bolus.drops">(which is {{ data.calculations.bolus.drops.val.toFixed(config.decimals.drops) }} drops/minute)</span> then
             reassess after. If signs of shock persist, repeat another bolus.
           </div>
           <div
@@ -200,6 +201,7 @@ onMounted(() => window.scrollTo(0, 0));
                 <div class="mb-2">
                   Bag #1 at standard-speed:
                   <ViewWorking :param="data.calculations.bagSpeeds.standardSpeed" paramKey="standardSpeed" heading="Standard speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                  <span v-if="data.calculations.bagSpeeds.standardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.standardSpeedDrops" paramKey="standardSpeedDrops" heading="Standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
                 </div>
                 None of bag #2*
               </div>
@@ -208,6 +210,7 @@ onMounted(() => window.scrollTo(0, 0));
                 <div class="mb-2">
                   Bag #1 at high-speed:
                   <ViewWorking :param="data.calculations.bagSpeeds.highSpeed" paramKey="highSpeed" heading="High speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                  <span v-if="data.calculations.bagSpeeds.highSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.highSpeedDrops" paramKey="highSpeedDrops" heading="High-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
                 </div>
                 None of bag #2*
               </div>
@@ -256,16 +259,20 @@ onMounted(() => window.scrollTo(0, 0));
                 <div class="mb-2">
                   Bag #1 at half-speed:
                   <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeed" paramKey="halfStandardSpeed" heading="Half standard-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                  <span v-if="data.calculations.bagSpeeds.halfStandardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeedDrops" paramKey="halfStandardSpeedDrops" heading="Half-standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
                 </div>
                 Bag #2 at half-speed:
                 <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeed" paramKey="halfStandardSpeed" heading="Half standard-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                <span v-if="data.calculations.bagSpeeds.halfStandardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeedDrops" paramKey="halfStandardSpeedDrops" heading="Half-standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
               </div>
               <!--bag speed for severe-->
               <div v-else-if="data.calculations.severity.val === 'severe'">
                 Bag #1 at half-speed:
                 <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeed" paramKey="halfHighSpeed" heading="Half high-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                <span v-if="data.calculations.bagSpeeds.halfHighSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeedDrops" paramKey="halfHighSpeedDrops" heading="Half-high-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
                 Bag #2 at half-speed:
                 <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeed" paramKey="halfHighSpeed" heading="Half high-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                <span v-if="data.calculations.bagSpeeds.halfHighSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeedDrops" paramKey="halfHighSpeedDrops" heading="Half-high-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
               </div>
               <!--error-->
               <div class="text-danger" v-else>
@@ -312,6 +319,7 @@ onMounted(() => window.scrollTo(0, 0));
                 </div>
                 Bag #2 at standard-speed:
                 <ViewWorking :param="data.calculations.bagSpeeds.standardSpeed" paramKey="standardSpeed" heading="Standard speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                <span v-if="data.calculations.bagSpeeds.standardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.standardSpeedDrops" paramKey="standardSpeedDrops" heading="Standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
               </div>
               <!--bag speeds for severe-->
               <div v-else-if="data.calculations.severity.val === 'severe'">
@@ -320,6 +328,7 @@ onMounted(() => window.scrollTo(0, 0));
                 </div>
                 Bag #2 at high-speed:
                 <ViewWorking :param="data.calculations.bagSpeeds.highSpeed" paramKey="highSpeed" heading="High speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                <span v-if="data.calculations.bagSpeeds.highSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.highSpeedDrops" paramKey="highSpeedDrops" heading="High-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
               </div>
               <!--error-->
               <div class="text-danger" v-else>
@@ -357,6 +366,7 @@ onMounted(() => window.scrollTo(0, 0));
                 </div>
                 Bag #2 at high-speed:
                 <ViewWorking :param="data.calculations.bagSpeeds.hypoSpeed" paramKey="hypoSpeed" heading="Hypo-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                <span v-if="data.calculations.bagSpeeds.hypoSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.hypoSpeedDrops" paramKey="hypoSpeedDrops" heading="High-speed drop rate (for hypoglycaemia)" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
               </div>
               <!--narrow screen glucose-->
               <div class="d-block d-sm-none mt-2"><i>Call clinician immediately</i></div>

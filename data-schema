@@ -99,10 +99,27 @@ forms:
         encrypted: false
       syringeDriverAvailable:
         type: boolean
-        description: Indicates if syringe drivers are available.
+        description: Indicates if a syringe drivers is available.
         options: true, false
         validation: must be one of the provided options
         required: true
+        auditable: true
+        encrypted: false
+      infusionPumpAvailable:
+        type: boolean
+        description: Indicates if an infusion pump is available.
+        options: true, false
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: false
+      dropFactor:
+        type: boolean
+        description: Indicates if syringe drivers are available.
+        conditions: infusionPumpAvailable is false
+        options: 20, 60
+        validation: must be one of the provided options
+        required: true, if conditions are met
         auditable: true
         encrypted: false
   Clinical details:

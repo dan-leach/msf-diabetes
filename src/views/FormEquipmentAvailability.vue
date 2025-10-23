@@ -2,6 +2,8 @@
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router/index.js";
+import { inject } from "vue";
+const config = inject("config");
 
 // Reactive variable to control error display.
 let showErrors = ref(false);
@@ -212,6 +214,108 @@ onMounted(() => window.scrollTo(0, 0));
         {{ data.inputs.syringeDriverAvailable.info }}
       </div>
     </div>
+    <!--infusionPumpAvailable-->
+    <div class="mb-4 text-center">
+      <p class="m-2">
+        {{ data.inputs.infusionPumpAvailable.label }}
+        <font-awesome-icon
+          :icon="['fas', 'circle-info']"
+          data-bs-toggle="collapse"
+          data-bs-target="#infusionPumpAvailableInfo"
+          class="ms-2"
+        />
+      </p>
+      <div class="d-flex justify-content-center flex-wrap gap-2">
+        <input
+          type="radio"
+          class="btn-check"
+          name="infusionPumpAvailable"
+          id="infusionPumpAvailableTrue"
+          value="true"
+          v-model="data.inputs.infusionPumpAvailable.val"
+          @change="data.inputs.infusionPumpAvailable.isValid()"
+          autocomplete="off"
+          required
+        />
+        <label class="btn btn-outline-secondary" for="infusionPumpAvailableTrue"
+          >Yes</label
+        >
+
+        <input
+          type="radio"
+          class="btn-check"
+          name="infusionPumpAvailable"
+          id="infusionPumpAvailableFalse"
+          value="false"
+          v-model="data.inputs.infusionPumpAvailable.val"
+          @change="data.inputs.infusionPumpAvailable.isValid()"
+          autocomplete="off"
+        />
+        <label
+          class="btn btn-outline-secondary"
+          for="infusionPumpAvailableFalse"
+          >No</label
+        >
+      </div>
+      <div
+        v-if="showErrors"
+        class="form-text text-danger text-center mx-1"
+        id="infusionPumpAvailableErrors"
+      >
+        {{ data.inputs.infusionPumpAvailable.errors }}
+      </div>
+      <div
+        class="collapse form-text text-center mx-1"
+        id="infusionPumpAvailableInfo"
+      >
+        {{ data.inputs.infusionPumpAvailable.info }}
+      </div>
+    </div>
+    <!--dropFactor-->
+    <div
+      class="mb-4 text-center"
+      v-if="data.inputs.infusionPumpAvailable.val == 'false'"
+    >
+      <p class="m-2">
+        {{ data.inputs.dropFactor.label }}
+        <font-awesome-icon
+          :icon="['fas', 'circle-info']"
+          data-bs-toggle="collapse"
+          data-bs-target="#dropFactorInfo"
+          class="ms-2"
+        />
+      </p>
+      <div class="d-flex justify-content-center flex-wrap gap-2">
+        <div v-for="dropFactor in config.validation.dropFactor">
+          <input
+            type="radio"
+            class="btn-check"
+            name="dropFactor"
+            :id="'dropFactor' + dropFactor.drops"
+            :value="dropFactor.drops"
+            v-model="data.inputs.dropFactor.val"
+            @change="data.inputs.dropFactor.isValid()"
+            autocomplete="off"
+            required
+          />
+          <label
+            class="btn btn-outline-secondary"
+            :for="'dropFactor' + dropFactor.drops"
+            >{{ dropFactor.drops }} drops/mL<br />({{ dropFactor.type }})</label
+          >
+        </div>
+      </div>
+      <div
+        v-if="showErrors"
+        class="form-text text-danger text-center mx-1"
+        id="dropFactorErrors"
+      >
+        {{ data.inputs.dropFactor.errors }}
+      </div>
+      <div class="collapse form-text text-center mx-1" id="dropFactorInfo">
+        {{ data.inputs.dropFactor.info }}
+      </div>
+    </div>
 
     <div class="d-flex flex-row justify-content-evenly">
       <!--back-->
@@ -243,7 +347,7 @@ onMounted(() => window.scrollTo(0, 0));
   max-width: 750px;
 }
 .btn-outline-secondary {
-  width: 150px;
+  width: 200px;
   background-color: white;
 }
 .episode-type-btn {

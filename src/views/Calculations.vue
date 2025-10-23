@@ -47,22 +47,42 @@ onMounted(() => window.scrollTo(0, 0));
         <div v-html="data.calculations.bolus.rate.working"></div>
       </div>
       <hr></hr>
+      <div class="mb-4" v-if="data.inputs.infusionPumpAvailable.val == 'false'">
+        <h3>Bolus drop rate</h3>
+        <div v-html="data.calculations.bolus.drops.working"></div>
+        <hr></hr>
+      </div>
       <div v-if="data.calculations.severity.val === 'standard'">
         <div class="mb-4">
           <h3>Bag speed: standard-speed</h3>
           <div v-html="data.calculations.bagSpeeds.standardSpeed.working"></div>
         </div>
         <hr></hr>
+        <div class="mb-4" v-if="data.inputs.infusionPumpAvailable.val == 'false'">
+          <h3>Standard-speed drop rate</h3>
+          <div v-html="data.calculations.bagSpeeds.standardSpeedDrops.working"></div>
+          <hr></hr>
+        </div>
         <div class="mb-4">
           <h3>Bag speed: half-standard-speed</h3>
           <div v-html="data.calculations.bagSpeeds.halfStandardSpeed.working"></div>
         </div>
         <hr></hr>
+        <div class="mb-4" v-if="data.inputs.infusionPumpAvailable.val == 'false'">
+          <h3>Half-standard-speed drop rate</h3>
+          <div v-html="data.calculations.bagSpeeds.halfStandardSpeedDrops.working"></div>
+          <hr></hr>
+        </div>
         <div class="mb-4">
           <h3>Bag speed: high-speed (for hypoglycaemia)</h3>
           <div v-html="data.calculations.bagSpeeds.hypoSpeed.working"></div>
         </div>
         <hr></hr>
+        <div class="mb-4" v-if="data.inputs.infusionPumpAvailable.val == 'false'">
+          <h3>High-speed drop rate (for hypoglycaemia)</h3>
+          <div v-html="data.calculations.bagSpeeds.hypoSpeedDrops.working"></div>
+          <hr></hr>
+        </div>
       </div>
       <div v-else-if="data.calculations.severity.val === 'severe'">
         <div class="mb-4">
@@ -70,11 +90,21 @@ onMounted(() => window.scrollTo(0, 0));
           <div v-html="data.calculations.bagSpeeds.highSpeed.working"></div>
         </div>
         <hr></hr>
+        <div class="mb-4" v-if="data.inputs.infusionPumpAvailable.val == 'false'">
+          <h3>High-speed drop rate</h3>
+          <div v-html="data.calculations.bagSpeeds.highSpeedDrops.working"></div>
+          <hr></hr>
+        </div>
         <div class="mb-4">
           <h3>Bag speed: half-high-speed</h3>
           <div v-html="data.calculations.bagSpeeds.highSpeed.working"></div>
         </div>
         <hr></hr>
+        <div class="mb-4" v-if="data.inputs.infusionPumpAvailable.val == 'false'">
+          <h3>Half-high-speed drop rate</h3>
+          <div v-html="data.calculations.bagSpeeds.halfHighSpeedDrops.working"></div>
+          <hr></hr>
+        </div>
       </div>
       <div v-else>
         <div class="mb-4">

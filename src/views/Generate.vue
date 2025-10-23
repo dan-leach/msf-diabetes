@@ -106,7 +106,6 @@ const generate = {
    * @returns {Object} Payload containing input values.
    */
   buildPayload: async function (payload) {
-    console.log(data.value.inputs.legalAgreement.val);
     payload.legalAgreement = data.value.inputs.legalAgreement.val;
     payload.episodeType = data.value.inputs.episodeType.val;
     payload.patientSex = data.value.inputs.patientSex.val;
@@ -122,6 +121,11 @@ const generate = {
       data.value.inputs.bloodKetonesAvailable.val == "true";
     payload.syringeDriverAvailable =
       data.value.inputs.syringeDriverAvailable.val == "true";
+    payload.infusionPumpAvailable =
+      data.value.inputs.infusionPumpAvailable.val == "true";
+    if (data.value.inputs.dropFactor.val)
+      payload.dropFactor = parseFloat(data.value.inputs.dropFactor.val);
+    //payload.dropFactor = 100
     payload.glucose = parseFloat(data.value.inputs.glucose.val);
     payload.glucoseUnit = data.value.inputs.glucose.unit;
     if (data.value.inputs.bloodKetones.val)
