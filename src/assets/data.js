@@ -85,6 +85,7 @@ export const data = ref({
       data.value.inputs.syringeDriverAvailable.val = "true";
 
       data.value.inputs.glucose.val = 250;
+      data.value.inputs.glucose.unit = "mg/dL";
       data.value.inputs.urineKetones.val = 3;
       data.value.inputs.diagnosticFeatures.val = "true";
       data.value.inputs.shockPresent.val = "false";

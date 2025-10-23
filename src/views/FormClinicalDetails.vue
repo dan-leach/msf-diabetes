@@ -19,7 +19,7 @@ const continueClick = () => {
     .classList.add("was-validated");
 
   if (data.value.form.isValid(3)) {
-    router.push("/calculate");
+    router.push("/generate");
   }
 };
 

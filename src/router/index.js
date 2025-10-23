@@ -36,14 +36,19 @@ const router = createRouter({
       component: () => import("../views/FormClinicalDetails.vue"),
     },
     {
-      path: "/calculate",
-      name: "calculate",
-      component: () => import("../views/Calculate.vue"),
+      path: "/generate",
+      name: "generate",
+      component: () => import("../views/Generate.vue"),
     },
     {
-      path: "/output",
-      name: "output",
-      component: () => import("../views/Output.vue"),
+      path: "/guidance",
+      name: "guidance",
+      component: () => import("../views/Guidance.vue"),
+    },
+    {
+      path: "/calculations",
+      name: "calculations",
+      component: () => import("../views/Calculations.vue"),
     },
     {
       path: "/privacy-policy",

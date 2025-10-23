@@ -1,11 +1,11 @@
 import { ref } from "vue";
 let config = ref({});
-const underDevelopment = false;
+const underDevelopment = true;
 
 async function fetchConfig() {
   if (underDevelopment) console.log("***DEV MODE ACTIVE***");
   const url = underDevelopment
-    ? "https://api.msf.dka-calculator.co.uk/config"
+    ? "https://dev-api.msf.dka-calculator.co.uk/config"
     : "https://api.msf.dka-calculator.co.uk/config";
   const timeoutDuration = 15000;
 

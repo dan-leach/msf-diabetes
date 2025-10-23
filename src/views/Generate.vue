@@ -74,7 +74,7 @@ const generate = {
     if (!(await generate.executeStep("calculate"))) return;
     generateSteps.value.audit.complete = true;
 
-    router.push("/output");
+    router.push("/guidance");
   },
 
   /**
