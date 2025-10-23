@@ -263,9 +263,9 @@ onMounted(() => window.scrollTo(0, 0));
               <!--bag speed for severe-->
               <div v-else-if="data.calculations.severity.val === 'severe'">
                 Bag #1 at half-speed:
-                <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeed" paramKey="halfHighSpeed" heading="Half high-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/><br />
+                <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeed" paramKey="halfHighSpeed" heading="Half high-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
                 Bag #2 at half-speed:
-                <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeed" paramKey="halfHighSpeed" heading="Half high-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/><br />
+                <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeed" paramKey="halfHighSpeed" heading="Half high-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
               </div>
               <!--error-->
               <div class="text-danger" v-else>
@@ -311,7 +311,7 @@ onMounted(() => window.scrollTo(0, 0));
                   None of bag #1
                 </div>
                 Bag #2 at standard-speed:
-                <ViewWorking :param="data.calculations.bagSpeeds.standardSpeed" paramKey="standardSpeed" heading="Standard speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/><br />
+                <ViewWorking :param="data.calculations.bagSpeeds.standardSpeed" paramKey="standardSpeed" heading="Standard speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
               </div>
               <!--bag speeds for severe-->
               <div v-else-if="data.calculations.severity.val === 'severe'">
@@ -319,7 +319,7 @@ onMounted(() => window.scrollTo(0, 0));
                   None of bag #1
                 </div>
                 Bag #2 at high-speed:
-                <ViewWorking :param="data.calculations.bagSpeeds.highSpeed" paramKey="highSpeed" heading="High speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/><br />
+                <ViewWorking :param="data.calculations.bagSpeeds.highSpeed" paramKey="highSpeed" heading="High speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
               </div>
               <!--error-->
               <div class="text-danger" v-else>
@@ -336,7 +336,7 @@ onMounted(() => window.scrollTo(0, 0));
                   data.inputs.glucose.unit
                 ][2]
               }}
-              {{ data.inputs.glucose.unit }}<br />
+              {{ data.inputs.glucose.unit }}
               <div class="mt-2"><i>Call clinician immediately</i></div>
             </div>
             <!--rate col-->
@@ -348,7 +348,7 @@ onMounted(() => window.scrollTo(0, 0));
                     data.inputs.glucose.unit
                   ][2]
                 }}
-                {{ data.inputs.glucose.unit }}<br />
+                {{ data.inputs.glucose.unit }}
               </div>
               <!--bag speed for hypo-->
               <div>
@@ -362,9 +362,11 @@ onMounted(() => window.scrollTo(0, 0));
               <div class="d-block d-sm-none mt-2"><i>Call clinician immediately</i></div>
               </div>
             </div>
-          <p>
+          <p class="mt-2">
             * These patients are receiving insulin but no glucose at this
-            stage.<br />
+            stage.
+          </p>
+          <p>
             ** For standard severity DKA this high-speed rate is only continued
             long enough to raise the glucose, then immediately decrease the rate
             to standard-speed rate. If BGL decreases too rapidly despite
@@ -425,7 +427,7 @@ onMounted(() => window.scrollTo(0, 0));
           IV insulin rate
         </div>
         <div class="card-body">
-          <h3>{{ data.calculations.insulinRate.val.toFixed(2) }} Units/hour</h3>
+          <h3><ViewWorking :param="data.calculations.insulinRate" paramKey="ivInsulinRate" heading="IV insulin rate" unit=" Units/hour" :decimals="config.decimals.ivInsulinRate"/></h3>
           <div class="mb-2">
             {{
               data.inputs.shockPresent ? "Once shock corrected, and one" : "One"
@@ -485,7 +487,7 @@ onMounted(() => window.scrollTo(0, 0));
         </div>
         <div class="card-body">
           <h3>
-            {{ data.calculations.insulinDose.val.toFixed(1) }} Units 2-hourly
+            <ViewWorking :param="data.calculations.insulinDose" paramKey="imInsulinDose" heading="IM insulin dose" unit=" Units 2-hourly" :decimals="config.decimals.imInsulinDose"/>
           </h3>
           <div class="mb-2">
             Administer IM (intramuscular) insulin

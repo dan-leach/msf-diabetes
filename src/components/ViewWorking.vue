@@ -25,22 +25,11 @@ function capitalizeFirst(str) {
 <template>
   <button
     type="button"
-    class="btn btn-view-working btn-sm btn-outline-dark py-0 px-2 m-0 position-relative"
+    class="btn btn-view-working btn-sm btn-outline-dark py-0 px-1 m-0 position-relative"
     data-bs-toggle="modal"
     :data-bs-target="'#' + paramKey + 'ViewWorkingModal'"
   >
     {{ val }}{{ unit }}
-    <span
-      class="position-absolute top-0 start-100 translate-middle badge rounded-pill magnifying-glass"
-    >
-      <img
-        alt="Magnifying glass icon"
-        class="icon mx-2"
-        src="@/assets/images/magnifying-glass.png"
-        width="20"
-        height="20"
-      />
-    </span>
   </button>
   <!-- Modal -->
   <!-- teleport modal to body to avoid inheriting parent typography -->
@@ -76,10 +65,5 @@ function capitalizeFirst(str) {
 .btn-view-working {
   vertical-align: baseline;
   font: inherit; /* inherit font-size, family, weight */
-}
-.magnifying-glass {
-  top: -0.8rem !important; /* nudge down */
-  left: calc(100% - 2px) !important;
-  transform: translateX(-50%) !important; /* keep horizontal centering only */
 }
 </style>
