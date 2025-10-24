@@ -12,16 +12,18 @@ onMounted(() => window.scrollTo(0, 0));
 
 <template>
   <div class="container my-4 needs-validation">
-    <h2 class="display-3 mb-4">Calculations</h2>
+    <h2 class="display-3 mb-4 text-center">Calculations</h2>
     <div v-if="data.auditID">
-      <!--back-->
-      <button
-        type="button"
-        @click="router.push('/guidance')"
-        class="btn btn-secondary mb-2"
-      >
-        Back to output
-      </button>
+      <div class="text-center">
+        <!--back-->
+        <button
+          type="button"
+          @click="router.push('/guidance')"
+          class="btn btn-secondary mb-2"
+        >
+          Go back to guidance
+        </button>
+      </div>
       <div class="mb-4">
         <h3>DKA severity</h3>
         <div v-html="data.calculations.severity.working"></div>
@@ -121,14 +123,16 @@ onMounted(() => window.scrollTo(0, 0));
         <div v-html="data.calculations.insulinDose.working"></div>
       </div>
     </div>
-    <!--back-->
-    <button
-      type="button"
-      @click="router.push('/guidance')"
-      class="btn btn-secondary"
-    >
-      Back to output
-    </button>
+    <div class="text-center">
+      <!--back-->
+      <button
+        type="button"
+        @click="router.push('/guidance')"
+        class="btn btn-secondary"
+      >
+        Go back to guidance
+      </button>
+    </div>
   </div>
 </template>
 

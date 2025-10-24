@@ -6,7 +6,7 @@ const config = inject("config");
 
 <template>
   <div class="container my-4 needs-validation">
-    <h2 class="display-3">Privacy policy</h2>
+    <h2 class="display-3 text-center">Privacy policy</h2>
     <p>
       This policy explains how the data you enter into the
       {{ config.appName }} is used and stored. The overarching principle is that

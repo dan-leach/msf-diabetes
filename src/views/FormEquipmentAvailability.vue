@@ -42,7 +42,7 @@ onMounted(() => window.scrollTo(0, 0));
     id="form-equipment-availability"
     class="container my-4 needs-validation"
   >
-    <h2 class="display-3">Equipment availability</h2>
+    <h2 class="display-3 text-center">Equipment availability</h2>
     <!--bloodGasAvailable-->
     <div class="mb-4 text-center">
       <p class="m-2">

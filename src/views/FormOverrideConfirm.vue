@@ -43,7 +43,7 @@ onMounted(() => window.scrollTo(0, 0));
 
 <template>
   <form id="form-disclaimer" class="container my-4 needs-validation">
-    <h2 class="display-3 text-danger">
+    <h2 class="display-3 text-danger text-center">
       You are overriding the weight safety range
     </h2>
     <div v-if="data.inputs.weight.val > data.inputs.weight.limit.lower()">

@@ -30,7 +30,7 @@ onMounted(() => window.scrollTo(0, 0));
 
 <template>
   <form id="form-clinical-details" class="container my-4 needs-validation">
-    <h2 class="display-3">Clinical details</h2>
+    <h2 class="display-3 text-center">Clinical details</h2>
     <!--glucose-->
     <div class="mb-4 flex-grow-1">
       <div class="input-group">

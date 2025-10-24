@@ -52,7 +52,7 @@ onMounted(() => {
 
 <template>
   <form id="form-patient-details" class="container my-4 needs-validation">
-    <h2 class="display-3">Patient details</h2>
+    <h2 class="display-3 text-center">Patient details</h2>
     <p class="mx-1">
       To calculate values for your patient please complete the form below. For
       more information about how this data is used refer to the

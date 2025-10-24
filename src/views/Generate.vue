@@ -164,7 +164,7 @@ onMounted(() => {
 
 <template>
   <div class="container my-4 needs-validation">
-    <h2 class="display-3">Performing calculations</h2>
+    <h2 class="display-3 text-center">Performing calculations</h2>
     <div v-for="(step, index) in generateSteps" class="mb-3">
       <span
         class="step-text"

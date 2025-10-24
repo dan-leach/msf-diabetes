@@ -26,7 +26,7 @@ onMounted(() => {
 
 <template>
   <form id="form-disclaimer" class="container my-4 needs-validation">
-    <h2 class="display-3">Legal disclaimer</h2>
+    <h2 class="display-3 text-center">Legal disclaimer</h2>
     <div>
       <p>
         By using this website and by using the calculated values, and the

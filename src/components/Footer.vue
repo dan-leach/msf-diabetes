@@ -54,23 +54,21 @@ const config = inject("config");
             <tr>
               <td class="left-col">Version</td>
               <td>
-                Client
-                <a
+                Client <a
                   :href="config.client.repo.changelog"
                   target="_blank"
                   class="p-0"
                   >v{{ config.client.version }}</a
-                >
-                | API
-                <a :href="config.api.repo.changelog" target="_blank" class="p-0"
+                ><br></br>
+                Last updated: {{ config.client.lastUpdated }}
+                <br></br>
+                <br></br>
+                API <a :href="config.api.repo.changelog" target="_blank" class="p-0"
                   >v{{ config.api.version }}</a
                 >
+                <br></br>
+                Last updated: {{ config.api.lastUpdated }}
               </td>
-            </tr>
-            <br />
-            <tr>
-              <td class="left-col">Last updated</td>
-              <td>{{ config.lastUpdated }}</td>
             </tr>
             <br />
             <tr>
@@ -78,8 +76,7 @@ const config = inject("config");
                 <font-awesome-icon :icon="['fas', 'industry']" size="2xl" />
               </td>
               <td>
-                Created by <a class="p-0" :href="config.author.url">{{config.author.name}}</a> for<br></br>
-                <a
+                Created by <a class="p-0" :href="config.author.url">{{config.author.name}}</a> for <a
                   :href="config.organisations.msf.main"
                   target="_blank"
                   class="p-0"

@@ -1,13 +1,23 @@
 import { ref } from "vue";
 let config = ref({});
+
+// Set client development mode here.
 const underDevelopment = true;
+// Set API development mode with NODE_ENV
+
+// Set client version here.
+const clientVersion = 0.2;
+const clientLastUpdated = "2025-10-24";
+// Set API development mode with environment variables
+
+const url = underDevelopment
+  ? "https://dev-api.msf.dka-calculator.co.uk/config"
+  : "https://api.msf.dka-calculator.co.uk/config";
+
+const timeoutDuration = 15000;
 
 async function fetchConfig() {
-  if (underDevelopment) console.log("***DEV MODE ACTIVE***");
-  const url = underDevelopment
-    ? "https://dev-api.msf.dka-calculator.co.uk/config"
-    : "https://api.msf.dka-calculator.co.uk/config";
-  const timeoutDuration = 15000;
+  if (underDevelopment) console.log("***Client underDevelopment***");
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
@@ -27,6 +37,10 @@ async function fetchConfig() {
 
     const jsonResponse = await response.json();
     config.value = jsonResponse;
+    config.value.api.url = url;
+    config.value.client.underDevelopment = underDevelopment;
+    config.value.client.version = clientVersion;
+    config.value.client.lastUpdated = clientLastUpdated;
     return jsonResponse;
   } catch (error) {
     // Handle errors (including timeout and network issues)

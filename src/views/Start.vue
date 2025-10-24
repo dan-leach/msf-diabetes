@@ -5,17 +5,35 @@ const config = inject("config");
 
 <template>
   <div class="container my-4 needs-validation">
-    <div class="card border-danger mb-3" v-if="config.underDevelopment">
+    <div
+      class="card border-danger mb-3"
+      v-if="config.client.underDevelopment || config.api.underDevelopment"
+    >
       <div class="card-body">
-        <h5 class="card-title">Development version</h5>
-        <p class="card-text">
-          This version is for demonstration purposes only. Do not use for real
-          clinical cases.
-        </p>
+        <div class="d-flex flex-row align-items-center">
+          <font-awesome-icon
+            :icon="['fas', 'triangle-exclamation']"
+            size="2xl"
+            class="me-4"
+          />
+          <div>
+            <h5 class="card-title">Development version</h5>
+            <p class="card-text">
+              Client version {{ config.client.version }} ({{ config.client.lastUpdated }} | {{
+                config.client.underDevelopment ? "development" : "production"
+              }})<br></br>
+              API version {{ config.api.version }} ({{ config.api.lastUpdated }} | {{
+                config.api.underDevelopment ? "development" : "production"
+              }})<br></br>
+              This version is for demonstration purposes only. Do not use
+              for real clinical cases.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <h2 class="display-3">Welcome</h2>
+    <h2 class="display-3 text-center">Welcome</h2>
     <p class="mx-1">
       The {{ config.appName }} allows clinicians to calculate variables for
       managing paediatric diabetic ketoacidosis based on the 2024 MSF paediatric

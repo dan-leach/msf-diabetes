@@ -28,7 +28,7 @@ onMounted(() => window.scrollTo(0, 0));
 
 <template>
   <div class="container my-4 needs-validation">
-    <h2 class="display-3 mb-4">Guidance</h2>
+    <h2 class="display-3 mb-4 text-center">Guidance</h2>
     <div v-if="data.auditID">
       
       <!--view working info box-->
