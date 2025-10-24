@@ -18,7 +18,14 @@ const config = inject("config");
           <span
             ><strong>{{ config.appName }}&nbsp;</strong></span
           >
-          <span class="text-decoration-underline mx-3">View device label</span>
+          <span class="text-decoration-underline mx-3">View device label 
+            <img
+                alt="Guidance icon"
+                class="icon mx-2"
+                src="@/assets/images/guidance-icon.svg"
+                width="24"
+                height="24"
+              /></span>
         </p>
         <div class="footer-text text-xxs text-center">
         This application should only be used by medical professionals. Decisions
@@ -59,13 +66,13 @@ const config = inject("config");
                   target="_blank"
                   class="p-0"
                   >v{{ config.client.version }}</a
-                ><br></br>
+                > ({{ config.client.underDevelopment ? 'development' : 'production' }})<br></br>
                 Last updated: {{ config.client.lastUpdated }}
                 <br></br>
                 <br></br>
                 API <a :href="config.api.repo.changelog" target="_blank" class="p-0"
                   >v{{ config.api.version }}</a
-                >
+                > ({{ config.api.underDevelopment ? 'development' : 'production' }})
                 <br></br>
                 Last updated: {{ config.api.lastUpdated }}
               </td>

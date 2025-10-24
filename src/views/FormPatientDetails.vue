@@ -57,7 +57,9 @@ onMounted(() => {
       To calculate values for your patient please complete the form below. For
       more information about how this data is used refer to the
       <RouterLink to="/privacy-policy" target="_blank" class=""
-        >privacy policy</RouterLink
+        >privacy policy
+        <font-awesome-icon
+          :icon="['fas', 'up-right-from-square']" /></RouterLink
       >.
     </p>
     <p class="mx-1">

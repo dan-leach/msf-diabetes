@@ -19,6 +19,7 @@ import {
   faXmark,
   faIndustry,
   faTriangleExclamation,
+  faUpRightFromSquare,
 } from "@fortawesome/free-solid-svg-icons";
 // Add icons to the FontAwesome library
 library.add(
@@ -27,7 +28,8 @@ library.add(
   faCheck,
   faXmark,
   faIndustry,
-  faTriangleExclamation
+  faTriangleExclamation,
+  faUpRightFromSquare
 );
 
 // Create Vue application
