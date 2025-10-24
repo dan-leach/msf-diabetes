@@ -117,10 +117,11 @@ onMounted(() => window.scrollTo(0, 0));
           Fluid bolus
         </div>
         <div class="card-body">
-          <h3>
-            <ViewWorking :param="data.calculations.bolus.volume" paramKey="bolusVolume" heading="Bolus volume" unit="mL" :decimals="config.decimals.bolusVolume"/> over
-            <ViewWorking :param="data.calculations.bolus.duration" paramKey="bolusDuration" heading="Bolus duration" unit=" minutes"/> <br></br>
-            <p class="mt-2">at <ViewWorking :param="data.calculations.bolus.rate" paramKey="bolusRate" heading="Bolus rate" unit="mL/hour" :decimals="config.decimals.bolusRate"/> <span v-if="data.calculations.bolus.drops">which is <ViewWorking :param="data.calculations.bolus.drops" paramKey="bolusDrops" heading="Bolus drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span></p>
+          <h3 class="d-flex flex-row flex-wrap gap-1">
+            <ViewWorking :param="data.calculations.bolus.volume" paramKey="bolusVolume" heading="Bolus volume" unit="mL" :decimals="config.decimals.bolusVolume"/> 
+            <span>over <ViewWorking :param="data.calculations.bolus.duration" paramKey="bolusDuration" heading="Bolus duration" unit=" minutes"/></span>
+            <span>at <ViewWorking :param="data.calculations.bolus.rate" paramKey="bolusRate" heading="Bolus rate" unit="mL/hour" :decimals="config.decimals.bolusRate"/></span>
+            <span v-if="data.calculations.bolus.drops">which is <ViewWorking :param="data.calculations.bolus.drops" paramKey="bolusDrops" heading="Bolus drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
           </h3>
           <div class="mb-2" v-if="data.inputs.shockPresent.val">
             Administer a fluid bolus of
@@ -199,17 +200,17 @@ onMounted(() => window.scrollTo(0, 0));
               <!--bag speed for standard-->
               <div v-if="data.calculations.severity.val === 'standard'">
                 <div class="mb-2">
-                  Bag #1 at standard-speed:
-                  <ViewWorking :param="data.calculations.bagSpeeds.standardSpeed" paramKey="standardSpeed" heading="Standard speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
-                  <span v-if="data.calculations.bagSpeeds.standardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.standardSpeedDrops" paramKey="standardSpeedDrops" heading="Standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                  <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                    <span>Bag #1 at standard-speed: <ViewWorking :param="data.calculations.bagSpeeds.standardSpeed" paramKey="standardSpeed" heading="Standard speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/></span>
+                    <span v-if="data.calculations.bagSpeeds.standardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.standardSpeedDrops" paramKey="standardSpeedDrops" heading="Standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                  </div>
                 </div>
                 None of bag #2*
               </div>
               <!--bag speed for severe-->
               <div v-else-if="data.calculations.severity.val === 'severe'">
-                <div class="mb-2">
-                  Bag #1 at high-speed:
-                  <ViewWorking :param="data.calculations.bagSpeeds.highSpeed" paramKey="highSpeed" heading="High speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                  <span>Bag #1 at high-speed: <ViewWorking :param="data.calculations.bagSpeeds.highSpeed" paramKey="highSpeed" heading="High speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/></span>
                   <span v-if="data.calculations.bagSpeeds.highSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.highSpeedDrops" paramKey="highSpeedDrops" heading="High-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
                 </div>
                 None of bag #2*
@@ -257,22 +258,28 @@ onMounted(() => window.scrollTo(0, 0));
               <!--bag speed for standard-->
               <div v-if="data.calculations.severity.val === 'standard'">
                 <div class="mb-2">
-                  Bag #1 at half-speed:
-                  <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeed" paramKey="halfStandardSpeed" heading="Half standard-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
+                  <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                    <span>Bag #1 at half-speed: <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeed" paramKey="halfStandardSpeed" heading="Half standard-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/></span>
+                    <span v-if="data.calculations.bagSpeeds.halfStandardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeedDrops" paramKey="halfStandardSpeedDrops" heading="Half-standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                  </div>
+                </div>
+                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                  <span>Bag #2 at half-speed: <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeed" paramKey="halfStandardSpeed" heading="Half standard-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/></span>
                   <span v-if="data.calculations.bagSpeeds.halfStandardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeedDrops" paramKey="halfStandardSpeedDrops" heading="Half-standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
                 </div>
-                Bag #2 at half-speed:
-                <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeed" paramKey="halfStandardSpeed" heading="Half standard-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
-                <span v-if="data.calculations.bagSpeeds.halfStandardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfStandardSpeedDrops" paramKey="halfStandardSpeedDrops" heading="Half-standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
               </div>
               <!--bag speed for severe-->
               <div v-else-if="data.calculations.severity.val === 'severe'">
-                Bag #1 at half-speed:
-                <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeed" paramKey="halfHighSpeed" heading="Half high-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
-                <span v-if="data.calculations.bagSpeeds.halfHighSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeedDrops" paramKey="halfHighSpeedDrops" heading="Half-high-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
-                Bag #2 at half-speed:
-                <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeed" paramKey="halfHighSpeed" heading="Half high-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
-                <span v-if="data.calculations.bagSpeeds.halfHighSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeedDrops" paramKey="halfHighSpeedDrops" heading="Half-high-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                <div class="mb-2">
+                  <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                    <span>Bag #1 at half-speed: <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeed" paramKey="halfHighSpeed" heading="Half high-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/></span>
+                    <span v-if="data.calculations.bagSpeeds.halfHighSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeedDrops" paramKey="halfHighSpeedDrops" heading="Half-high-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                  </div>
+                </div>
+                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                  <span>Bag #2 at half-speed: <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeed" paramKey="halfHighSpeed" heading="Half high-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/></span>
+                  <span v-if="data.calculations.bagSpeeds.halfHighSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.halfHighSpeedDrops" paramKey="halfHighSpeedDrops" heading="Half-high-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                </div>
               </div>
               <!--error-->
               <div class="text-danger" v-else>
@@ -317,18 +324,20 @@ onMounted(() => window.scrollTo(0, 0));
                 <div class="mb-2">
                   None of bag #1
                 </div>
-                Bag #2 at standard-speed:
-                <ViewWorking :param="data.calculations.bagSpeeds.standardSpeed" paramKey="standardSpeed" heading="Standard speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
-                <span v-if="data.calculations.bagSpeeds.standardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.standardSpeedDrops" paramKey="standardSpeedDrops" heading="Standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                  <span>Bag #2 at standard-speed: <ViewWorking :param="data.calculations.bagSpeeds.standardSpeed" paramKey="standardSpeed" heading="Standard speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/></span>
+                  <span v-if="data.calculations.bagSpeeds.standardSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.standardSpeedDrops" paramKey="standardSpeedDrops" heading="Standard-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                </div>
               </div>
               <!--bag speeds for severe-->
               <div v-else-if="data.calculations.severity.val === 'severe'">
                 <div class="mb-2">
                   None of bag #1
                 </div>
-                Bag #2 at high-speed:
-                <ViewWorking :param="data.calculations.bagSpeeds.highSpeed" paramKey="highSpeed" heading="High speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
-                <span v-if="data.calculations.bagSpeeds.highSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.highSpeedDrops" paramKey="highSpeedDrops" heading="High-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                  <span>Bag #2 at high-speed: <ViewWorking :param="data.calculations.bagSpeeds.highSpeed" paramKey="highSpeed" heading="High speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/></span>
+                  <span v-if="data.calculations.bagSpeeds.highSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.highSpeedDrops" paramKey="highSpeedDrops" heading="High-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                </div>
               </div>
               <!--error-->
               <div class="text-danger" v-else>
@@ -359,14 +368,29 @@ onMounted(() => window.scrollTo(0, 0));
                 }}
                 {{ data.inputs.glucose.unit }}
               </div>
-              <!--bag speed for hypo-->
-              <div>
+              <!--bag speed for standard-->
+              <div v-if="data.calculations.severity.val === 'standard'">
                 <div class="mb-2">
                   None of bag #1
                 </div>
-                Bag #2 at high-speed:
-                <ViewWorking :param="data.calculations.bagSpeeds.hypoSpeed" paramKey="hypoSpeed" heading="Hypo-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/>
-                <span v-if="data.calculations.bagSpeeds.hypoSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.hypoSpeedDrops" paramKey="hypoSpeedDrops" heading="High-speed drop rate (for hypoglycaemia)" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                  <span>Bag #2 at high-speed: <ViewWorking :param="data.calculations.bagSpeeds.hypoSpeed" paramKey="hypoSpeed" heading="Hypo-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/></span>
+                  <span v-if="data.calculations.bagSpeeds.hypoSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.hypoSpeedDrops" paramKey="hypoSpeedDrops" heading="High-speed drop rate (for hypoglycaemia)" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                </div>
+              </div>
+              <!--bag speed for severe-->
+              <div v-else-if="data.calculations.severity.val === 'severe'">
+                <div class="mb-2">
+                  None of bag #1
+                </div>
+                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                  <span>Bag #2 at high-speed: <ViewWorking :param="data.calculations.bagSpeeds.highSpeed" paramKey="highSpeed" heading="High-speed bag rate" unit="mL/hour" :decimals="config.decimals.bagSpeed"/></span>
+                  <span v-if="data.calculations.bagSpeeds.highSpeedDrops"> which is <ViewWorking :param="data.calculations.bagSpeeds.highSpeedDrops" paramKey="highSpeedDrops" heading="High-speed drop rate" unit=" drops/minute" :decimals="config.decimals.drops"/></span>
+                </div>
+              </div>
+              <!--error-->
+              <div class="text-danger" v-else>
+                Error generating fluid rate guidance.
               </div>
               <!--narrow screen glucose-->
               <div class="d-block d-sm-none mt-2"><i>Call clinician immediately</i></div>
@@ -564,20 +588,22 @@ onMounted(() => window.scrollTo(0, 0));
         </div>
       </div>
     </div>
-    <!--back-->
-    <button
-      type="button"
-      @click="router.push('/form-clinical-details')"
-      class="btn btn-secondary"
-    >
-      Back to form
-    </button>
+    <div class="text-center">
+      <!--back-->
+      <button
+        type="button"
+        @click="router.push('/form-clinical-details')"
+        class="btn btn-secondary"
+      >
+        Back to form
+      </button>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .container {
-  max-width: 750px;
+  max-width: 950px;
 }
 .btn-outline-secondary {
   width: 150px;

@@ -436,7 +436,8 @@ onMounted(() => window.scrollTo(0, 0));
         v-if="
           data.inputs.shockPresent.val === 'false' &&
           data.inputs.gcs.val > config.validation.gcs.severeThreshold &&
-          data.inputs.pH.val >= config.validation.pH.severeThreshold
+          (data.inputs.bloodGasAvailable.val === 'false' ||
+            data.inputs.pH.val >= config.validation.pH.severeThreshold)
         "
       >
         <p class="m-2">

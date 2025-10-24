@@ -25,6 +25,31 @@ onMounted(() => window.scrollTo(0, 0));
         </button>
       </div>
       <div class="mb-4">
+        <h3>Provided values</h3>
+        <div>
+          Calculations and guidance provided by the {{ config.appName }} relies upon accurate data from the user. The following relevant data were provided for this episode:
+          <ul>
+            <li>PatientAge: <i>{{ data.inputs.patientDOB.patientAge.val }} years</i></li>
+            <li>Patient sex: <i>{{ data.inputs.patientSex.val }}</i></li>
+            <li>Weight: <i>{{ data.inputs.weight.val }}kg</i></li>
+            <li>Blood gas available: <i>{{ data.inputs.bloodGasAvailable.val }}</i></li>
+            <li>Blood ketones available: <i>{{ data.inputs.bloodKetonesAvailable.val }}</i></li>
+            <li>Syringe driver available: <i>{{ data.inputs.syringeDriverAvailable.val }}</i></li>
+            <li>Infusion pump available: <i>{{ data.inputs.infusionPumpAvailable.val }}</i></li>
+            <li v-if="data.inputs.dropFactor.val">Drop factor: <i>{{ data.inputs.dropFactor.val }}drops/mL</i></li>
+            <li>Glucose: <i>{{ data.inputs.glucose.val }}{{ data.inputs.glucose.unit }}</i></li>
+            <li v-if="data.inputs.urineKetones.val">Urine ketones: <i>{{ data.inputs.urineKetones.val }}+</i></li>
+            <li v-if="data.inputs.bloodKetones.val">Blood ketones: <i>{{ data.inputs.bloodKetones.val }}mmol/L</i></li>
+            <li>Diagnostic features of DKA: <i>{{ data.inputs.diagnosticFeatures.val }}</i></li>
+            <li v-if="data.inputs.pH.val">pH: <i>{{ data.inputs.pH.val }}</i></li>
+            <li v-if="data.inputs.bicarbonate.val">Bicarbonate: <i>{{ data.inputs.bicarbonate.val }}mmol/L</i></li>
+            <li>Shock present: <i>{{ data.inputs.shockPresent.val }}</i></li>
+            <li v-if="data.inputs.gcs.val">GCS: <i>{{ data.inputs.gcs.val }}</i></li>
+            <li v-if="data.inputs.respiratorySupport.val">Respiratory support: <i>{{ data.inputs.respiratorySupport.val }}</i></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mb-4">
         <h3>DKA severity</h3>
         <div v-html="data.calculations.severity.working"></div>
       </div>

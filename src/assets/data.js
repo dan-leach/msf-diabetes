@@ -636,6 +636,8 @@ export const data = ref({
           this.val = Number.parseFloat(this.val).toFixed(2);
           checkNumberRange(this.val, "", this.min(), this.max(), errors, "pH");
         }
+        if (this.val < config.value.validation.pH.severeThreshold)
+          data.value.inputs.respiratorySupport.val = null;
         this.errors = errors.join(" ");
         return !this.errors;
       },
@@ -711,6 +713,10 @@ export const data = ref({
         this.errors = "";
         if (!this.val)
           this.errors += "Clinical shock status must be selected. ";
+        if (this.val === "true") {
+          data.value.inputs.respiratorySupport.val = null;
+          data.value.inputs.gcs.val = null;
+        }
         return !this.errors;
       },
       errors: "",
