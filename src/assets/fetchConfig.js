@@ -11,8 +11,8 @@ const clientLastUpdated = "2025-10-24";
 // Set API development mode with environment variables
 
 const url = underDevelopment
-  ? "https://dev-api.msf.dka-calculator.co.uk/config"
-  : "https://api.msf.dka-calculator.co.uk/config";
+  ? "https://dev-api.msf.dka-calculator.co.uk/"
+  : "https://api.msf.dka-calculator.co.uk/";
 
 const timeoutDuration = 15000;
 
@@ -23,7 +23,7 @@ async function fetchConfig() {
   const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
   try {
-    const response = await fetch(url, {
+    const response = await fetch(`${url}config`, {
       method: "GET",
       signal: controller.signal,
     });

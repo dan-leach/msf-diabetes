@@ -144,8 +144,10 @@ const generate = {
       data.value.inputs.respiratorySupport.val == "true";
     payload.clientUseragent = navigator.userAgent;
     payload.appVersion = {
-      client: config.value.client.version,
-      api: config.value.api.version,
+      client: config.value.client.version.toString(),
+      clientMode: config.value.client.underDevelopment
+        ? "development"
+        : "production",
     };
 
     return payload;
