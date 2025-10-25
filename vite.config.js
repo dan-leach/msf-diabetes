@@ -24,13 +24,14 @@ export default defineConfig({
         description:
           "The MSF Diabetes Calculator allows clinicians to calculate variables for managing paediatric diabetic ketoacidosis based on the 2024 MSF paediatric guidelines.",
         start_url: "/",
+        scope: "/",
         launch_handler: {
           client_mode: ["navigate-existing", "auto"],
         },
         handle_links: "preferred",
         display: "standalone",
         background_color: "#ffffff",
-        theme_color: "#ec0000",
+        theme_color: "#f5f5f5",
         icons: [
           {
             src: "/pwa-192x192.png",

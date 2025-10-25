@@ -1,5 +1,5 @@
-Trial transparent PWA icon
 Install prompt
+Auto launch preferred link into standalone app
 Add clear/restart button
 Fix the logo not being available offline
 See if I can fetch the API calculation modules and then cache it for local use (so that I don't have to update the client repo with any API repo changes)
