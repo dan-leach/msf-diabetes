@@ -37,10 +37,14 @@ async function fetchConfig() {
 
     const jsonResponse = await response.json();
     config.value = jsonResponse;
+
+    console.log("Config fetched:", config.value.fetchDatetime);
+
     config.value.api.url = url;
     config.value.client.underDevelopment = underDevelopment;
     config.value.client.version = clientVersion;
     config.value.client.lastUpdated = clientLastUpdated;
+
     return jsonResponse;
   } catch (error) {
     // Handle errors (including timeout and network issues)

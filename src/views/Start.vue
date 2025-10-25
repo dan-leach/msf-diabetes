@@ -25,6 +25,8 @@ const config = inject("config");
               API version {{ config.api.version }} ({{ config.api.lastUpdated }} | {{
                 config.api.underDevelopment ? "development" : "production"
               }})<br></br>
+              Interim code: 5
+              <br></br>
               This version is for demonstration purposes only. Do not use
               for real clinical cases.
             </p>

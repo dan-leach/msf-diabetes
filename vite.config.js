@@ -46,7 +46,13 @@ export default defineConfig({
             src: "/pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "maskable",
+          },
+          {
+            src: "/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any",
           },
         ],
       },
@@ -54,13 +60,18 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/api\.yourdomain\.com\/.*/i,
-            handler: "NetworkFirst",
+            urlPattern:
+              /^https:\/\/(dev-api|api)\.msf\.dka-calculator\.co\.uk\/config$/i,
+            handler: "StaleWhileRevalidate",
             options: {
-              cacheName: "api-cache",
-              networkTimeoutSeconds: 10,
-              expiration: { maxEntries: 50, maxAgeSeconds: 86400 },
-              cacheableResponse: { statuses: [0, 200] },
+              cacheName: "config-cache",
+              expiration: {
+                maxEntries: 1, // only keep the latest config
+                maxAgeSeconds: 30 * 24 * 60 * 60, // cache for 30 days
+              },
+              cacheableResponse: {
+                statuses: [200],
+              },
             },
           },
         ],
