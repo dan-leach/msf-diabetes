@@ -2,156 +2,153 @@
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router/index.js";
-import { api } from "@/assets/api.js";
 import { inject } from "vue";
 const config = inject("config");
+import { api } from "@/assets/api.js";
+import { runOfflineCalculation } from "@/assets/offlineCalculator.js";
 
-/**
- * Steps of the generation process.
- * @type {Object<string, Step>}
- */
-const generateSteps = ref({
-  /**
-   * @typedef {Object} Step
-   * @property {string} text - Description of the step.
-   * @property {boolean} complete - Indicates if the step is complete.
-   * @property {string} fail - Error message if the step fails.
-   * @property {boolean} current - Indicates if the step is currently being executed.
-   */
-  transmit: {
-    //Generate the payload
-    text: "Transmitting data to calculator",
-    complete: false,
-    fail: "",
-    current: false,
+const steps = ref({
+  //build the payload
+  buildPayload: {
+    description: "Preparing data",
+    status: "pre", //pre -> active -> complete -> fail (or hidden)
+    errors: "",
+    action: function () {
+      this.status = "active";
+
+      const payload = {};
+
+      payload.legalAgreement = data.value.inputs.legalAgreement.val == "true";
+
+      payload.episodeType = data.value.inputs.episodeType.val;
+      payload.patientSex = data.value.inputs.patientSex.val;
+      payload.weight = parseFloat(data.value.inputs.weight.val);
+      payload.operationalCentre = data.value.inputs.operationalCentre.val;
+      payload.project = data.value.inputs.project.val;
+
+      payload.weightLimitOverride = data.value.inputs.weight.limit.override;
+      payload.use2SD = data.value.inputs.weight.limit.use2SD;
+
+      payload.patientAge = data.value.inputs.patientDOB.patientAge.val;
+
+      payload.bloodGasAvailable =
+        data.value.inputs.bloodGasAvailable.val == "true";
+      payload.bloodKetonesAvailable =
+        data.value.inputs.bloodKetonesAvailable.val == "true";
+      payload.syringeDriverAvailable =
+        data.value.inputs.syringeDriverAvailable.val == "true";
+      payload.infusionPumpAvailable =
+        data.value.inputs.infusionPumpAvailable.val == "true";
+      if (data.value.inputs.dropFactor.val)
+        payload.dropFactor = parseFloat(data.value.inputs.dropFactor.val);
+
+      payload.glucose = parseFloat(data.value.inputs.glucose.val);
+      payload.glucoseUnit = data.value.inputs.glucose.unit;
+      if (data.value.inputs.bloodKetones.val)
+        payload.bloodKetones = parseFloat(data.value.inputs.bloodKetones.val);
+      if (data.value.inputs.urineKetones.val)
+        payload.urineKetones = parseFloat(data.value.inputs.urineKetones.val);
+      payload.diagnosticFeatures =
+        data.value.inputs.diagnosticFeatures.val == "true";
+      if (data.value.inputs.pH.val)
+        payload.pH = parseFloat(data.value.inputs.pH.val);
+      if (data.value.inputs.bicarbonate.val)
+        payload.bicarbonate = parseFloat(data.value.inputs.bicarbonate.val);
+      payload.shockPresent = data.value.inputs.shockPresent.val == "true";
+      payload.gcs = parseFloat(data.value.inputs.gcs.val);
+      payload.respiratorySupport =
+        data.value.inputs.respiratorySupport.val == "true";
+
+      payload.clientUseragent = navigator.userAgent;
+      payload.appVersion = {
+        client: config.value.client.version.toString(),
+        clientMode: config.value.client.underDevelopment
+          ? "development"
+          : "production",
+      };
+
+      this.status = "complete";
+
+      return payload;
+    },
   },
-  calculate: {
-    //await the response from the server
-    text: "Calculating protocol variables",
-    complete: false,
-    fail: "",
-    current: false,
+  //send to server and await calculations
+  calculateAPI: {
+    description: "Waiting for server to perform calculations",
+    status: "pre",
+    errors: "",
+    action: async function (payload) {
+      this.status = "active";
+      try {
+        const response = await api("calculate", payload);
+        this.status = "complete";
+        return response;
+      } catch (error) {
+        this.status = "error";
+        this.errors = error;
+        throw error;
+      }
+    },
   },
-  audit: {
-    //is completed at the same time as the calculate step
-    text: "Logging audit data",
-    complete: false,
-    fail: "",
-    current: false,
+  //perform calculations locally
+  calculateClient: {
+    description: "Server unavailable, performing calculations locally",
+    status: "hidden",
+    errors: "",
+    action: async function (payload) {
+      this.status = "active";
+      try {
+        const response = await runOfflineCalculation(payload);
+        console.log("calculateClient response:", response);
+        this.status = "complete";
+        return response;
+      } catch (error) {
+        this.status = "error";
+        this.errors = error;
+        console.error("calculateClient error:", error);
+        throw error;
+      }
+    },
   },
 });
 
-const generate = {
-  /**
-   * Performs the generation process by executing each step in sequence.
-   * Handles errors and updates the status of each step.
-   */
-  start: async function () {
-    for (let step in generateSteps.value) {
-      generateSteps.value[step].fail = "";
-      generateSteps.value[step].complete = false;
-      generateSteps.value[step].current = false;
-    }
+const generate = async () => {
+  steps.value.buildPayload.status = "pre";
+  steps.value.calculateAPI.status = "pre";
+  steps.value.calculateClient.status = "hidden";
+  // step 1 - build payload
+  const payload = steps.value.buildPayload.action();
 
-    // Generate payload to send to server
-    let payload = {};
-    if (
-      !(await generate.executeStep("transmit", generate.buildPayload, payload))
-    )
-      return;
+  let response = {};
 
-    // Send the payload to server and receive calculations and auditID
+  // step 2 - attempt to calculate via API
+  let networkFailed = false;
+  try {
+    response = await steps.value.calculateAPI.action(payload);
+  } catch (error) {
+    networkFailed =
+      error.some?.(
+        (e) =>
+          e.msg?.includes("timed out") ||
+          e.msg?.includes("Network") ||
+          e.msg?.includes("fetch")
+      ) || error.name === "AbortError";
+    console.log("networkFailed?", networkFailed);
+  }
+
+  // step 3 - if network failed, perform local calculation
+  if (networkFailed) {
     try {
-      generateSteps.value.calculate.current = true;
-      const res = await api("calculate", payload);
-      data.value.auditID = res.auditID;
-      data.value.calculations = res.calculations;
+      response = await steps.value.calculateClient.action(payload);
     } catch (error) {
-      generateSteps.value.calculate.fail = error;
-      generateSteps.value.calculate.current = false;
       return;
     }
-    if (!(await generate.executeStep("calculate"))) return;
-    generateSteps.value.audit.complete = true;
+  }
 
-    router.push("/guidance");
-  },
-
-  /**
-   * Executes a step in the generation process.
-   * @param {string} step - The step name.
-   * @param {Function} [action] - The action to execute.
-   * @param {...any} [params] - Parameters for the action.
-   * @returns {boolean} - Returns true if the step is successful, false otherwise.
-   */
-  executeStep: async function (step, action, ...params) {
-    generateSteps.value[step].current = true;
-    try {
-      if (action) {
-        await action(...params);
-      }
-      generateSteps.value[step].complete = true;
-    } catch (error) {
-      generateSteps.value[step].fail = [{ msg: error.toString() }];
-      console.error(error);
-      return false;
-    } finally {
-      generateSteps.value[step].current = false;
-    }
-    return true;
-  },
-
-  /**
-   * Builds the payload to send to the server.
-   * @returns {Object} Payload containing input values.
-   */
-  buildPayload: async function (payload) {
-    payload.legalAgreement = data.value.inputs.legalAgreement.val;
-    payload.episodeType = data.value.inputs.episodeType.val;
-    payload.patientSex = data.value.inputs.patientSex.val;
-    payload.weight = parseFloat(data.value.inputs.weight.val);
-    payload.operationalCentre = data.value.inputs.operationalCentre.val;
-    payload.project = data.value.inputs.project.val;
-    payload.weightLimitOverride = data.value.inputs.weight.limit.override;
-    payload.use2SD = data.value.inputs.weight.limit.use2SD;
-    payload.patientAge = data.value.inputs.patientDOB.patientAge.val;
-    payload.bloodGasAvailable =
-      data.value.inputs.bloodGasAvailable.val == "true";
-    payload.bloodKetonesAvailable =
-      data.value.inputs.bloodKetonesAvailable.val == "true";
-    payload.syringeDriverAvailable =
-      data.value.inputs.syringeDriverAvailable.val == "true";
-    payload.infusionPumpAvailable =
-      data.value.inputs.infusionPumpAvailable.val == "true";
-    if (data.value.inputs.dropFactor.val)
-      payload.dropFactor = parseFloat(data.value.inputs.dropFactor.val);
-    //payload.dropFactor = 100
-    payload.glucose = parseFloat(data.value.inputs.glucose.val);
-    payload.glucoseUnit = data.value.inputs.glucose.unit;
-    if (data.value.inputs.bloodKetones.val)
-      payload.bloodKetones = parseFloat(data.value.inputs.bloodKetones.val);
-    if (data.value.inputs.urineKetones.val)
-      payload.urineKetones = parseFloat(data.value.inputs.urineKetones.val);
-    payload.diagnosticFeatures =
-      data.value.inputs.diagnosticFeatures.val == "true";
-    if (data.value.inputs.pH.val)
-      payload.pH = parseFloat(data.value.inputs.pH.val);
-    if (data.value.inputs.bicarbonate.val)
-      payload.bicarbonate = parseFloat(data.value.inputs.bicarbonate.val);
-    payload.shockPresent = data.value.inputs.shockPresent.val == "true";
-    payload.gcs = parseFloat(data.value.inputs.gcs.val);
-    payload.respiratorySupport =
-      data.value.inputs.respiratorySupport.val == "true";
-    payload.clientUseragent = navigator.userAgent;
-    payload.appVersion = {
-      client: config.value.client.version.toString(),
-      clientMode: config.value.client.underDevelopment
-        ? "development"
-        : "production",
-    };
-
-    return payload;
-  },
+  data.value.auditID = response.auditID;
+  data.value.mode = response.mode;
+  data.value.calculations = response.calculations;
+  router.push("/guidance");
 };
 
 if (!data.value.form.isValid(3)) router.push("/form-clinical-details");
@@ -160,40 +157,50 @@ onMounted(() => {
   window.scrollTo(0, 0);
 
   // Start the generation process
-  generate.start();
+  generate();
 });
 </script>
 
 <template>
   <div class="container my-4 needs-validation">
     <h2 class="display-3 text-center">Performing calculations</h2>
-    <div v-for="(step, index) in generateSteps" class="mb-3">
+    <div v-for="(step, index) in steps" class="mb-3">
       <span
         class="step-text"
         :class="
-          step.complete || step.fail || step.current ? '' : 'text-black-50'
+          step.status === 'active' ||
+          step.status === 'error' ||
+          step.status === 'complete'
+            ? ''
+            : 'text-black-50'
         "
-        >{{ step.text }}&nbsp;&nbsp;</span
+        :hidden="step.status === 'hidden'"
+        >{{ step.description }}&nbsp;&nbsp;</span
       >
       <span
         class="spinner-border spinner-border-sm align-middle"
-        v-if="step.current"
+        v-if="step.status === 'active'"
       ></span>
-      <span v-if="step.complete"
+      <span v-if="step.status === 'complete'"
         ><font-awesome-icon :icon="['fas', 'check']" style="color: green"
       /></span>
-      <span v-if="step.fail"
+      <span v-if="step.status === 'error'"
         ><font-awesome-icon :icon="['fas', 'xmark']" style="color: red"
       /></span>
-      <div v-if="step.fail">
-        <span class="text-danger ms-2" v-for="error in step.fail">
+      <div v-if="step.status === 'error'">
+        <span class="text-danger ms-2" v-for="error in step.errors">
           {{ error.msg }}<br /> </span
         ><br />
         <!--retry-->
         <button
           type="button"
-          @click="generate.start"
+          @click="generate()"
           class="btn btn-primary mb-4"
+          v-if="
+            index === 'calculateClient' ||
+            (index === 'calculateAPI' &&
+              steps.calculateClient.status === 'hidden')
+          "
         >
           Retry
         </button>

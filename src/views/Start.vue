@@ -35,6 +35,29 @@ const config = inject("config");
       </div>
     </div>
 
+    <div
+      class="card border-danger mb-3"
+      v-if="config.api.version != config.client.offlineCalculatorVersion"
+    >
+      <div class="card-body">
+        <div class="d-flex flex-row align-items-center">
+          <font-awesome-icon
+            :icon="['fas', 'triangle-exclamation']"
+            size="2xl"
+            class="me-4"
+          />
+          <div>
+            <h5 class="card-title">API / offline calculator versions misaligned</h5>
+            <p class="card-text">
+              API version {{ config.api.version }} does not match offline calculator version {{ config.client.offlineCalculatorVersion }}.
+              <br></br>
+              Contact administrator. Do not use in offline mode.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <h2 class="display-3 text-center">Welcome</h2>
     <p class="mx-1">
       The {{ config.appName }} allows clinicians to calculate variables for

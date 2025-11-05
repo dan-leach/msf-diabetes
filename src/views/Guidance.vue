@@ -23,6 +23,15 @@ let showGuidance = ref({
   imInsulinDose: false,
 });
 
+const formatDatetime = (iso) => {
+  const date = new Date(iso);
+
+  return date.toLocaleString(undefined, {
+    dateStyle: "short",   // or "medium" / "long" / "full"
+    timeStyle: "short",   // short time (e.g. 23:30)
+  });
+}
+
 onMounted(() => window.scrollTo(0, 0));
 </script>
 
@@ -56,6 +65,22 @@ onMounted(() => window.scrollTo(0, 0));
           <p class="card-text">
             Refer to the MSF paediatric diabetes guidelines for how to use
             these calculated values.
+          </p>
+        </div>
+      </div>
+
+      <!--offline alert box-->
+      <div class="card border-danger mb-3" v-if="data.mode === 'offline'">
+        <div class="card-body d-flex flex-row align-items-center">
+          <img
+            alt="Audit ID icon"
+            class="icon me-4"
+            src="@/assets/images/offline-icon.svg"
+            width="35"
+            height="35"
+          />
+          <p class="card-text">
+            This guidance was generated in offline mode based on algorithms up to date as of {{ formatDatetime(config.fetchDatetime) }}. Audit data will upload when {{ config.appName }} is next online.
           </p>
         </div>
       </div>

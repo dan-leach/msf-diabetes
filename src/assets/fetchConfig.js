@@ -8,6 +8,7 @@ const underDevelopment = true;
 // Set client version here.
 const clientVersion = 0.2;
 const clientLastUpdated = "2025-10-24";
+const offlineCalculatorVersion = 0.2; //The API version which checkWeightWithinLimits.js and calculateVariables.js are aligned with
 // Set API development mode with environment variables
 
 const url = underDevelopment
@@ -44,6 +45,7 @@ async function fetchConfig() {
     config.value.client.underDevelopment = underDevelopment;
     config.value.client.version = clientVersion;
     config.value.client.lastUpdated = clientLastUpdated;
+    config.value.client.offlineCalculatorVersion = offlineCalculatorVersion;
 
     return jsonResponse;
   } catch (error) {

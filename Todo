@@ -1,5 +1,12 @@
-Install prompt
-Auto launch preferred link into standalone app
+Current:
+Imitating network failure by setting timeout to 1ms in api.js
+Imitating non-network failure by setting payload.diagnosticFeatures = false in Generate.vue
+Update API to ensure appropriate status used always, then can not use offline fallback on status 400 etc rather than 'network' type matching
+Add mode === 'online' to api side
+Check client validate.js checks are all valid
+Check each step of the offlineCalculator returns appropriately displayed errors to generate page.
+Make fetch timeout shorter if navigator.offline
+
 Add clear/restart button
 Fix the logo not being available offline
 See if I can fetch the API calculation modules and then cache it for local use (so that I don't have to update the client repo with any API repo changes)
@@ -15,7 +22,19 @@ body {
 overscroll-behaviour-y: contain;
 }
 
-Before launch
+# Before launch:
 
 - restore commented out redirects to start of form if blank
 - Remove joe bloggs
+
+# Version change:
+
+- client
+  - clientVersion in src/assets/fetchConfig.js
+  - clientLastUpdated in src/assets/fetchConfig.js
+  - developmentMode in src/assets/fetchConfig.js
+- api
+  - version in node environment variables
+  - lastUpdated in node environment variables
+  - development mode in NODE_ENV drop down
+  - update offlineCalculator files (validate, checkWeightWithinLimit, calculateVariables) and update versions

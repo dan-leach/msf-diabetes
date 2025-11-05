@@ -29,6 +29,12 @@ export default defineConfig({
           client_mode: ["navigate-existing", "auto"],
         },
         handle_links: "preferred",
+        protocol_handlers: [
+          {
+            protocol: "web+msfdiabetes",
+            url: "/?launch=%s",
+          },
+        ],
         display: "standalone",
         background_color: "#ffffff",
         theme_color: "#f5f5f5",
@@ -60,6 +66,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
         runtimeCaching: [
+          // config caching
           {
             urlPattern:
               /^https:\/\/(dev-api|api)\.msf\.dka-calculator\.co\.uk\/config$/i,
