@@ -473,7 +473,7 @@ onMounted(() => window.scrollTo(0, 0));
       <!--iv insulin rate-->
       <div
         class="card mb-4"
-        v-if="data.inputs.syringeDriverAvailable.val == 'true'"
+        v-if="data.inputs.syringePumpAvailable.val == 'true'"
       >
         <div class="card-header">
           <img

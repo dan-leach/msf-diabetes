@@ -155,14 +155,14 @@ onMounted(() => window.scrollTo(0, 0));
         {{ data.inputs.bloodKetonesAvailable.info }}
       </div>
     </div>
-    <!--syringeDriverAvailable-->
+    <!--syringePumpAvailable-->
     <div class="mb-4 text-center">
       <p class="m-2">
-        {{ data.inputs.syringeDriverAvailable.label }}
+        {{ data.inputs.syringePumpAvailable.label }}
         <font-awesome-icon
           :icon="['fas', 'circle-info']"
           data-bs-toggle="collapse"
-          data-bs-target="#syringeDriverAvailableInfo"
+          data-bs-target="#syringePumpAvailableInfo"
           class="ms-2"
         />
       </p>
@@ -170,48 +170,44 @@ onMounted(() => window.scrollTo(0, 0));
         <input
           type="radio"
           class="btn-check"
-          name="syringeDriverAvailable"
-          id="syringeDriverAvailableTrue"
+          name="syringePumpAvailable"
+          id="syringePumpAvailableTrue"
           value="true"
-          v-model="data.inputs.syringeDriverAvailable.val"
-          @change="data.inputs.syringeDriverAvailable.isValid()"
+          v-model="data.inputs.syringePumpAvailable.val"
+          @change="data.inputs.syringePumpAvailable.isValid()"
           autocomplete="off"
           required
         />
-        <label
-          class="btn btn-outline-secondary"
-          for="syringeDriverAvailableTrue"
+        <label class="btn btn-outline-secondary" for="syringePumpAvailableTrue"
           >Yes</label
         >
 
         <input
           type="radio"
           class="btn-check"
-          name="syringeDriverAvailable"
-          id="syringeDriverAvailableFalse"
+          name="syringePumpAvailable"
+          id="syringePumpAvailableFalse"
           value="false"
-          v-model="data.inputs.syringeDriverAvailable.val"
-          @change="data.inputs.syringeDriverAvailable.isValid()"
+          v-model="data.inputs.syringePumpAvailable.val"
+          @change="data.inputs.syringePumpAvailable.isValid()"
           autocomplete="off"
         />
-        <label
-          class="btn btn-outline-secondary"
-          for="syringeDriverAvailableFalse"
+        <label class="btn btn-outline-secondary" for="syringePumpAvailableFalse"
           >No</label
         >
       </div>
       <div
         v-if="showErrors"
         class="form-text text-danger text-center mx-1"
-        id="syringeDriverAvailableErrors"
+        id="syringePumpAvailableErrors"
       >
-        {{ data.inputs.syringeDriverAvailable.errors }}
+        {{ data.inputs.syringePumpAvailable.errors }}
       </div>
       <div
         class="collapse form-text text-center mx-1"
-        id="syringeDriverAvailableInfo"
+        id="syringePumpAvailableInfo"
       >
-        {{ data.inputs.syringeDriverAvailable.info }}
+        {{ data.inputs.syringePumpAvailable.info }}
       </div>
     </div>
     <!--infusionPumpAvailable-->

@@ -34,7 +34,7 @@ onMounted(() => window.scrollTo(0, 0));
             <li>Weight: <i>{{ data.inputs.weight.val }}kg</i></li>
             <li>Blood gas available: <i>{{ data.inputs.bloodGasAvailable.val }}</i></li>
             <li>Blood ketones available: <i>{{ data.inputs.bloodKetonesAvailable.val }}</i></li>
-            <li>Syringe driver available: <i>{{ data.inputs.syringeDriverAvailable.val }}</i></li>
+            <li>Syringe pump available: <i>{{ data.inputs.syringePumpAvailable.val }}</i></li>
             <li>Infusion pump available: <i>{{ data.inputs.infusionPumpAvailable.val }}</i></li>
             <li v-if="data.inputs.dropFactor.val">Drop factor: <i>{{ data.inputs.dropFactor.val }}drops/mL</i></li>
             <li>Glucose: <i>{{ data.inputs.glucose.val }}{{ data.inputs.glucose.unit }}</i></li>
@@ -139,7 +139,7 @@ onMounted(() => window.scrollTo(0, 0));
         </div>
         <hr></hr>
       </div>
-      <div class="mb-4" v-if="data.inputs.syringeDriverAvailable.val == 'true'">
+      <div class="mb-4" v-if="data.inputs.syringePumpAvailable.val == 'true'">
         <h3>IV insulin rate</h3>
         <div v-html="data.calculations.insulinRate.working"></div>
       </div>

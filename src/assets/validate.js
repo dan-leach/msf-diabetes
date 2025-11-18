@@ -106,7 +106,7 @@ function validate(payload) {
   [
     "bloodGasAvailable",
     "bloodKetonesAvailable",
-    "syringeDriverAvailable",
+    "syringePumpAvailable",
     "infusionPumpAvailable",
   ].forEach((field) => {
     if (typeof payload[field] !== "boolean") {

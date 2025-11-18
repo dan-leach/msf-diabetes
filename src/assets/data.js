@@ -82,7 +82,7 @@ export const data = ref({
 
       data.value.inputs.bloodGasAvailable.val = "false";
       data.value.inputs.bloodKetonesAvailable.val = "false";
-      data.value.inputs.syringeDriverAvailable.val = "true";
+      data.value.inputs.syringePumpAvailable.val = "true";
       data.value.inputs.infusionPumpAvailable.val = "true";
 
       data.value.inputs.glucose.val = 250;
@@ -388,17 +388,17 @@ export const data = ref({
       },
       errors: "",
     },
-    syringeDriverAvailable: {
+    syringePumpAvailable: {
       val: null,
-      label: "Syringe driver available?",
+      label: "Syringe pump available?",
       form: [2],
-      info: "If a syringe driver is available IV insulin infusion rate will be provided, otherwise 2-hourly IM doses.",
+      info: "If a syringe pump is available IV insulin infusion rate will be provided, otherwise 2-hourly IM doses. IV insulin infusion cannot be safely given without a syringe pump.",
       privacyInfo:
-        "Syringe driver availability is stored for audit and data analysis.",
+        "Syringe pump availability is stored for audit and data analysis.",
       isValid() {
         this.errors = "";
         if (!this.val)
-          this.errors += "Availability of syringe driver must be selected. ";
+          this.errors += "Availability of syringe pump must be selected. ";
         return !this.errors;
       },
       errors: "",

@@ -35,8 +35,8 @@ const steps = ref({
         data.value.inputs.bloodGasAvailable.val == "true";
       payload.bloodKetonesAvailable =
         data.value.inputs.bloodKetonesAvailable.val == "true";
-      payload.syringeDriverAvailable =
-        data.value.inputs.syringeDriverAvailable.val == "true";
+      payload.syringePumpAvailable =
+        data.value.inputs.syringePumpAvailable.val == "true";
       payload.infusionPumpAvailable =
         data.value.inputs.infusionPumpAvailable.val == "true";
       if (data.value.inputs.dropFactor.val)

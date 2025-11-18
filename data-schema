@@ -97,9 +97,9 @@ forms:
         required: true
         auditable: true
         encrypted: false
-      syringeDriverAvailable:
+      syringePumpAvailable:
         type: boolean
-        description: Indicates if a syringe drivers is available.
+        description: Indicates if a syringe pump is available.
         options: true, false
         validation: must be one of the provided options
         required: true
@@ -115,7 +115,7 @@ forms:
         encrypted: false
       dropFactor:
         type: boolean
-        description: Indicates if syringe drivers are available.
+        description: Indicates if syringe pump is available.
         conditions: infusionPumpAvailable is false
         options: 20, 60
         validation: must be one of the provided options
@@ -390,7 +390,7 @@ server:
           imDose:
             type: object
             description: The dose of intramuscular insulin in units.
-            conditions: syringeDriversAvailable is false
+            conditions: syringePumpAvailable is false
             properties:
               val:
                 type: float
@@ -404,7 +404,7 @@ server:
           ivRate:
             type: object
             description: The rate of intravenous insulin infusion in units/hour.
-            conditions: syringeDriversAvailable is true
+            conditions: syringePumpAvailable is true
             properties:
               val:
                 type: float
