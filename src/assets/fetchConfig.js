@@ -2,12 +2,14 @@ import { ref } from "vue";
 let config = ref({});
 
 // Set client development mode here.
-const underDevelopment = true;
+const underDevelopment = false;
 // Set API development mode with NODE_ENV
 
 // Set client version here.
+const clientDevInterimCode = "c6";
+console.log("clientDevInterimCode", clientDevInterimCode);
 const clientVersion = 0.3;
-const clientLastUpdated = "2025-11-18";
+const clientLastUpdated = "2026-01-14";
 const offlineCalculatorVersion = 0.3; //The API version which checkWeightWithinLimits.js and calculateVariables.js are aligned with
 // Set API development mode with environment variables
 

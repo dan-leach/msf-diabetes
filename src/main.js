@@ -8,6 +8,17 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
 
+// PWA update helper
+import { registerSW } from "virtual:pwa-register";
+
+const updateSW = registerSW({
+  onNeedRefresh() {
+    // Called when a new SW is installed but waiting to activate
+    console.log("New version available, reloading...");
+    window.location.reload();
+  },
+});
+
 // Import FontAwesome core and Vue component
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
