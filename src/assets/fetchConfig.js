@@ -6,9 +6,9 @@ const underDevelopment = true;
 // Set API development mode with NODE_ENV
 
 // Set client version here.
-const clientVersion = 0.2;
-const clientLastUpdated = "2025-10-24";
-const offlineCalculatorVersion = 0.2; //The API version which checkWeightWithinLimits.js and calculateVariables.js are aligned with
+const clientVersion = 0.3;
+const clientLastUpdated = "2025-11-18";
+const offlineCalculatorVersion = 0.3; //The API version which checkWeightWithinLimits.js and calculateVariables.js are aligned with
 // Set API development mode with environment variables
 
 const url = underDevelopment
