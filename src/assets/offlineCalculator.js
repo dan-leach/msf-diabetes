@@ -30,7 +30,11 @@ async function runOfflineCalculation(payload) {
       auditID,
     };
   } catch (error) {
-    console.error("Offline calculation error:", error);
+    const parsedError = JSON.parse(error.message);
+    console.error(
+      `Offline calculation error (count: ${parsedError.length}): ${parsedError.message}`,
+      parsedError
+    );
     throw error;
   }
 }

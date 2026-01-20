@@ -6,10 +6,10 @@ const underDevelopment = false;
 // Set API development mode with NODE_ENV
 
 // Set client version here.
-const clientDevInterimCode = "c6";
+const clientDevInterimCode = "a1";
 console.log("clientDevInterimCode", clientDevInterimCode);
 const clientVersion = 0.3;
-const clientLastUpdated = "2026-01-14";
+const clientLastUpdated = "2026-01-20";
 const offlineCalculatorVersion = 0.3; //The API version which checkWeightWithinLimits.js and calculateVariables.js are aligned with
 // Set API development mode with environment variables
 

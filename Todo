@@ -1,6 +1,4 @@
 Current:
-Imitating network failure by setting timeout to 1ms in api.js
-Imitating non-network failure by setting payload.diagnosticFeatures = false in Generate.vue
 Update API to ensure appropriate status used always, then can not use offline fallback on status 400 etc rather than 'network' type matching
 Add mode === 'online' to api side
 Check client validate.js checks are all valid

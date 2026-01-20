@@ -18,7 +18,7 @@ const steps = ref({
 
       const payload = {};
 
-      payload.legalAgreement = data.value.inputs.legalAgreement.val == "true";
+      payload.legalAgreement = data.value.inputs.legalAgreement.val == true;
 
       payload.episodeType = data.value.inputs.episodeType.val;
       payload.patientSex = data.value.inputs.patientSex.val;
@@ -104,8 +104,7 @@ const steps = ref({
         return response;
       } catch (error) {
         this.status = "error";
-        this.errors = error;
-        console.error("calculateClient error:", error);
+        this.errors = JSON.parse(error.message);
         throw error;
       }
     },
@@ -134,6 +133,10 @@ const generate = async () => {
           e.msg?.includes("fetch")
       ) || error.name === "AbortError";
     console.log("networkFailed?", networkFailed);
+    if (!networkFailed) {
+      // other API error
+      return;
+    }
   }
 
   // step 3 - if network failed, perform local calculation
@@ -189,7 +192,7 @@ onMounted(() => {
       /></span>
       <div v-if="step.status === 'error'">
         <span class="text-danger ms-2" v-for="error in step.errors">
-          {{ error.msg }}<br /> </span
+          {{ error.msg || error.message }}<br /> </span
         ><br />
         <!--retry-->
         <button

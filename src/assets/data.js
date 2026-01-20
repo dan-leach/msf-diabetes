@@ -71,7 +71,7 @@ export const data = ref({
       return isValid;
     },
     joeBloggs() {
-      data.value.inputs.legalAgreement.val = "true";
+      data.value.inputs.legalAgreement.val = true;
       data.value.inputs.episodeType.val = "test";
       data.value.inputs.patientDOB.val = "2019-03-31";
       data.value.inputs.patientSex.val = "male";
