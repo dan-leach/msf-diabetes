@@ -3,6 +3,15 @@ import { checkWeightWithinLimit } from "./checkWeightWithinLimit";
 import { calculateVariables } from "./calculateVariables";
 import { generateAuditId } from "./generateAuditId";
 
+/**
+ * Performs offline calculation by validating payload, checking weight limits, and calculating variables.
+ * @param {Object} payload - The patient and clinical data to process.
+ * @returns {Promise<Object>} - A promise resolving to an object containing calculations, mode, and auditID.
+ * @returns {Object} returns.calculations - The calculation results from calculateVariables.
+ * @returns {string} returns.mode - The mode indicator ('offline').
+ * @returns {string} returns.auditID - A unique identifier for this calculation.
+ * @throws {Error} - Throws error if validation, weight check, or calculations fail.
+ */
 async function runOfflineCalculation(payload) {
   try {
     // Step 1: Validate
@@ -33,7 +42,7 @@ async function runOfflineCalculation(payload) {
     const parsedError = JSON.parse(error.message);
     console.error(
       `Offline calculation error (count: ${parsedError.length}): ${parsedError.message}`,
-      parsedError
+      parsedError,
     );
     throw error;
   }

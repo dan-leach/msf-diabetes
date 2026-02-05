@@ -1,5 +1,12 @@
 import { config } from "./fetchConfig.js"; // cached config
 
+/**
+ * Validates the payload against configured rules for all form fields.
+ * @param {Object} payload - The form data to validate.
+ * @returns {Object} - An object containing validation results.
+ * @returns {boolean} returns.isValid - Indicates if the payload passed all validations.
+ * @returns {Array} returns.errors - Array of error objects with field and message properties.
+ */
 function validate(payload) {
   const errors = [];
 
@@ -120,7 +127,7 @@ function validate(payload) {
   // dropFactor (conditional)
   if (!payload.infusionPumpAvailable) {
     const allowedDrops = config.value.validation.dropFactor.map((d) =>
-      Number(d.drops)
+      Number(d.drops),
     );
     if (!allowedDrops.includes(payload.dropFactor)) {
       errors.push({
@@ -134,7 +141,7 @@ function validate(payload) {
   // glucoseUnit
   if (
     !Object.keys(config.value.validation.glucose.units).includes(
-      payload.glucoseUnit
+      payload.glucoseUnit,
     )
   ) {
     errors.push({

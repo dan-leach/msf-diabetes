@@ -3,7 +3,7 @@ forms:
     description: A form to require users read and accept the legal terms before using the application.
     inputs:
       legalAgreement:
-        type: bolean
+        type: boolean
         description: indicates if the user has accepted the legal agreement
         validation: must be true
         required: true
@@ -114,8 +114,8 @@ forms:
         auditable: true
         encrypted: false
       dropFactor:
-        type: boolean
-        description: Indicates if syringe pump is available.
+        type: int
+        description: The drop factor for the infusion set in drops/mL.
         conditions: infusionPumpAvailable is false
         options: 20, 60
         validation: must be one of the provided options
