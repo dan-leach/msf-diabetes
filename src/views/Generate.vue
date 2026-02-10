@@ -5,7 +5,7 @@ import router from "../router/index.js";
 import { inject } from "vue";
 const config = inject("config");
 import { api } from "@/assets/api.js";
-import { runOfflineCalculation } from "@/assets/offlineCalculator.js";
+import { runOfflineCalculation } from "@/assets/offlineCalculator/offlineCalculator.js";
 
 const steps = ref({
   //build the payload
@@ -130,7 +130,7 @@ const generate = async () => {
         (e) =>
           e.msg?.includes("timed out") ||
           e.msg?.includes("Network") ||
-          e.msg?.includes("fetch")
+          e.msg?.includes("fetch"),
       ) || error.name === "AbortError";
     console.log("networkFailed?", networkFailed);
     if (!networkFailed) {

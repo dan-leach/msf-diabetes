@@ -1,7 +1,4 @@
 Current:
-Update API to ensure appropriate status used always, then can not use offline fallback on status 400 etc rather than 'network' type matching
-Add mode === 'online' to api side
-Check client validate.js checks are all valid
 Check each step of the offlineCalculator returns appropriately displayed errors to generate page.
 Make fetch timeout shorter if navigator.offline
 Defer loading registerSW.js to improve load metrics

@@ -1,4 +1,4 @@
-import { config } from "./fetchConfig.js";
+import { config } from "@/assets/fetchConfig";
 
 /**
  * Checks if the patient's weight is within the acceptable limits based on their sex and age.
@@ -55,7 +55,7 @@ function checkWeightWithinLimit(data) {
       }kg) (range ${limit.lower().toFixed(2)}kg to ${limit
         .upper()
         .toFixed(2)}kg for ${data.patientSex} patient aged ${Math.floor(
-        data.patientAge
+        data.patientAge,
       )} years and ${ageInMonths - Math.floor(data.patientAge) * 12} months).`;
     }
     return {

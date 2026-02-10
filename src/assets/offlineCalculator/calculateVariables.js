@@ -1,4 +1,4 @@
-import { config } from "./fetchConfig.js";
+import { config } from "../fetchConfig.js";
 
 /**
  * Performs calculations based on patient data to determine protocol parameters.
@@ -56,8 +56,8 @@ const calculateVariables = (data) => {
       } else if (data.bloodKetones || data.urineKetones) {
         if (
           data.gcs <= config.value.validation.gcs.severeThreshold ||
-          data.shockPresent == "true" ||
-          data.respiratorySupport == "true"
+          data.shockPresent ||
+          data.respiratorySupport
         )
           return "severe";
         return "standard";

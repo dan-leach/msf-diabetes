@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { syncOfflineData } from "@/assets/syncOfflineData";
+import { syncOfflineData } from "@/assets/offlineCalculator/syncOfflineData";
 
 /**
  * Reactive reference object containing the application configuration fetched from the server.
@@ -39,7 +39,7 @@ const clientLastUpdated = "2026-02-10";
  * Should match the API version that checkWeightWithinLimits.js and calculateVariables.js are aligned with.
  * @type {number}
  */
-const offlineCalculatorVersion = 0.3;
+const offlineCalculatorVersion = 0.4;
 
 /**
  * API base URL. Uses development endpoint when underDevelopment is true, otherwise production.

@@ -1,4 +1,4 @@
-import { config } from "./fetchConfig.js"; // cached config
+import { config } from "../fetchConfig.js"; // cached config
 
 /**
  * Validates the payload against configured rules for all form fields.
