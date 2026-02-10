@@ -59,7 +59,7 @@ const config = inject("config");
         <div class="modal-body">
           <table class="table align-middle">
             <tr>
-              <td class="left-col">Version</td>
+              <td class="left-col"><font-awesome-icon :icon="['fas', 'file-code']" size="2xl" /></td>
               <td>
                 Client <a
                   :href="config.client.repo.changelog"
@@ -97,7 +97,7 @@ const config = inject("config");
             </tr>
             <br />
             <tr>
-              <td class="left-col">Correspondance</td>
+              <td class="left-col"><font-awesome-icon :icon="['fas', 'envelope']" size="2xl" /></td>
               <td>
                 <a :href="'mailto:' + config.author.email" class="p-0">{{
                   config.author.email

@@ -1,10 +1,22 @@
 <script setup>
-import { inject } from "vue";
+import { inject, ref } from "vue";
 const config = inject("config");
+
+const isOnline = ref(navigator.onLine);
+
+const formatDatetime = (iso) => {
+  const date = new Date(iso);
+
+  return date.toLocaleString(undefined, {
+    dateStyle: "short", // or "medium" / "long" / "full"
+    timeStyle: "short", // short time (e.g. 23:30)
+  });
+};
 </script>
 
 <template>
   <div class="container my-4 needs-validation">
+    <!--under development alert card-->
     <div
       class="card border-danger mb-3"
       v-if="config.client.underDevelopment || config.api.underDevelopment"
@@ -33,6 +45,7 @@ const config = inject("config");
       </div>
     </div>
 
+    <!--offline calculator version misalignment alert card-->
     <div
       class="card border-danger mb-3"
       v-if="config.api.version != config.client.offlineCalculatorVersion"
@@ -55,6 +68,24 @@ const config = inject("config");
         </div>
       </div>
     </div>
+
+    <!--offline alert box-->
+      <div class="card border-info mb-3" v-if="!isOnline">
+        <div class="card-body d-flex flex-row align-items-center">
+          <img
+            alt="Audit ID icon"
+            class="icon me-4"
+            src="@/assets/images/offline-icon.svg"
+            width="35"
+            height="35"
+          />
+          <p class="card-text">
+            The {{ config.appName }} is currently offline.<br>
+            Calculations will be performed using the offline calculator which is up to date as of {{ formatDatetime(config.fetchDatetime) }}.<br>
+            Episode logs will be uploaded when you next go online.
+          </p>
+        </div>
+      </div>
 
     <h2 class="display-3 text-center">Welcome</h2>
     <p class="mx-1">
