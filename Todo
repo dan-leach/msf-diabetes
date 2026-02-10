@@ -10,8 +10,6 @@ Convert logo to WebP and optimise size
 Add a meta description for SEO
 
 Add clear/restart button
-Fix the logo not being available offline
-See if I can fetch the API calculation modules and then cache it for local use (so that I don't have to update the client repo with any API repo changes)
 
 Can use css media queries:
 @media (display-mode: browser){} - targets app within the browser only

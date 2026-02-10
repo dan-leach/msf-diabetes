@@ -1,24 +1,75 @@
 import { ref } from "vue";
+import { syncOfflineData } from "@/assets/syncOfflineData";
+
+/**
+ * Reactive reference object containing the application configuration fetched from the server.
+ * @type {import('vue').Ref<Object>}
+ */
 let config = ref({});
 
-// Set client development mode here.
-const underDevelopment = false;
-// Set API development mode with NODE_ENV
+/**
+ * Flag indicating whether the client is running in development mode.
+ * When true, uses the development API endpoint and logs debug information.
+ * @type {boolean}
+ */
+const underDevelopment = true;
+//Set API development mode with NODE_ENV
 
-// Set client version here.
+/**
+ * Development interim code for tracking client versions during development.
+ * @type {string}
+ */
 const clientDevInterimCode = "a1";
 console.log("clientDevInterimCode", clientDevInterimCode);
-const clientVersion = 0.3;
-const clientLastUpdated = "2026-01-20";
-const offlineCalculatorVersion = 0.3; //The API version which checkWeightWithinLimits.js and calculateVariables.js are aligned with
-// Set API development mode with environment variables
 
+/**
+ * Current client application version.
+ * @type {number}
+ */
+const clientVersion = 0.4;
+
+/**
+ * Last update date of the client application (YYYY-MM-DD format).
+ * @type {string}
+ */
+const clientLastUpdated = "2026-02-10";
+
+/**
+ * Version of the offline calculator algorithm.
+ * Should match the API version that checkWeightWithinLimits.js and calculateVariables.js are aligned with.
+ * @type {number}
+ */
+const offlineCalculatorVersion = 0.3;
+
+/**
+ * API base URL. Uses development endpoint when underDevelopment is true, otherwise production.
+ * @type {string}
+ */
 const url = underDevelopment
   ? "https://dev-api.msf.dka-calculator.co.uk/"
   : "https://api.msf.dka-calculator.co.uk/";
 
+/**
+ * Request timeout duration in milliseconds.
+ * @type {number}
+ */
 const timeoutDuration = 15000;
 
+/**
+ * Fetches application configuration from the API server.
+ * Retrieves config data, enriches it with client-side version and mode information,
+ * and triggers syncing of any offline data stored locally.
+ *
+ * @async
+ * @returns {Promise<Object>} - The configuration object from the API response.
+ * @throws {Array<{msg: string}>} - Throws an array of error objects with descriptive messages on failure.
+ *
+ * @remarks
+ * - Sets `config.value` as a reactive reference with merged client and API configuration.
+ * - Automatically calls `syncOfflineData()` after successful fetch to upload any pending calculations.
+ * - Handles network timeouts by aborting the request after `timeoutDuration` ms.
+ * - Logs development information when `underDevelopment` flag is true.
+ */
 async function fetchConfig() {
   if (underDevelopment) console.log("***Client underDevelopment***");
 
@@ -48,6 +99,8 @@ async function fetchConfig() {
     config.value.client.version = clientVersion;
     config.value.client.lastUpdated = clientLastUpdated;
     config.value.client.offlineCalculatorVersion = offlineCalculatorVersion;
+
+    syncOfflineData();
 
     return jsonResponse;
   } catch (error) {

@@ -33,6 +33,20 @@ async function runOfflineCalculation(payload) {
     // Step 4: Generate audit ID
     const auditID = generateAuditId();
 
+    // Step 5: store in local storage, for later upload when online
+    const offlineData = {
+      payload,
+      calculations,
+      calculationsTimestamp: new Date().toISOString(),
+    };
+
+    const offlineStoreIDs = JSON.parse(
+      localStorage.getItem("offlineStoreIDs") || "[]",
+    );
+    offlineStoreIDs.push(auditID);
+    localStorage.setItem("offlineStoreIDs", JSON.stringify(offlineStoreIDs));
+    localStorage.setItem(auditID, JSON.stringify(offlineData));
+
     return {
       calculations,
       mode: "offline",
