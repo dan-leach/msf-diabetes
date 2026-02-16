@@ -1,6 +1,15 @@
 <script setup>
-import { inject } from "vue";
+import { inject, ref, onMounted } from "vue";
 const config = inject("config");
+;
+const swActive = ref(false);
+
+onMounted(async () => {
+  if ("serviceWorker" in navigator) {
+    const registration = await navigator.serviceWorker.ready;
+    swActive.value = !!registration.active;
+  }
+});
 </script>
 
 <template>
@@ -14,6 +23,16 @@ const config = inject("config");
         data-bs-target="#deviceLabelModal"
         style="cursor: pointer"
       >
+      <div class="mb-1 text-black">
+        <div v-if="swActive">
+          <font-awesome-icon icon="check-circle" class="text-success" />
+          Ready for offline use
+        </div>
+        <div v-else>
+          <font-awesome-icon icon="circle-xmark" class="text-danger" />
+          Not ready for offline use
+        </div>
+      </div>
         <p class="footer-text d-flex flex-row flex-wrap align-items-center justify-content-center text-center">
           <span
             ><strong>{{ config.appName }}&nbsp;</strong></span

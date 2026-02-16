@@ -12,14 +12,14 @@ let config = ref({});
  * When true, uses the development API endpoint and logs debug information.
  * @type {boolean}
  */
-const underDevelopment = true;
+const underDevelopment = false;
 //Set API development mode with NODE_ENV
 
 /**
  * Development interim code for tracking client versions during development.
  * @type {string}
  */
-const clientDevInterimCode = "a1";
+const clientDevInterimCode = "a5";
 console.log("clientDevInterimCode", clientDevInterimCode);
 
 /**

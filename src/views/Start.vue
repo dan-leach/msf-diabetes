@@ -73,7 +73,7 @@ const formatDatetime = (iso) => {
       <div class="card border-info mb-3" v-if="!isOnline">
         <div class="card-body d-flex flex-row align-items-center">
           <img
-            alt="Audit ID icon"
+            alt="Offline icon"
             class="icon me-4"
             src="@/assets/images/offline-icon.svg"
             width="35"

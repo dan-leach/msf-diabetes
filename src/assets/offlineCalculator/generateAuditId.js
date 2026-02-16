@@ -1,4 +1,5 @@
-const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+//Removed ambiguous characters, using lower case for offline calculator (API uses uppercase)
+const BASE62 = "23456789abcdefghjkmnpqrstuvwxyz";
 
 function bytesToBase62(bytes) {
   // treat the bytes as a big integer and convert to base62

@@ -12,6 +12,7 @@ import router from "./router";
 import { registerSW } from "virtual:pwa-register";
 
 const updateSW = registerSW({
+  immediate: true,
   onNeedRefresh() {
     // Called when a new SW is installed but waiting to activate
     console.log("New version available, reloading...");
@@ -33,6 +34,8 @@ import {
   faUpRightFromSquare,
   faFileCode,
   faEnvelope,
+  faCheckCircle,
+  faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 // Add icons to the FontAwesome library
 library.add(
@@ -45,6 +48,8 @@ library.add(
   faUpRightFromSquare,
   faFileCode,
   faEnvelope,
+  faCheckCircle,
+  faCircleXmark,
 );
 
 // Create Vue application
