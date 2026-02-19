@@ -70,6 +70,16 @@ export const data = ref({
       }
       return isValid;
     },
+    reset() {
+      for (let i in data.value.inputs) {
+        let input = data.value.inputs[i];
+        input.val = input.defaultVal ? input.defaultVal : null;
+      }
+      data.value.inputs.project.options = [];
+      data.value.inputs.glucose.unit = null;
+      data.value.calculations = {};
+      data.value.auditID = "";
+    },
     joeBloggs() {
       data.value.inputs.legalAgreement.val = true;
       data.value.inputs.episodeType.val = "test";
@@ -99,6 +109,7 @@ export const data = ref({
   inputs: {
     legalAgreement: {
       val: false,
+      defaultVal: false,
       label: "Agreement to legal disclaimer",
       privacyInfo: "Your agreement to the legal disclaimer is recorded.",
       form: [0],
@@ -145,7 +156,7 @@ export const data = ref({
       minDate() {
         const minDate = new Date();
         minDate.setFullYear(
-          minDate.getFullYear() - (config.value.validation.patientAge.max + 1)
+          minDate.getFullYear() - (config.value.validation.patientAge.max + 1),
         );
         return minDate;
       },
@@ -172,8 +183,8 @@ export const data = ref({
         if (this.patientAge.val > config.value.validation.patientAge.max) {
           errors.push(
             `Patient age cannot be greater than ${config.value.validation.patientAge.max.toFixed(
-              0
-            )} years.`
+              0,
+            )} years.`,
           );
         }
 
@@ -279,7 +290,7 @@ export const data = ref({
           this.min(),
           this.max(),
           errors,
-          "Weight"
+          "Weight",
         );
 
         this.errors = errors.join(" ");
@@ -442,7 +453,7 @@ export const data = ref({
         if (!this.unit) {
           //set the default unit
           this.unit = Object.keys(config.value.validation.glucose.units).find(
-            (key) => config.value.validation.glucose.units[key].default
+            (key) => config.value.validation.glucose.units[key].default,
           );
         } else {
           //update the min/max and (if shown) the invalid message
@@ -482,7 +493,7 @@ export const data = ref({
             this.min(),
             this.max(),
             errors,
-            "Glucose"
+            "Glucose",
           );
         }
         this.errors = errors.join(" ");
@@ -526,7 +537,7 @@ export const data = ref({
           this.min(),
           this.max(),
           errors,
-          "Blood ketones"
+          "Blood ketones",
         );
         this.errors = errors.join(" ");
         return !this.errors;
@@ -586,7 +597,7 @@ export const data = ref({
           this.min(),
           this.max(),
           errors,
-          "Urine ketones"
+          "Urine ketones",
         );
         this.errors = errors.join(" ");
         return !this.errors;
@@ -671,7 +682,7 @@ export const data = ref({
         const errors = [];
         if (isNaN(this.val)) {
           errors.push(
-            `Bicarbonate must be provided if pH above diagnostic threshold of ${config.value.validation.pH.diagnosticThreshold}. `
+            `Bicarbonate must be provided if pH above diagnostic threshold of ${config.value.validation.pH.diagnosticThreshold}. `,
           );
         } else {
           this.val = Number.parseFloat(this.val).toFixed(1);
@@ -681,7 +692,7 @@ export const data = ref({
             this.min(),
             this.max(),
             errors,
-            "Bicarbonate"
+            "Bicarbonate",
           );
         }
         if (
@@ -690,7 +701,7 @@ export const data = ref({
           this.val >= config.value.validation.bicarbonate.diagnosticThreshold
         )
           errors.push(
-            `Biochemical threshold for DKA not met: if blood gas testing available pH should be <${config.value.validation.pH.diagnosticThreshold} or bicarbonate should be <${config.value.validation.bicarbonate.diagnosticThreshold}.`
+            `Biochemical threshold for DKA not met: if blood gas testing available pH should be <${config.value.validation.pH.diagnosticThreshold} or bicarbonate should be <${config.value.validation.bicarbonate.diagnosticThreshold}.`,
           );
         this.errors = errors.join(" ");
         return !this.errors;

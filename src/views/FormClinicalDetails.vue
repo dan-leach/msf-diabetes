@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
+import Swal from "sweetalert2";
 import { inject } from "vue";
 const config = inject("config");
 
@@ -21,6 +22,32 @@ const continueClick = () => {
   if (data.value.form.isValid(3)) {
     router.push("/generate");
   }
+};
+
+/**
+ * Function to reset the patient details form to its default state.
+ * Resets all input values to their default values, hides error messages, and removes validation styling from the form.
+ */
+const resetForm = () => {
+  Swal.fire({
+    title: "Reset?",
+    text: "This will clear all data you have entered on the form.",
+    icon: "info",
+    iconColor: "black",
+    showCancelButton: true,
+    showConfirmButton: true,
+    confirmButtonColor: "#ec0000",
+    confirmButtonText: "Reset",
+    reverseButtons: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      data.value.form.reset();
+      showErrors.value = false;
+      document
+        .getElementById("form-patient-details")
+        .classList.remove("was-validated");
+    }
+  });
 };
 
 if (!data.value.form.isValid(1)) router.push("/form-equipment-availability");
@@ -504,6 +531,16 @@ onMounted(() => window.scrollTo(0, 0));
           class="btn btn-lg btn-secondary"
         >
           Back
+        </button>
+      </div>
+      <!--reset-->
+      <div class="text-center">
+        <button
+          type="button"
+          @click="resetForm"
+          class="btn btn-lg btn-secondary"
+        >
+          Reset
         </button>
       </div>
       <!--next-->

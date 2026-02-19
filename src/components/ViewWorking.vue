@@ -25,7 +25,7 @@ function capitalizeFirst(str) {
 <template>
   <button
     type="button"
-    class="btn btn-view-working btn-sm btn-outline-dark py-0 px-1 m-0 position-relative"
+    class="btn btn-view-working btn-sm py-0 px-1 m-0 position-relative"
     data-bs-toggle="modal"
     :data-bs-target="'#' + paramKey + 'ViewWorkingModal'"
   >
@@ -65,5 +65,12 @@ function capitalizeFirst(str) {
 .btn-view-working {
   vertical-align: baseline;
   font: inherit; /* inherit font-size, family, weight */
+  color: inherit; /* inherit text color from parent */
+  border: 1px solid currentColor; /* border inherits text color */
+  background: none;
+}
+
+.btn-view-working:hover {
+  text-decoration: underline;
 }
 </style>

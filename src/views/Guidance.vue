@@ -2,6 +2,7 @@
 import { onMounted, ref } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router/index.js";
+import Swal from "sweetalert2";
 import ViewWorking from "../components/ViewWorking.vue";
 import { inject } from "vue";
 const config = inject("config");
@@ -18,7 +19,8 @@ const viewWorkingExample = ref({
 let showGuidance = ref({
   dkaSeverity: false,
   fluidBolus: false,
-  fluidReplacement: false,
+  makingUpIVFluids: false,
+  whichBagsAtWhatSpeed: false,
   ivInsulinRate: false,
   imInsulinDose: false,
 });
@@ -29,6 +31,32 @@ const formatDatetime = (iso) => {
   return date.toLocaleString(undefined, {
     dateStyle: "short", // or "medium" / "long" / "full"
     timeStyle: "short", // short time (e.g. 23:30)
+  });
+};
+
+/**
+ * Function to reset the patient details form to its default state.
+ * Resets all input values to their default values, hides error messages, and removes validation styling from the form.
+ */
+const resetForm = () => {
+  Swal.fire({
+    title: "Reset?",
+    text: "This will clear all data you have entered on the form.",
+    icon: "info",
+    iconColor: "black",
+    showCancelButton: true,
+    showConfirmButton: true,
+    confirmButtonColor: "#ec0000",
+    confirmButtonText: "Reset",
+    reverseButtons: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      data.value.form.reset();
+      showErrors.value = false;
+      document
+        .getElementById("form-patient-details")
+        .classList.remove("was-validated");
+    }
   });
 };
 
@@ -201,12 +229,12 @@ onMounted(() => window.scrollTo(0, 0));
             Administer a fluid bolus of
             {{
               data.calculations.bolus.volume.val.toFixed(
-                config.decimals.bolusVolume
+                config.decimals.bolusVolume,
               )
             }}mL Ringer lactate (or sodium chloride 0.9%) IV at
             {{
               data.calculations.bolus.rate.val.toFixed(
-                config.decimals.bolusRate
+                config.decimals.bolusRate,
               )
             }}mL/hour
             <span v-if="data.calculations.bolus.drops"
@@ -266,400 +294,78 @@ onMounted(() => window.scrollTo(0, 0));
           Fluid replacement
         </div>
         <div class="card-body">
-          <!--header-->
-          <div class="row bg-light">
-            <div class="col-4 d-none d-sm-block">
-              <strong>Blood glucose level</strong>
+          <div class="d-flex flex-row flex-wrap gap-1">
+            <div v-if="data.calculations.severity.val === 'severe'">
+              <h3>
+                High-speed
+                <ViewWorking
+                  :param="data.calculations.bagSpeeds.highSpeed"
+                  paramKey="highSpeed"
+                  heading="High-speed bag rate"
+                  unit="mL/hour"
+                  :decimals="config.decimals.bagSpeed"
+                />
+              </h3>
+              <h3>
+                Half-high-speed
+                <ViewWorking
+                  :param="data.calculations.bagSpeeds.halfHighSpeed"
+                  paramKey="halfHighSpeed"
+                  heading="Half-high-speed bag rate"
+                  unit="mL/hour"
+                  :decimals="config.decimals.bagSpeed"
+                />
+              </h3>
             </div>
-            <div class="col"><strong>Which bag(s) at what speed?</strong></div>
-          </div>
-          <!--very high glucose-->
-          <div class="row">
-            <!--glucose col-->
-            <div class="col-4 d-none d-sm-block">
-              >{{
-                config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][0]
-              }}
-              {{ data.inputs.glucose.unit }}
-            </div>
-            <!--rate col-->
-            <div class="col">
-              <!--narrow screen glucose-->
-              <div class="d-block d-sm-none mb-2">
-                Blood glucose >{{
-                  config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][0]
-                }}
-                {{ data.inputs.glucose.unit }}
-              </div>
-              <!--bag speed for standard-->
-              <div v-if="data.calculations.severity.val === 'standard'">
-                <div class="mb-2">
-                  <div class="mb-2 d-flex flex-row flex-wrap gap-1">
-                    <span
-                      >Bag #1 at standard-speed:
-                      <ViewWorking
-                        :param="data.calculations.bagSpeeds.standardSpeed"
-                        paramKey="standardSpeed"
-                        heading="Standard speed bag rate"
-                        unit="mL/hour"
-                        :decimals="config.decimals.bagSpeed"
-                    /></span>
-                    <span v-if="data.calculations.bagSpeeds.standardSpeedDrops">
-                      which is
-                      <ViewWorking
-                        :param="data.calculations.bagSpeeds.standardSpeedDrops"
-                        paramKey="standardSpeedDrops"
-                        heading="Standard-speed drop rate"
-                        unit=" drops/minute"
-                        :decimals="config.decimals.drops"
-                    /></span>
-                  </div>
-                </div>
-                None of bag #2*
-              </div>
-              <!--bag speed for severe-->
-              <div v-else-if="data.calculations.severity.val === 'severe'">
-                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
-                  <span
-                    >Bag #1 at high-speed:
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.highSpeed"
-                      paramKey="highSpeed"
-                      heading="High speed bag rate"
-                      unit="mL/hour"
-                      :decimals="config.decimals.bagSpeed"
-                  /></span>
-                  <span v-if="data.calculations.bagSpeeds.highSpeedDrops">
-                    which is
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.highSpeedDrops"
-                      paramKey="highSpeedDrops"
-                      heading="High-speed drop rate"
-                      unit=" drops/minute"
-                      :decimals="config.decimals.drops"
-                  /></span>
-                </div>
-                None of bag #2*
-              </div>
-              <!--error-->
-              <div class="text-danger" v-else>
-                Error generating fluid rate guidance.
-              </div>
+            <div v-else>
+              <h3>
+                Standard-speed
+                <ViewWorking
+                  :param="data.calculations.bagSpeeds.standardSpeed"
+                  paramKey="standardSpeed"
+                  heading="Standard-speed bag rate"
+                  unit="mL/hour"
+                  :decimals="config.decimals.bagSpeed"
+                />
+              </h3>
+              <h3>
+                Half-standard-speed
+                <ViewWorking
+                  :param="data.calculations.bagSpeeds.halfStandardSpeed"
+                  paramKey="halfStandardSpeed"
+                  heading="Half-standard-speed bag rate"
+                  unit="mL/hour"
+                  :decimals="config.decimals.bagSpeed"
+                />
+              </h3>
+              <h3>
+                High-speed (for managing hypoglycaemia)
+                <ViewWorking
+                  :param="data.calculations.bagSpeeds.hypoSpeed"
+                  paramKey="hypoSpeed"
+                  heading="High-speed bag rate (for managing hypoglycaemia)"
+                  unit="mL/hour"
+                  :decimals="config.decimals.bagSpeed"
+                />
+              </h3>
             </div>
           </div>
-          <!--high glucose-->
-          <div class="row bg-light">
-            <!--glucose col-->
-            <div class="col-4 d-none d-sm-block">
-              {{
-                config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][1]
-              }}
-              to
-              {{
-                config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][0]
-              }}
-              {{ data.inputs.glucose.unit }}
-            </div>
-            <!--rate col-->
-            <div class="col">
-              <!--narrow screen glucose-->
-              <div class="d-block d-sm-none mb-2">
-                Blood glucose
-                {{
-                  config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][1]
-                }}
-                to
-                {{
-                  config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][0]
-                }}
-                {{ data.inputs.glucose.unit }}
-              </div>
-              <!--bag speed for standard-->
-              <div v-if="data.calculations.severity.val === 'standard'">
-                <div class="mb-2">
-                  <div class="mb-2 d-flex flex-row flex-wrap gap-1">
-                    <span
-                      >Bag #1 at half-speed:
-                      <ViewWorking
-                        :param="data.calculations.bagSpeeds.halfStandardSpeed"
-                        paramKey="halfStandardSpeed"
-                        heading="Half standard-speed bag rate"
-                        unit="mL/hour"
-                        :decimals="config.decimals.bagSpeed"
-                    /></span>
-                    <span
-                      v-if="data.calculations.bagSpeeds.halfStandardSpeedDrops"
-                    >
-                      which is
-                      <ViewWorking
-                        :param="
-                          data.calculations.bagSpeeds.halfStandardSpeedDrops
-                        "
-                        paramKey="halfStandardSpeedDrops"
-                        heading="Half-standard-speed drop rate"
-                        unit=" drops/minute"
-                        :decimals="config.decimals.drops"
-                    /></span>
-                  </div>
-                </div>
-                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
-                  <span
-                    >Bag #2 at half-speed:
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.halfStandardSpeed"
-                      paramKey="halfStandardSpeed"
-                      heading="Half standard-speed bag rate"
-                      unit="mL/hour"
-                      :decimals="config.decimals.bagSpeed"
-                  /></span>
-                  <span
-                    v-if="data.calculations.bagSpeeds.halfStandardSpeedDrops"
-                  >
-                    which is
-                    <ViewWorking
-                      :param="
-                        data.calculations.bagSpeeds.halfStandardSpeedDrops
-                      "
-                      paramKey="halfStandardSpeedDrops"
-                      heading="Half-standard-speed drop rate"
-                      unit=" drops/minute"
-                      :decimals="config.decimals.drops"
-                  /></span>
-                </div>
-              </div>
-              <!--bag speed for severe-->
-              <div v-else-if="data.calculations.severity.val === 'severe'">
-                <div class="mb-2">
-                  <div class="mb-2 d-flex flex-row flex-wrap gap-1">
-                    <span
-                      >Bag #1 at half-speed:
-                      <ViewWorking
-                        :param="data.calculations.bagSpeeds.halfHighSpeed"
-                        paramKey="halfHighSpeed"
-                        heading="Half high-speed bag rate"
-                        unit="mL/hour"
-                        :decimals="config.decimals.bagSpeed"
-                    /></span>
-                    <span v-if="data.calculations.bagSpeeds.halfHighSpeedDrops">
-                      which is
-                      <ViewWorking
-                        :param="data.calculations.bagSpeeds.halfHighSpeedDrops"
-                        paramKey="halfHighSpeedDrops"
-                        heading="Half-high-speed drop rate"
-                        unit=" drops/minute"
-                        :decimals="config.decimals.drops"
-                    /></span>
-                  </div>
-                </div>
-                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
-                  <span
-                    >Bag #2 at half-speed:
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.halfHighSpeed"
-                      paramKey="halfHighSpeed"
-                      heading="Half high-speed bag rate"
-                      unit="mL/hour"
-                      :decimals="config.decimals.bagSpeed"
-                  /></span>
-                  <span v-if="data.calculations.bagSpeeds.halfHighSpeedDrops">
-                    which is
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.halfHighSpeedDrops"
-                      paramKey="halfHighSpeedDrops"
-                      heading="Half-high-speed drop rate"
-                      unit=" drops/minute"
-                      :decimals="config.decimals.drops"
-                  /></span>
-                </div>
-              </div>
-              <!--error-->
-              <div class="text-danger" v-else>
-                Error generating fluid rate guidance.
-              </div>
-            </div>
-          </div>
-          <!--moderate glucose-->
-          <div class="row">
-            <!--glucose col-->
-            <div class="col-4 d-none d-sm-block">
-              {{
-                config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][2]
-              }}
-              to <{{
-                config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][1]
-              }}
-              {{ data.inputs.glucose.unit }}
-            </div>
-            <!--rate col-->
-            <div class="col">
-              <!--narrow screen glucose-->
-              <div class="d-block d-sm-none mb-2">
-                Blood glucose
-                {{
-                  config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][2]
-                }}
-                to <{{
-                  config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][1]
-                }}
-                {{ data.inputs.glucose.unit }}
-              </div>
-              <!--bag speeds for standard-->
-              <div v-if="data.calculations.severity.val === 'standard'">
-                <div class="mb-2">None of bag #1</div>
-                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
-                  <span
-                    >Bag #2 at standard-speed:
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.standardSpeed"
-                      paramKey="standardSpeed"
-                      heading="Standard speed bag rate"
-                      unit="mL/hour"
-                      :decimals="config.decimals.bagSpeed"
-                  /></span>
-                  <span v-if="data.calculations.bagSpeeds.standardSpeedDrops">
-                    which is
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.standardSpeedDrops"
-                      paramKey="standardSpeedDrops"
-                      heading="Standard-speed drop rate"
-                      unit=" drops/minute"
-                      :decimals="config.decimals.drops"
-                  /></span>
-                </div>
-              </div>
-              <!--bag speeds for severe-->
-              <div v-else-if="data.calculations.severity.val === 'severe'">
-                <div class="mb-2">None of bag #1</div>
-                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
-                  <span
-                    >Bag #2 at high-speed:
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.highSpeed"
-                      paramKey="highSpeed"
-                      heading="High speed bag rate"
-                      unit="mL/hour"
-                      :decimals="config.decimals.bagSpeed"
-                  /></span>
-                  <span v-if="data.calculations.bagSpeeds.highSpeedDrops">
-                    which is
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.highSpeedDrops"
-                      paramKey="highSpeedDrops"
-                      heading="High-speed drop rate"
-                      unit=" drops/minute"
-                      :decimals="config.decimals.drops"
-                  /></span>
-                </div>
-              </div>
-              <!--error-->
-              <div class="text-danger" v-else>
-                Error generating fluid rate guidance.
-              </div>
-            </div>
-          </div>
-          <!--low glucose-->
-          <div class="row bg-light">
-            <!--glucose col-->
-            <div class="col-4 d-none d-sm-block mb-2">
-              <{{
-                config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][2]
-              }}
-              {{ data.inputs.glucose.unit }}
-              <div class="mt-2"><i>Call clinician immediately</i></div>
-            </div>
-            <!--rate col-->
-            <div class="col">
-              <!--narrow screen glucose-->
-              <div class="d-block d-sm-none mb-2">
-                Blood glucose <{{
-                  config.bagSpeedGlucoseThresholds[data.inputs.glucose.unit][2]
-                }}
-                {{ data.inputs.glucose.unit }}
-              </div>
-              <!--bag speed for standard-->
-              <div v-if="data.calculations.severity.val === 'standard'">
-                <div class="mb-2">None of bag #1</div>
-                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
-                  <span
-                    >Bag #2 at high-speed:
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.hypoSpeed"
-                      paramKey="hypoSpeed"
-                      heading="Hypo-speed bag rate"
-                      unit="mL/hour"
-                      :decimals="config.decimals.bagSpeed"
-                  /></span>
-                  <span v-if="data.calculations.bagSpeeds.hypoSpeedDrops">
-                    which is
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.hypoSpeedDrops"
-                      paramKey="hypoSpeedDrops"
-                      heading="High-speed drop rate (for hypoglycaemia)"
-                      unit=" drops/minute"
-                      :decimals="config.decimals.drops"
-                  /></span>
-                </div>
-              </div>
-              <!--bag speed for severe-->
-              <div v-else-if="data.calculations.severity.val === 'severe'">
-                <div class="mb-2">None of bag #1</div>
-                <div class="mb-2 d-flex flex-row flex-wrap gap-1">
-                  <span
-                    >Bag #2 at high-speed:
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.highSpeed"
-                      paramKey="highSpeed"
-                      heading="High-speed bag rate"
-                      unit="mL/hour"
-                      :decimals="config.decimals.bagSpeed"
-                  /></span>
-                  <span v-if="data.calculations.bagSpeeds.highSpeedDrops">
-                    which is
-                    <ViewWorking
-                      :param="data.calculations.bagSpeeds.highSpeedDrops"
-                      paramKey="highSpeedDrops"
-                      heading="High-speed drop rate"
-                      unit=" drops/minute"
-                      :decimals="config.decimals.drops"
-                  /></span>
-                </div>
-              </div>
-              <!--error-->
-              <div class="text-danger" v-else>
-                Error generating fluid rate guidance.
-              </div>
-              <!--narrow screen glucose-->
-              <div class="d-block d-sm-none mt-2">
-                <i>Call clinician immediately</i>
-              </div>
-            </div>
-          </div>
-          <p class="mt-2">
-            * These patients are receiving insulin but no glucose at this stage.
-          </p>
-          <p>
-            ** For standard severity DKA this high-speed rate is only continued
-            long enough to raise the glucose, then immediately decrease the rate
-            to standard-speed rate. If BGL decreases too rapidly despite
-            adjusting the fluid rates, insulin dose needs to be decreased (see
-            full guidelines).
-          </p>
 
-          <!--show guidance-->
-          <div class="card border-info p-2">
+          <!--making up IV fluids guidance-->
+          <div class="card border-info p-2 mb-2">
             <a
               class="btn text-black btn-sm btn-view-guidance"
               data-bs-toggle="collapse"
-              href="#fluidReplacementGuidance"
+              href="#makingUpIVFluidsGuidance"
               role="button"
               aria-expanded="false"
-              aria-controls="collapseFluidReplacementGuidance"
+              aria-controls="collapseMakingUpIVFluidsGuidance"
               @click="
-                showGuidance.fluidReplacement = !showGuidance.fluidReplacement
+                showGuidance.makingUpIVFluids = !showGuidance.makingUpIVFluids
               "
             >
               <span class="d-flex justify-content-center">
-                {{ !showGuidance.fluidReplacement ? "Show" : "Hide" }} making up
+                {{ !showGuidance.makingUpIVFluids ? "Show" : "Hide" }} making up
                 IV fluid bags guidance
                 <img
                   alt="Guidance icon"
@@ -670,7 +376,7 @@ onMounted(() => window.scrollTo(0, 0));
                 />
               </span>
             </a>
-            <div class="collapse" id="fluidReplacementGuidance">
+            <div class="collapse" id="makingUpIVFluidsGuidance">
               <!--IV fluid bags guidance-->
               <div class="card mb-2">
                 <div class="card-header">Make IV fluid bag #1</div>
@@ -800,56 +506,24 @@ onMounted(() => window.scrollTo(0, 0));
               potassium chloride
             </div>
           </div>
-        </div>
-      </div>
 
-      <!--iv insulin rate-->
-      <div
-        class="card mb-4"
-        v-if="data.inputs.syringePumpAvailable.val == 'true'"
-      >
-        <div class="card-header">
-          <img
-            alt="IV pump icon"
-            class="icon"
-            src="@/assets/images/infusion-pump-icon.svg"
-            width="24"
-            height="24"
-          />
-          IV insulin rate
-        </div>
-        <div class="card-body">
-          <h3>
-            <ViewWorking
-              :param="data.calculations.insulinRate"
-              paramKey="ivInsulinRate"
-              heading="IV insulin rate"
-              unit=" Units/hour"
-              :decimals="config.decimals.ivInsulinRate"
-            />
-          </h3>
-          <div class="mb-2">
-            {{
-              data.inputs.shockPresent ? "Once shock corrected, and one" : "One"
-            }}
-            hour after starting IV fluid replacement, start IV insulin at a rate
-            of {{ data.calculations.insulinRate.val.toFixed(2) }} Units/hour.
-          </div>
-
-          <!--show guidance-->
-          <div class="card border-info p-2">
+          <!--which bag(s) at what speed table-->
+          <div class="card border-info p-3">
             <a
               class="btn text-black btn-sm btn-view-guidance"
               data-bs-toggle="collapse"
-              href="#ivInsulinRateGuidance"
+              href="#whichBagsAtWhatSpeedGuidance"
               role="button"
               aria-expanded="false"
-              aria-controls="collapseIvInsulinRateGuidance"
-              @click="showGuidance.ivInsulinRate = !showGuidance.ivInsulinRate"
+              aria-controls="collapseWhichBagsAtWhatSpeedGuidance"
+              @click="
+                showGuidance.whichBagsAtWhatSpeed =
+                  !showGuidance.whichBagsAtWhatSpeed
+              "
             >
               <span class="d-flex justify-content-center">
-                {{ !showGuidance.ivInsulinRate ? "Show" : "Hide" }} making up IV
-                insulin guidance
+                {{ !showGuidance.whichBagsAtWhatSpeed ? "Show" : "Hide" }} which
+                bag(s) at what speed guidance
                 <img
                   alt="Guidance icon"
                   class="icon mx-2"
@@ -859,90 +533,498 @@ onMounted(() => window.scrollTo(0, 0));
                 />
               </span>
             </a>
-            <div class="collapse" id="ivInsulinRateGuidance">
-              <!--IV insulin guidance-->
-              <div class="card mb-2">
-                <div class="card-header">Making up IV insulin</div>
-                <div class="card-body">
-                  Add 50 IU of soluble insulin to 49.5 mL sodium chloride 0.9%
-                  to make a total of 50 mL. Ensure insulin preparation is double
-                  checked by two qualified healthcare professionals.
+            <div class="collapse" id="whichBagsAtWhatSpeedGuidance">
+              <!--which bag(s) at what speed guidance-->
+              <div class="mb-2">
+                <!--header-->
+                <div class="row bg-light">
+                  <div class="col-4 d-none d-sm-block">
+                    <strong>Blood glucose level</strong>
+                  </div>
+                  <div class="col">
+                    <strong>Which bag(s) at what speed?</strong>
+                  </div>
                 </div>
+                <!--very high glucose-->
+                <div class="row">
+                  <!--glucose col-->
+                  <div class="col-4 d-none d-sm-block">
+                    >{{
+                      config.bagSpeedGlucoseThresholds[
+                        data.inputs.glucose.unit
+                      ][0]
+                    }}
+                    {{ data.inputs.glucose.unit }}
+                  </div>
+                  <!--rate col-->
+                  <div class="col">
+                    <!--narrow screen glucose-->
+                    <div class="d-block d-sm-none mb-2">
+                      Blood glucose >{{
+                        config.bagSpeedGlucoseThresholds[
+                          data.inputs.glucose.unit
+                        ][0]
+                      }}
+                      {{ data.inputs.glucose.unit }}
+                    </div>
+                    <!--bag speed for standard-->
+                    <div v-if="data.calculations.severity.val === 'standard'">
+                      <div class="mb-2">
+                        <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                          <span class="bag-1-text"
+                            >Bag #1 at standard-speed:
+                            <ViewWorking
+                              :param="data.calculations.bagSpeeds.standardSpeed"
+                              paramKey="standardSpeed"
+                              heading="Standard speed bag rate"
+                              unit="mL/hour"
+                              :decimals="config.decimals.bagSpeed"
+                          /></span>
+                          <span
+                            v-if="
+                              data.calculations.bagSpeeds.standardSpeedDrops
+                            "
+                          >
+                            which is
+                            <ViewWorking
+                              :param="
+                                data.calculations.bagSpeeds.standardSpeedDrops
+                              "
+                              paramKey="standardSpeedDrops"
+                              heading="Standard-speed drop rate"
+                              unit=" drops/minute"
+                              :decimals="config.decimals.drops"
+                          /></span>
+                        </div>
+                      </div>
+                      <span class="bag-2-text">None of bag #2*</span>
+                    </div>
+                    <!--bag speed for severe-->
+                    <div
+                      v-else-if="data.calculations.severity.val === 'severe'"
+                    >
+                      <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                        <span class="bag-1-text"
+                          >Bag #1 at high-speed:
+                          <ViewWorking
+                            :param="data.calculations.bagSpeeds.highSpeed"
+                            paramKey="highSpeed"
+                            heading="High speed bag rate"
+                            unit="mL/hour"
+                            :decimals="config.decimals.bagSpeed"
+                        /></span>
+                        <span v-if="data.calculations.bagSpeeds.highSpeedDrops">
+                          which is
+                          <ViewWorking
+                            :param="data.calculations.bagSpeeds.highSpeedDrops"
+                            paramKey="highSpeedDrops"
+                            heading="High-speed drop rate"
+                            unit=" drops/minute"
+                            :decimals="config.decimals.drops"
+                        /></span>
+                      </div>
+                      <span class="bag-2-text">None of bag #2*</span>
+                    </div>
+                    <!--error-->
+                    <div class="text-danger" v-else>
+                      Error generating fluid rate guidance.
+                    </div>
+                  </div>
+                </div>
+                <!--high glucose-->
+                <div class="row bg-light">
+                  <!--glucose col-->
+                  <div class="col-4 d-none d-sm-block">
+                    {{
+                      config.bagSpeedGlucoseThresholds[
+                        data.inputs.glucose.unit
+                      ][1]
+                    }}
+                    to
+                    {{
+                      config.bagSpeedGlucoseThresholds[
+                        data.inputs.glucose.unit
+                      ][0]
+                    }}
+                    {{ data.inputs.glucose.unit }}
+                  </div>
+                  <!--rate col-->
+                  <div class="col">
+                    <!--narrow screen glucose-->
+                    <div class="d-block d-sm-none mb-2">
+                      Blood glucose
+                      {{
+                        config.bagSpeedGlucoseThresholds[
+                          data.inputs.glucose.unit
+                        ][1]
+                      }}
+                      to
+                      {{
+                        config.bagSpeedGlucoseThresholds[
+                          data.inputs.glucose.unit
+                        ][0]
+                      }}
+                      {{ data.inputs.glucose.unit }}
+                    </div>
+                    <!--bag speed for standard-->
+                    <div v-if="data.calculations.severity.val === 'standard'">
+                      <div class="mb-2">
+                        <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                          <span class="bag-1-text"
+                            >Bag #1 at half-speed:
+                            <ViewWorking
+                              :param="
+                                data.calculations.bagSpeeds.halfStandardSpeed
+                              "
+                              paramKey="halfStandardSpeed"
+                              heading="Half standard-speed bag rate"
+                              unit="mL/hour"
+                              :decimals="config.decimals.bagSpeed"
+                          /></span>
+                          <span
+                            v-if="
+                              data.calculations.bagSpeeds.halfStandardSpeedDrops
+                            "
+                          >
+                            which is
+                            <ViewWorking
+                              :param="
+                                data.calculations.bagSpeeds
+                                  .halfStandardSpeedDrops
+                              "
+                              paramKey="halfStandardSpeedDrops"
+                              heading="Half-standard-speed drop rate"
+                              unit=" drops/minute"
+                              :decimals="config.decimals.drops"
+                          /></span>
+                        </div>
+                      </div>
+                      <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                        <span class="bag-2-text"
+                          >Bag #2 at half-speed:
+                          <ViewWorking
+                            :param="
+                              data.calculations.bagSpeeds.halfStandardSpeed
+                            "
+                            paramKey="halfStandardSpeed"
+                            heading="Half standard-speed bag rate"
+                            unit="mL/hour"
+                            :decimals="config.decimals.bagSpeed"
+                        /></span>
+                        <span
+                          v-if="
+                            data.calculations.bagSpeeds.halfStandardSpeedDrops
+                          "
+                        >
+                          which is
+                          <ViewWorking
+                            :param="
+                              data.calculations.bagSpeeds.halfStandardSpeedDrops
+                            "
+                            paramKey="halfStandardSpeedDrops"
+                            heading="Half-standard-speed drop rate"
+                            unit=" drops/minute"
+                            :decimals="config.decimals.drops"
+                        /></span>
+                      </div>
+                    </div>
+                    <!--bag speed for severe-->
+                    <div
+                      v-else-if="data.calculations.severity.val === 'severe'"
+                    >
+                      <div class="mb-2">
+                        <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                          <span class="bag-1-text"
+                            >Bag #1 at half-speed:
+                            <ViewWorking
+                              :param="data.calculations.bagSpeeds.halfHighSpeed"
+                              paramKey="halfHighSpeed"
+                              heading="Half high-speed bag rate"
+                              unit="mL/hour"
+                              :decimals="config.decimals.bagSpeed"
+                          /></span>
+                          <span
+                            v-if="
+                              data.calculations.bagSpeeds.halfHighSpeedDrops
+                            "
+                          >
+                            which is
+                            <ViewWorking
+                              :param="
+                                data.calculations.bagSpeeds.halfHighSpeedDrops
+                              "
+                              paramKey="halfHighSpeedDrops"
+                              heading="Half-high-speed drop rate"
+                              unit=" drops/minute"
+                              :decimals="config.decimals.drops"
+                          /></span>
+                        </div>
+                      </div>
+                      <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                        <span class="bag-2-text"
+                          >Bag #2 at half-speed:
+                          <ViewWorking
+                            :param="data.calculations.bagSpeeds.halfHighSpeed"
+                            paramKey="halfHighSpeed"
+                            heading="Half high-speed bag rate"
+                            unit="mL/hour"
+                            :decimals="config.decimals.bagSpeed"
+                        /></span>
+                        <span
+                          v-if="data.calculations.bagSpeeds.halfHighSpeedDrops"
+                        >
+                          which is
+                          <ViewWorking
+                            :param="
+                              data.calculations.bagSpeeds.halfHighSpeedDrops
+                            "
+                            paramKey="halfHighSpeedDrops"
+                            heading="Half-high-speed drop rate"
+                            unit=" drops/minute"
+                            :decimals="config.decimals.drops"
+                        /></span>
+                      </div>
+                    </div>
+                    <!--error-->
+                    <div class="text-danger" v-else>
+                      Error generating fluid rate guidance.
+                    </div>
+                  </div>
+                </div>
+                <!--moderate glucose-->
+                <div class="row">
+                  <!--glucose col-->
+                  <div class="col-4 d-none d-sm-block">
+                    {{
+                      config.bagSpeedGlucoseThresholds[
+                        data.inputs.glucose.unit
+                      ][2]
+                    }}
+                    to <{{
+                      config.bagSpeedGlucoseThresholds[
+                        data.inputs.glucose.unit
+                      ][1]
+                    }}
+                    {{ data.inputs.glucose.unit }}
+                  </div>
+                  <!--rate col-->
+                  <div class="col">
+                    <!--narrow screen glucose-->
+                    <div class="d-block d-sm-none mb-2">
+                      Blood glucose
+                      {{
+                        config.bagSpeedGlucoseThresholds[
+                          data.inputs.glucose.unit
+                        ][2]
+                      }}
+                      to <{{
+                        config.bagSpeedGlucoseThresholds[
+                          data.inputs.glucose.unit
+                        ][1]
+                      }}
+                      {{ data.inputs.glucose.unit }}
+                    </div>
+                    <!--bag speeds for standard-->
+                    <div v-if="data.calculations.severity.val === 'standard'">
+                      <div class="mb-2">
+                        <span class="bag-1-text">None of bag #1</span>
+                      </div>
+                      <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                        <span class="bag-2-text"
+                          >Bag #2 at standard-speed:
+                          <ViewWorking
+                            :param="data.calculations.bagSpeeds.standardSpeed"
+                            paramKey="standardSpeed"
+                            heading="Standard speed bag rate"
+                            unit="mL/hour"
+                            :decimals="config.decimals.bagSpeed"
+                        /></span>
+                        <span
+                          v-if="data.calculations.bagSpeeds.standardSpeedDrops"
+                        >
+                          which is
+                          <ViewWorking
+                            :param="
+                              data.calculations.bagSpeeds.standardSpeedDrops
+                            "
+                            paramKey="standardSpeedDrops"
+                            heading="Standard-speed drop rate"
+                            unit=" drops/minute"
+                            :decimals="config.decimals.drops"
+                        /></span>
+                      </div>
+                    </div>
+                    <!--bag speeds for severe-->
+                    <div
+                      v-else-if="data.calculations.severity.val === 'severe'"
+                    >
+                      <div class="mb-2">
+                        <span class="bag-1-text">None of bag #1</span>
+                      </div>
+                      <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                        <span class="bag-2-text"
+                          >Bag #2 at high-speed:
+                          <ViewWorking
+                            :param="data.calculations.bagSpeeds.highSpeed"
+                            paramKey="highSpeed"
+                            heading="High speed bag rate"
+                            unit="mL/hour"
+                            :decimals="config.decimals.bagSpeed"
+                        /></span>
+                        <span v-if="data.calculations.bagSpeeds.highSpeedDrops">
+                          which is
+                          <ViewWorking
+                            :param="data.calculations.bagSpeeds.highSpeedDrops"
+                            paramKey="highSpeedDrops"
+                            heading="High-speed drop rate"
+                            unit=" drops/minute"
+                            :decimals="config.decimals.drops"
+                        /></span>
+                      </div>
+                    </div>
+                    <!--error-->
+                    <div class="text-danger" v-else>
+                      Error generating fluid rate guidance.
+                    </div>
+                  </div>
+                </div>
+                <!--low glucose-->
+                <div class="row bg-light">
+                  <!--glucose col-->
+                  <div class="col-4 d-none d-sm-block mb-2">
+                    <{{
+                      config.bagSpeedGlucoseThresholds[
+                        data.inputs.glucose.unit
+                      ][2]
+                    }}
+                    {{ data.inputs.glucose.unit }}
+                    <div class="mt-2"><i>Call clinician immediately</i></div>
+                  </div>
+                  <!--rate col-->
+                  <div class="col">
+                    <!--narrow screen glucose-->
+                    <div class="d-block d-sm-none mb-2">
+                      Blood glucose <{{
+                        config.bagSpeedGlucoseThresholds[
+                          data.inputs.glucose.unit
+                        ][2]
+                      }}
+                      {{ data.inputs.glucose.unit }}
+                    </div>
+                    <!--bag speed for standard-->
+                    <div v-if="data.calculations.severity.val === 'standard'">
+                      <div class="mb-2">
+                        <span class="bag-1-text">None of bag #1</span>
+                      </div>
+                      <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                        <span class="bag-2-text"
+                          >Bag #2 at high-speed:
+                          <ViewWorking
+                            :param="data.calculations.bagSpeeds.hypoSpeed"
+                            paramKey="hypoSpeed"
+                            heading="Hypo-speed bag rate"
+                            unit="mL/hour"
+                            :decimals="config.decimals.bagSpeed"
+                        /></span>
+                        <span v-if="data.calculations.bagSpeeds.hypoSpeedDrops">
+                          which is
+                          <ViewWorking
+                            :param="data.calculations.bagSpeeds.hypoSpeedDrops"
+                            paramKey="hypoSpeedDrops"
+                            heading="High-speed drop rate (for hypoglycaemia)"
+                            unit=" drops/minute"
+                            :decimals="config.decimals.drops"
+                        /></span>
+                      </div>
+                    </div>
+                    <!--bag speed for severe-->
+                    <div
+                      v-else-if="data.calculations.severity.val === 'severe'"
+                    >
+                      <div class="mb-2">
+                        <span class="bag-1-text">None of bag #1</span>
+                      </div>
+                      <div class="mb-2 d-flex flex-row flex-wrap gap-1">
+                        <span class="bag-2-text"
+                          >Bag #2 at high-speed:
+                          <ViewWorking
+                            :param="data.calculations.bagSpeeds.highSpeed"
+                            paramKey="highSpeed"
+                            heading="High-speed bag rate"
+                            unit="mL/hour"
+                            :decimals="config.decimals.bagSpeed"
+                        /></span>
+                        <span v-if="data.calculations.bagSpeeds.highSpeedDrops">
+                          which is
+                          <ViewWorking
+                            :param="data.calculations.bagSpeeds.highSpeedDrops"
+                            paramKey="highSpeedDrops"
+                            heading="High-speed drop rate"
+                            unit=" drops/minute"
+                            :decimals="config.decimals.drops"
+                        /></span>
+                      </div>
+                    </div>
+                    <!--error-->
+                    <div class="text-danger" v-else>
+                      Error generating fluid rate guidance.
+                    </div>
+                    <!--narrow screen glucose-->
+                    <div class="d-block d-sm-none mt-2">
+                      <i>Call clinician immediately</i>
+                    </div>
+                  </div>
+                </div>
+                <p class="mt-2">
+                  * These patients are receiving insulin but no glucose at this
+                  stage.
+                </p>
+                <p>
+                  ** For standard severity DKA this high-speed rate is only
+                  continued long enough to raise the glucose, then immediately
+                  decrease the rate to standard-speed rate. If BGL decreases too
+                  rapidly despite adjusting the fluid rates, insulin dose needs
+                  to be decreased (see full guidelines).
+                </p>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!--insulin dose-->
-      <div class="card mb-4" v-else>
-        <div class="card-header">
-          <img
-            alt="Syringe icon"
-            class="icon"
-            src="@/assets/images/syringe-icon.svg"
-            width="24"
-            height="24"
-          />
-          IM insulin dose
-        </div>
-        <div class="card-body">
-          <div>
-            <div class="card border-danger mb-3">
-              <div class="card-body d-flex flex-row align-items-center">
-                <font-awesome-icon
-                  :icon="['fas', 'triangle-exclamation']"
-                  size="2xl"
-                  class="me-4"
-                />
-                <ul class="card-text m-0">
-                  <li>
-                    IM (intramuscular) insulin dosing guidance is currently
-                    unavailable pending review.
-                  </li>
-                  <li>
-                    Please refer to MSF Paediatric Care written guidance
-                    instead.
-                  </li>
-                </ul>
-              </div>
-            </div>
+        <!--iv insulin rate-->
+        <div
+          class="card mb-4"
+          v-if="data.inputs.syringePumpAvailable.val == 'true'"
+        >
+          <div class="card-header">
+            <img
+              alt="IV pump icon"
+              class="icon"
+              src="@/assets/images/infusion-pump-icon.svg"
+              width="24"
+              height="24"
+            />
+            IV insulin rate
           </div>
-          <!--disabled IM insulin dosing panel pending further guidance-->
-          <div hidden>
+          <div class="card-body">
             <h3>
               <ViewWorking
-                :param="data.calculations.insulinDose"
-                paramKey="imInsulinDose"
-                heading="IM insulin dose"
-                unit=" Units 2-hourly"
-                :decimals="config.decimals.imInsulinDose"
+                :param="data.calculations.insulinRate"
+                paramKey="ivInsulinRate"
+                heading="IV insulin rate"
+                unit=" Units/hour"
+                :decimals="config.decimals.ivInsulinRate"
               />
             </h3>
             <div class="mb-2">
-              Administer IM (intramuscular) insulin
-              {{ data.calculations.insulinDose.val.toFixed(1) }} Units every 2
-              hours.
-            </div>
-
-            <div class="card border-danger mb-3">
-              <div class="card-body d-flex flex-row align-items-center">
-                <font-awesome-icon
-                  :icon="['fas', 'triangle-exclamation']"
-                  size="2xl"
-                  class="me-4"
-                />
-                <ul class="card-text m-0">
-                  <li>
-                    IV (intravenous) route must not be used for bolus insulin as
-                    rapid hypoglycaemia will occur
-                  </li>
-                  <li>
-                    SC (subcutaneous) route must not be used due to unreliable
-                    absorption during DKA
-                  </li>
-                </ul>
-              </div>
+              {{
+                data.inputs.shockPresent
+                  ? "Once shock corrected, and one"
+                  : "One"
+              }}
+              hour after starting IV fluid replacement, start IV insulin at a
+              rate of
+              {{ data.calculations.insulinRate.val.toFixed(2) }} Units/hour.
             </div>
 
             <!--show guidance-->
@@ -950,17 +1032,17 @@ onMounted(() => window.scrollTo(0, 0));
               <a
                 class="btn text-black btn-sm btn-view-guidance"
                 data-bs-toggle="collapse"
-                href="#imInsulinDoseGuidance"
+                href="#ivInsulinRateGuidance"
                 role="button"
                 aria-expanded="false"
-                aria-controls="collapseImInsulinDoseGuidance"
+                aria-controls="collapseIvInsulinRateGuidance"
                 @click="
-                  showGuidance.imInsulinDose = !showGuidance.imInsulinDose
+                  showGuidance.ivInsulinRate = !showGuidance.ivInsulinRate
                 "
               >
                 <span class="d-flex justify-content-center">
-                  {{ !showGuidance.imInsulinDose ? "Show" : "Hide" }} making up
-                  IM insulin guidance
+                  {{ !showGuidance.ivInsulinRate ? "Show" : "Hide" }} making up
+                  IV insulin guidance
                   <img
                     alt="Guidance icon"
                     class="icon mx-2"
@@ -970,11 +1052,123 @@ onMounted(() => window.scrollTo(0, 0));
                   />
                 </span>
               </a>
-              <div class="collapse" id="imInsulinDoseGuidance">
-                <!--IM insuling guidance-->
+              <div class="collapse" id="ivInsulinRateGuidance">
+                <!--IV insulin guidance-->
                 <div class="card mb-2">
-                  <div class="card-header">Making up IM insulin</div>
-                  <div class="card-body">To do</div>
+                  <div class="card-header">Making up IV insulin</div>
+                  <div class="card-body">
+                    Add 50 IU of soluble insulin to 49.5 mL sodium chloride 0.9%
+                    to make a total of 50 mL. Ensure insulin preparation is
+                    double checked by two qualified healthcare professionals.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--insulin dose-->
+        <div class="card mb-4" v-else>
+          <div class="card-header">
+            <img
+              alt="Syringe icon"
+              class="icon"
+              src="@/assets/images/syringe-icon.svg"
+              width="24"
+              height="24"
+            />
+            IM insulin dose
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="card border-danger mb-3">
+                <div class="card-body d-flex flex-row align-items-center">
+                  <font-awesome-icon
+                    :icon="['fas', 'triangle-exclamation']"
+                    size="2xl"
+                    class="me-4"
+                  />
+                  <ul class="card-text m-0">
+                    <li>
+                      IM (intramuscular) insulin dosing guidance is currently
+                      unavailable pending review.
+                    </li>
+                    <li>
+                      Please refer to MSF Paediatric Care written guidance
+                      instead.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <!--disabled IM insulin dosing panel pending further guidance-->
+            <div hidden>
+              <h3>
+                <ViewWorking
+                  :param="data.calculations.insulinDose"
+                  paramKey="imInsulinDose"
+                  heading="IM insulin dose"
+                  unit=" Units 2-hourly"
+                  :decimals="config.decimals.imInsulinDose"
+                />
+              </h3>
+              <div class="mb-2">
+                Administer IM (intramuscular) insulin
+                {{ data.calculations.insulinDose.val.toFixed(1) }} Units every 2
+                hours.
+              </div>
+
+              <div class="card border-danger mb-3">
+                <div class="card-body d-flex flex-row align-items-center">
+                  <font-awesome-icon
+                    :icon="['fas', 'triangle-exclamation']"
+                    size="2xl"
+                    class="me-4"
+                  />
+                  <ul class="card-text m-0">
+                    <li>
+                      IV (intravenous) route must not be used for bolus insulin
+                      as rapid hypoglycaemia will occur
+                    </li>
+                    <li>
+                      SC (subcutaneous) route must not be used due to unreliable
+                      absorption during DKA
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!--show guidance-->
+              <div class="card border-info p-2">
+                <a
+                  class="btn text-black btn-sm btn-view-guidance"
+                  data-bs-toggle="collapse"
+                  href="#imInsulinDoseGuidance"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="collapseImInsulinDoseGuidance"
+                  @click="
+                    showGuidance.imInsulinDose = !showGuidance.imInsulinDose
+                  "
+                >
+                  <span class="d-flex justify-content-center">
+                    {{ !showGuidance.imInsulinDose ? "Show" : "Hide" }} making
+                    up IM insulin guidance
+                    <img
+                      alt="Guidance icon"
+                      class="icon mx-2"
+                      src="@/assets/images/guidance-icon.svg"
+                      width="24"
+                      height="24"
+                    />
+                  </span>
+                </a>
+                <div class="collapse" id="imInsulinDoseGuidance">
+                  <!--IM insuling guidance-->
+                  <div class="card mb-2">
+                    <div class="card-header">Making up IM insulin</div>
+                    <div class="card-body">To do</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -982,15 +1176,25 @@ onMounted(() => window.scrollTo(0, 0));
         </div>
       </div>
     </div>
-    <div class="text-center">
+    <div class="d-flex flex-row justify-content-evenly">
       <!--back-->
       <button
         type="button"
         @click="router.push('/form-clinical-details')"
-        class="btn btn-secondary"
+        class="btn btn-lg btn-secondary"
       >
         Back to form
       </button>
+      <!--reset-->
+      <div class="text-center">
+        <button
+          type="button"
+          @click="resetForm"
+          class="btn btn-lg btn-secondary"
+        >
+          Reset
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -1017,7 +1221,12 @@ onMounted(() => window.scrollTo(0, 0));
   background-color: lightgray !important;
 }
 .row {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding: 10px;
+}
+.bag-1-text {
+  color: #6610f2;
+}
+.bag-2-text {
+  color: #ff1a1a;
 }
 </style>
