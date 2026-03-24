@@ -1,27 +1,27 @@
 Current:
 Check each step of the offlineCalculator returns appropriately displayed errors to generate page.
-Offline calculator store encryption
 
 See feedback from IPP meeting:
 
-- Increase highlighting of calculated values
 - Step by step instructions of guidance (e.g. step 1, step 2, step 3) to make it easier to follow the workflow
-- Years/months alternative to DOB
-- Urine ketones - if 0 error message should be reconsider dx
-- Glucose 'hi' checkbox
-- GCS guidance modal (or drop down)
-- Clinical signs of shock modal (or drop down) (and use "is the patient in shock" rather than "is the patient shocked")
 - Insulin units/hr is equal to ml/hr note
 - How often to check the blood glucose - every hour - add to fluid guidance
 - Add KCL only once urine output confirmed note
 - Add assess and manage ABCDE at top of guidance
-- "reassess after" can be just "reassess"
 - 10% deficit should be "10% fluid deficit"
 
 IPP/MSF group feedback COMPLETED:
-Previous page and start over/new patient buttons (at end of form and throughout workflow)
-Move which bags at what speed to a drop down and instead display list of speeds for transcription
-Colour coding box around bag 1 vs bag 2 to easily differentiate
+
+- Previous page and start over/new patient buttons (at end of form and throughout workflow)
+- Move which bags at what speed to a drop down and instead display list of speeds for transcription
+- Colour coding box around bag 1 vs bag 2 to easily differentiate
+- Increase highlighting of calculated values
+- Glucose 'hi' checkbox
+- Urine ketones - if 0 error message should be reconsider dx
+- GCS guidance
+- Clinical signs of shock guidance (and use "is the patient in shock" rather than "is the patient shocked")
+- "reassess after" can be just "reassess"
+- Years/months alternative to DOB
 
 Can use css media queries:
 @media (display-mode: browser){} - targets app within the browser only

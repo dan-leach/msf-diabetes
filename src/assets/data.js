@@ -139,6 +139,21 @@ export const data = ref({
     patientDOB: {
       val: "",
       label: "Date of birth",
+      yearsMonths: {
+        switch: {
+          val: false,
+          change() {
+            if (this.val) {
+              data.value.inputs.patientDOB.val = "";
+            } else {
+              data.value.inputs.patientDOB.yearsMonths.yearsVal = null;
+              data.value.inputs.patientDOB.yearsMonths.monthsVal = null;
+            }
+          },
+        },
+        yearsVal: null,
+        monthsVal: null,
+      },
       form: [1],
       info: "Patient date of birth is used to find the patient age which is used to check the weight against a sex-specific age-based safety range, to select the IV insulin rate or IM insulin doses. The date of birth is not stored by the calculator but the patient age is stored for audit and data analysis.",
       /**
@@ -146,7 +161,13 @@ export const data = ref({
        */
       patientAge: {
         build() {
-          this.val = ageInYears(data.value.inputs.patientDOB.val);
+          if (data.value.inputs.patientDOB.yearsMonths.switch.val) {
+            this.val =
+              data.value.inputs.patientDOB.yearsMonths.yearsVal +
+              data.value.inputs.patientDOB.yearsMonths.monthsVal / 12;
+          } else {
+            this.val = ageInYears(data.value.inputs.patientDOB.val);
+          }
         },
       },
       /**
@@ -165,7 +186,14 @@ export const data = ref({
        * @returns {number} - Age in months.
        */
       ageMonths() {
-        return (ageInYears(this.val) * 12).toFixed(0);
+        if (data.value.inputs.patientDOB.yearsMonths.switch.val) {
+          return (
+            this.yearsMonths.yearsVal * 12 +
+            this.yearsMonths.monthsVal
+          ).toFixed(0);
+        } else {
+          return (ageInYears(this.val) * 12).toFixed(0);
+        }
       },
       /**
        * Validates the date of birth.
@@ -173,19 +201,43 @@ export const data = ref({
        */
       isValid(triggerFunc) {
         const errors = [];
-        const dateVal = new Date(this.val);
-        if (isNaN(Date.parse(this.val)))
-          errors.push("A valid date must be entered for date of birth.");
-        if (dateVal > new Date())
-          errors.push("Date of birth cannot be after today.");
+        if (this.yearsMonths.switch.val) {
+          if (
+            isNaN(this.yearsMonths.yearsVal) ||
+            this.yearsMonths.yearsVal === null ||
+            this.yearsMonths.yearsVal === "" ||
+            this.yearsMonths.yearsVal < 0 ||
+            isNaN(this.yearsMonths.monthsVal) ||
+            this.yearsMonths.monthsVal === null ||
+            this.yearsMonths.monthsVal === "" ||
+            this.yearsMonths.monthsVal < 0 ||
+            this.yearsMonths.monthsVal > 11
+          ) {
+            errors.push("A valid age in years and months must be entered.");
+          }
+          this.patientAge.build();
+          if (this.patientAge.val > config.value.validation.patientAge.max) {
+            errors.push(
+              "Patient age cannot be greater than " +
+                config.value.validation.patientAge.max.toFixed(0) +
+                " years.",
+            );
+          }
+        } else {
+          const dateVal = new Date(this.val);
+          if (isNaN(Date.parse(this.val)))
+            errors.push("A valid date must be entered for date of birth.");
+          if (dateVal > new Date())
+            errors.push("Date of birth cannot be after today.");
 
-        this.patientAge.build();
-        if (this.patientAge.val > config.value.validation.patientAge.max) {
-          errors.push(
-            `Patient age cannot be greater than ${config.value.validation.patientAge.max.toFixed(
-              0,
-            )} years.`,
-          );
+          this.patientAge.build();
+          if (this.patientAge.val > config.value.validation.patientAge.max) {
+            errors.push(
+              `Patient age cannot be greater than ${config.value.validation.patientAge.max.toFixed(
+                0,
+              )} years.`,
+            );
+          }
         }
 
         this.errors = errors.join(" ");
@@ -448,6 +500,15 @@ export const data = ref({
     },
     glucose: {
       val: null,
+      high: {
+        val: false,
+        change() {
+          if (this.val) {
+            data.value.inputs.glucose.val = null;
+          }
+          data.value.inputs.glucose.isValid();
+        },
+      },
       unit: null,
       unitChange() {
         if (!this.unit) {
@@ -463,7 +524,7 @@ export const data = ref({
         }
       },
       label: "Glucose",
-      info: "Glucose is used to confirm the diagnosis of DKA is correct. You can select your prefered unit: mg/dL or mmol/L using the drop-down select menu.",
+      info: "Glucose is used to confirm the diagnosis of DKA is correct. You can select your prefered unit: mg/dL or mmol/L using the drop-down select menu. If the glucose meter reads 'high' or 'hi' (i.e. above the maximum reading limit of the meter) select the 'Glucose high' checkbox.",
       privacyInfo:
         "Glucose is used to confirm the diagnosis of DKA is correct and is stored for audit and data analysis.",
       form: [3],
@@ -483,6 +544,7 @@ export const data = ref({
       isValid() {
         const errors = [];
         if (!this.unit) this.unitChange();
+        if (this.high.val) return true;
         if (this.val === null || isNaN(this.val) || this.val == "") {
           errors.push("Glucose must be provided. ");
         } else {
@@ -496,6 +558,7 @@ export const data = ref({
             "Glucose",
           );
         }
+
         this.errors = errors.join(" ");
         return !this.errors;
       },
@@ -582,7 +645,7 @@ export const data = ref({
        */
       isValid() {
         if (data.value.inputs.bloodKetonesAvailable.val === "true") return true;
-        if (isNaN(this.val) || this.val === null || this.val == "") {
+        if (isNaN(this.val) || this.val === null || this.val === "") {
           this.errors = "Urine ketones must be provided. ";
           return false;
         } else if (this.val < config.value.validation.urineKetones.min) {
@@ -710,10 +773,10 @@ export const data = ref({
     },
     shockPresent: {
       val: "",
-      label: "Is the patient clinically shocked?",
+      label: "Is the patient in shock?",
       privacyLabel: "Clinical shock status",
       form: [3],
-      info: "Clinical shock status is used to determine bolus duration/rate, and DKA severity which impacts on fluid calculations.",
+      info: "Clinical shock status is used to determine bolus duration/rate, and DKA severity which impacts on fluid calculations. Signs of impaired circulation: Weak radial pulse/severe tachycardia, lower limb temperature gradient, CRT of 3 or more seconds. If all 3 signs of circulatory impairment are present, the child is in shock.",
       privacyInfo:
         "Clinical shock status is used to determine bolus duration/rate, and DKA severity which impacts on fluid calculations. It is stored by the calculator for audit and data analysis.",
       /**

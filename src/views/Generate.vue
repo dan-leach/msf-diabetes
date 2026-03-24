@@ -30,6 +30,8 @@ const steps = ref({
       payload.use2SD = data.value.inputs.weight.limit.use2SD;
 
       payload.patientAge = data.value.inputs.patientDOB.patientAge.val;
+      payload.useYearsMonths =
+        data.value.inputs.patientDOB.yearsMonths.switch.val;
 
       payload.bloodGasAvailable =
         data.value.inputs.bloodGasAvailable.val == "true";
@@ -42,8 +44,12 @@ const steps = ref({
       if (data.value.inputs.dropFactor.val)
         payload.dropFactor = parseFloat(data.value.inputs.dropFactor.val);
 
-      payload.glucose = parseFloat(data.value.inputs.glucose.val);
-      payload.glucoseUnit = data.value.inputs.glucose.unit;
+      if (data.value.inputs.glucose.high.val) {
+        payload.glucoseHigh = data.value.inputs.glucose.high.val;
+      } else {
+        payload.glucose = parseFloat(data.value.inputs.glucose.val);
+        payload.glucoseUnit = data.value.inputs.glucose.unit;
+      }
       if (data.value.inputs.bloodKetones.val)
         payload.bloodKetones = parseFloat(data.value.inputs.bloodKetones.val);
       if (data.value.inputs.urineKetones.val)

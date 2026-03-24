@@ -244,7 +244,7 @@ onMounted(() => window.scrollTo(0, 0));
               }}
               drops/minute)</span
             >
-            then reassess after.
+            then reassess.
             <span v-if="data.inputs.shockPresent.val == 'true'"
               >If signs of shock persist, repeat another bolus.</span
             >

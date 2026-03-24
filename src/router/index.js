@@ -59,6 +59,11 @@ const router = createRouter({
       },
     },
     {
+      path: "/gcs",
+      name: "gcs",
+      component: () => import("../views/GCS.vue"),
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: "404",
       component: () => import("../views/404.vue"),

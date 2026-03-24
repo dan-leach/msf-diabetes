@@ -165,6 +165,7 @@ onMounted(() => {
             min=""
             required
             autocomplete="off"
+            :disabled="data.inputs.patientDOB.yearsMonths.switch.val"
           />
           <label for="patientDOB">{{ data.inputs.patientDOB.label }}</label>
         </div>
@@ -174,6 +175,54 @@ onMounted(() => {
           data-bs-target="#patientDOBInfo"
           ><font-awesome-icon :icon="['fas', 'circle-info']"
         /></span>
+      </div>
+      <div class="form-check form-switch mt-1">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          role="switch"
+          id="useYearsMonthsSwitch"
+          v-model="data.inputs.patientDOB.yearsMonths.switch.val"
+          @change="data.inputs.patientDOB.yearsMonths.switch.change()"
+        />
+        <label class="form-check-label" for="glucoseHighSwitch"
+          >Use age in years and months instead of date of birth</label
+        >
+      </div>
+      <div
+        class="input-group"
+        v-if="data.inputs.patientDOB.yearsMonths.switch.val"
+      >
+        <div class="form-floating">
+          <input
+            type="number"
+            class="form-control"
+            id="ageYears"
+            v-model="data.inputs.patientDOB.yearsMonths.yearsVal"
+            @change="data.inputs.patientDOB.isValid()"
+            placeholder="x"
+            max="19"
+            min="0"
+            required
+            autocomplete="off"
+          />
+          <label for="ageYears">Years old</label>
+        </div>
+        <div class="form-floating">
+          <input
+            type="number"
+            class="form-control"
+            id="ageMonths"
+            v-model="data.inputs.patientDOB.yearsMonths.monthsVal"
+            @change="data.inputs.patientDOB.isValid()"
+            placeholder="x"
+            max="11"
+            min="0"
+            required
+            autocomplete="off"
+          />
+          <label for="ageMonths">Months old</label>
+        </div>
       </div>
       <div
         v-if="showErrors"

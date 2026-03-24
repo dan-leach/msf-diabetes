@@ -73,6 +73,7 @@ onMounted(() => window.scrollTo(0, 0));
             :max="data.inputs.glucose.max()"
             :step="data.inputs.glucose.step"
             autocomplete="off"
+            :disabled="data.inputs.glucose.high.val"
             required
           />
           <label for="glucose">{{ data.inputs.glucose.label }}</label>
@@ -82,6 +83,7 @@ onMounted(() => window.scrollTo(0, 0));
           id="glucoseUnitSelect"
           v-model="data.inputs.glucose.unit"
           @change="data.inputs.glucose.unitChange()"
+          :disabled="data.inputs.glucose.high.val"
         >
           <option
             v-for="(unit, unitKey) in config.validation.glucose.units"
@@ -98,6 +100,19 @@ onMounted(() => window.scrollTo(0, 0));
           data-bs-target="#glucoseInfo"
           ><font-awesome-icon :icon="['fas', 'circle-info']"
         /></span>
+      </div>
+      <div class="form-check form-switch mt-1">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          role="switch"
+          id="glucoseHighSwitch"
+          v-model="data.inputs.glucose.high.val"
+          @change="data.inputs.glucose.high.change()"
+        />
+        <label class="form-check-label" for="glucoseHighSwitch"
+          >Glucose reads 'high' or 'hi'</label
+        >
       </div>
       <div
         v-if="showErrors"
@@ -449,6 +464,11 @@ onMounted(() => window.scrollTo(0, 0));
         >
           {{ data.inputs.gcs.errors }}
         </div>
+        <RouterLink to="/GCS" target="_blank" class="ms-1"
+          >View GCS charts
+          <font-awesome-icon
+            :icon="['fas', 'up-right-from-square']" /></RouterLink
+        >.
         <div
           class="collapse form-text mx-1"
           id="gcsInfo"

@@ -68,6 +68,7 @@ function capitalizeFirst(str) {
   color: inherit; /* inherit text color from parent */
   border: 1px solid currentColor; /* border inherits text color */
   background: none;
+  background-color: yellow;
 }
 
 .btn-view-working:hover {
