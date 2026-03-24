@@ -2,6 +2,7 @@ import { validate } from "./validate";
 import { checkWeightWithinLimit } from "./checkWeightWithinLimit";
 import { calculateVariables } from "./calculateVariables";
 import { generateAuditId } from "./generateAuditId";
+import { encrypt } from "./encrypt";
 
 /**
  * Performs offline calculation by validating payload, checking weight limits, and calculating variables.
@@ -27,17 +28,61 @@ async function runOfflineCalculation(payload) {
       throw new Error(check.error);
     }
 
-    // Step 3: Perform calculations
+    // Step 3: Format patientAge to 2 decimal places (as string) to avoid deanonymisation
+    payload.patientAge = payload.patientAge.toFixed(2);
+
+    // Step 4: Perform calculations
     const calculations = calculateVariables(payload);
 
-    // Step 4: Generate audit ID
+    // Step 5: Set undefined optional values to null
+    payload.pH = payload.pH || null;
+    payload.bicarbonate = payload.bicarbonate || null;
+    payload.bloodKetones = payload.bloodKetones || null;
+    payload.urineKetones = payload.urineKetones || null;
+    payload.gcs = payload.gcs || null;
+    payload.respiratorySupport = payload.respiratorySupport || null;
+    payload.dropFactor = payload.dropFactor || null;
+
+    // Step 6: Generate audit ID
     const auditID = generateAuditId();
 
-    // Step 5: store in local storage, for later upload when online
+    // Step 7: Encrypt the data
+    const encryptedData = await encrypt({
+      patientSex: payload.patientSex,
+      weight: payload.weight,
+      patientAge: payload.patientAge,
+      glucose: payload.glucose,
+      glucoseUnit: payload.glucoseUnit,
+      bloodKetones: payload.bloodKetones,
+      urineKetones: payload.urineKetones,
+      diagnosticFeatures: payload.diagnosticFeatures,
+      pH: payload.pH,
+      bicarbonate: payload.bicarbonate,
+      shockPresent: payload.shockPresent,
+      gcs: payload.gcs,
+      respiratorySupport: payload.respiratorySupport,
+      calculations: calculations,
+    });
+
+    // Step 8: store in local storage, for later upload when online
     const offlineData = {
-      payload,
-      calculations,
-      calculationsTimestamp: new Date().toISOString(),
+      data: {
+        episodeType: payload.episodeType,
+        appVersion: payload.appVersion,
+        legalAgreement: payload.legalAgreement,
+        operationalCentre: payload.operationalCentre,
+        project: payload.project,
+        clientUseragent: payload.clientUseragent,
+        weightLimitOverride: payload.weightLimitOverride,
+        use2SD: payload.use2SD,
+        bloodGasAvailable: payload.bloodGasAvailable,
+        bloodKetonesAvailable: payload.bloodKetonesAvailable,
+        syringePumpAvailable: payload.syringePumpAvailable,
+        infusionPumpAvailable: payload.infusionPumpAvailable,
+        dropFactor: payload.dropFactor,
+        offlineTimestamp: new Date().toISOString(),
+      },
+      encryptedData,
     };
 
     const offlineStoreIDs = JSON.parse(

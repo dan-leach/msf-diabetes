@@ -29,9 +29,8 @@ async function syncOfflineData() {
       console.log("Syncing offline data with auditID: ", auditID, offlineData);
       const response = await api("sync-offline-data", {
         auditID,
-        payload: offlineData.payload,
-        calculations: offlineData.calculations,
-        calculationsTimestamp: offlineData.calculationsTimestamp,
+        data: offlineData.data,
+        encryptedData: offlineData.encryptedData,
       });
       console.log("Sync response: ", response);
       // Remove the offline data from localStorage after successful sync
@@ -72,8 +71,30 @@ async function syncOfflineData() {
           (error?.message || error?.[0]?.msg || JSON.stringify(error)),
         icon: "error",
         iconColor: "black",
-        showConfirmButton: true,
+        confirmButtonText: "OK, try again later",
+        denyButtonText: "Clear logs",
+        showDenyButton: true,
         confirmButtonColor: "#ec0000",
+        denyButtonColor: "#757575",
+      }).then((result) => {
+        if (result.isDenied) {
+          // Clear all offline logs
+          const offlineStoreIDs = JSON.parse(
+            localStorage.getItem("offlineStoreIDs") || "[]",
+          );
+          for (const auditID of offlineStoreIDs) {
+            localStorage.removeItem(auditID);
+          }
+          localStorage.removeItem("offlineStoreIDs");
+          Swal.fire({
+            text: "Offline episode logs cleared",
+            icon: "info",
+            iconColor: "black",
+            toast: true,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
       });
     }
   }

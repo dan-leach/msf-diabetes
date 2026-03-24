@@ -7,9 +7,10 @@ function bytesToBase62(bytes) {
   for (let b of bytes) value = (value << BigInt(8)) + BigInt(b);
 
   let out = "";
+  const base = BigInt(BASE62.length);
   while (value > 0n) {
-    out = BASE62[Number(value % 62n)] + out;
-    value /= 62n;
+    out = BASE62[Number(value % base)] + out;
+    value /= base;
   }
   return out || "0";
 }
@@ -21,7 +22,7 @@ function bytesToBase62(bytes) {
 export function generateAuditId(length = 10) {
   // compute how many bytes are needed to comfortably cover `length` base62 chars
   // base62^length ≈ 2^(bits) -> bits = length * log2(62) ≈ length * 5.954
-  const bitsNeeded = Math.ceil(length * 5.954);
+  const bitsNeeded = Math.ceil(length * Math.log2(BASE62.length));
   const bytesNeeded = Math.ceil(bitsNeeded / 8);
 
   const rnd = new Uint8Array(bytesNeeded);
@@ -31,8 +32,9 @@ export function generateAuditId(length = 10) {
   let id = bytesToBase62(rnd);
   // If too short (rare), append random chars
   while (id.length < length) {
-    const idx = crypto.getRandomValues(new Uint8Array(1))[0] % 62;
+    const idx = crypto.getRandomValues(new Uint8Array(1))[0] % BASE62.length;
     id = BASE62[idx] + id;
   }
+
   return id.slice(-length); // take rightmost characters (uniform enough)
 }
