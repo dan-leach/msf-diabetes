@@ -109,6 +109,14 @@ function validate(payload) {
     });
   }
 
+  // useYearsMonths
+  if (typeof payload.useYearsMonths !== "boolean") {
+    errors.push({
+      field: "useYearsMonths",
+      message: "Used years/months function field must be data type [boolean].",
+    });
+  }
+
   // equipment availability
   [
     "bloodGasAvailable",
@@ -138,40 +146,42 @@ function validate(payload) {
     }
   }
 
-  // glucoseUnit
-  if (
-    !Object.keys(config.value.validation.glucose.units).includes(
-      payload.glucoseUnit,
-    )
-  ) {
-    errors.push({
-      field: "glucoseUnit",
-      message: "Invalid glucose unit option provided.",
-    });
-  }
-
-  // glucose
-  if (typeof payload.glucose !== "number") {
-    errors.push({
-      field: "glucose",
-      message: "Glucose field must be data type [float].",
-    });
-  } else {
-    const unitConfig =
-      config.value.validation.glucose.units[payload.glucoseUnit];
-    if (!unitConfig) {
-      errors.push({
-        field: "glucose",
-        message: "Invalid glucose unit option provided.",
-      });
-    } else if (
-      payload.glucose < unitConfig.min ||
-      payload.glucose > unitConfig.max
+  if (!payload.glucoseHigh) {
+    // glucoseUnit
+    if (
+      !Object.keys(config.value.validation.glucose.units).includes(
+        payload.glucoseUnit,
+      )
     ) {
       errors.push({
-        field: "glucose",
-        message: `Glucose must be in range ${unitConfig.min} to ${unitConfig.max} ${payload.glucoseUnit}.`,
+        field: "glucoseUnit",
+        message: "Invalid glucose unit option provided.",
       });
+    }
+
+    // glucose
+    if (typeof payload.glucose !== "number") {
+      errors.push({
+        field: "glucose",
+        message: "Glucose field must be data type [float].",
+      });
+    } else {
+      const unitConfig =
+        config.value.validation.glucose.units[payload.glucoseUnit];
+      if (!unitConfig) {
+        errors.push({
+          field: "glucose",
+          message: "Invalid glucose unit option provided.",
+        });
+      } else if (
+        payload.glucose < unitConfig.min ||
+        payload.glucose > unitConfig.max
+      ) {
+        errors.push({
+          field: "glucose",
+          message: `Glucose must be in range ${unitConfig.min} to ${unitConfig.max} ${payload.glucoseUnit}.`,
+        });
+      }
     }
   }
 

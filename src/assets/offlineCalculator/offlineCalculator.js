@@ -36,6 +36,9 @@ async function runOfflineCalculation(payload) {
 
     // Step 5: Set undefined optional values to null
     payload.pH = payload.pH || null;
+    payload.glucoseUnit = payload.glucoseUnit || null;
+    payload.glucose = payload.glucose || null;
+    payload.glucoseHigh = payload.glucoseHigh || false;
     payload.bicarbonate = payload.bicarbonate || null;
     payload.bloodKetones = payload.bloodKetones || null;
     payload.urineKetones = payload.urineKetones || null;
@@ -53,6 +56,7 @@ async function runOfflineCalculation(payload) {
       patientAge: payload.patientAge,
       glucose: payload.glucose,
       glucoseUnit: payload.glucoseUnit,
+      glucoseHigh: payload.glucoseHigh,
       bloodKetones: payload.bloodKetones,
       urineKetones: payload.urineKetones,
       diagnosticFeatures: payload.diagnosticFeatures,
@@ -75,6 +79,7 @@ async function runOfflineCalculation(payload) {
         clientUseragent: payload.clientUseragent,
         weightLimitOverride: payload.weightLimitOverride,
         use2SD: payload.use2SD,
+        useYearsMonths: payload.useYearsMonths,
         bloodGasAvailable: payload.bloodGasAvailable,
         bloodKetonesAvailable: payload.bloodKetonesAvailable,
         syringePumpAvailable: payload.syringePumpAvailable,
