@@ -19,7 +19,6 @@ const viewWorkingExample = ref({
 let showGuidance = ref({
   dkaSeverity: false,
   fluidBolus: false,
-  makingUpIVFluids: false,
   whichBagsAtWhatSpeed: false,
   ivInsulinRate: false,
   imInsulinDose: false,
@@ -52,10 +51,7 @@ const resetForm = () => {
   }).then((result) => {
     if (result.isConfirmed) {
       data.value.form.reset();
-      showErrors.value = false;
-      document
-        .getElementById("form-patient-details")
-        .classList.remove("was-validated");
+      router.push("/");
     }
   });
 };
@@ -67,30 +63,6 @@ onMounted(() => window.scrollTo(0, 0));
   <div class="container my-4 needs-validation">
     <h2 class="display-3 mb-4 text-center">Guidance</h2>
     <div v-if="data.auditID">
-      <!--view working info box-->
-      <div class="card border-info mb-3">
-        <div class="card-body d-flex flex-row align-items-center">
-          <font-awesome-icon
-            :icon="['fas', 'circle-info']"
-            size="2xl"
-            class="me-4"
-          />
-          <p class="card-text">
-            Calculated values are
-            <ViewWorking
-              :param="viewWorkingExample"
-              paramKey="viewWorkingExample"
-              heading="View working example"
-            />
-            and can be clicked to check how the calculation was performed. You
-            can also
-            <a href="#" @click="router.push('/calculations')"
-              >view the full calculation logic here</a
-            >.
-          </p>
-        </div>
-      </div>
-
       <!--check guidelines alert box-->
       <div class="card border-danger mb-3">
         <div class="card-body d-flex flex-row align-items-center">
@@ -120,6 +92,63 @@ onMounted(() => window.scrollTo(0, 0));
             This guidance was generated in offline mode based on algorithms up
             to date as of {{ formatDatetime(config.fetchDatetime) }}. Audit data
             will upload when {{ config.appName }} is next online.
+          </p>
+        </div>
+      </div>
+
+      <!--info box-->
+      <div class="card border-info mb-3">
+        <div class="card-body d-flex flex-row align-items-top">
+          <font-awesome-icon
+            :icon="['fas', 'circle-info']"
+            size="2xl"
+            class="me-4"
+          />
+          <p class="card-text">
+            <ol>
+              <li>
+                Assess the patient using a structured ABCDE approach and manage any life-threatening issues.
+              </li>
+              <li>
+                Refer to MSF Paediatric Care section 9.2 diabetic ketoacidoisis
+                for guidance on diagnostic criteria and resuscitation of
+                patients with DKA.
+              </li>
+              <li>
+                Use a MSF Paediatric DKA Fluid and Insulin Prescription Sheet (<a
+                  href="/msf-dka-fluid-insulin-prescription.pdf"
+                  target="_blank"
+                  >download here</a
+                >) to
+                transcribe and prescribe the values below. Calculated values are
+              <ViewWorking
+                :param="viewWorkingExample"
+                paramKey="viewWorkingExample"
+                heading="View working example"
+              />
+              and can be clicked to check how the calculation was performed. You
+              can also
+              <a href="#" @click="router.push('/calculations')"
+                >view the full calculation logic here</a
+              >.
+              </li>
+              <li>
+                Start by giving the fluid bolus shown below.
+              </li>
+              <li>
+                While this is running, prepare the IV fluids for the two-bag
+                method per <strong><i>Preparation of IV fluids for two-bag method</i></strong> guidance below.
+              </li>
+              <li>
+                Once the fluid bolus is complete, unless further boluses are
+                clinically indicated, proceed to start the fluid replacement at
+                the rates specified and according to the blood glucose.
+              </li>
+              <li>
+                Once shock corrected, and one hour after starting IV fluid
+                replacement, start IV insulin.
+              </li>
+            </ol>
           </p>
         </div>
       </div>
@@ -165,14 +194,15 @@ onMounted(() => window.scrollTo(0, 0));
             />
             <ViewWorking
               :param="data.calculations.deficit.percentage"
-              unit="% deficit"
+              unit="% fluid deficit"
+              heading="Fluid deficit percentage"
               paramKey="deficitPercentage"
             />
           </h3>
           <div class="mb-2">
             Treat your patient as having
-            {{ data.calculations.severity.val }} severity DKA with a deficit of
-            {{ data.calculations.deficit.percentage.val }}%.
+            {{ data.calculations.severity.val }} severity DKA with a fluid
+            deficit of {{ data.calculations.deficit.percentage.val }}%.
           </div>
         </div>
       </div>
@@ -295,247 +325,9 @@ onMounted(() => window.scrollTo(0, 0));
         </div>
         <div class="card-body">
           <div class="d-flex flex-row flex-wrap gap-1">
-            <div v-if="data.calculations.severity.val === 'severe'">
-              <h3>
-                High-speed
-                <ViewWorking
-                  :param="data.calculations.bagSpeeds.highSpeed"
-                  paramKey="highSpeed"
-                  heading="High-speed bag rate"
-                  unit="mL/hour"
-                  :decimals="config.decimals.bagSpeed"
-                />
-              </h3>
-              <h3>
-                Half-high-speed
-                <ViewWorking
-                  :param="data.calculations.bagSpeeds.halfHighSpeed"
-                  paramKey="halfHighSpeed"
-                  heading="Half-high-speed bag rate"
-                  unit="mL/hour"
-                  :decimals="config.decimals.bagSpeed"
-                />
-              </h3>
-            </div>
-            <div v-else>
-              <h3>
-                Standard-speed
-                <ViewWorking
-                  :param="data.calculations.bagSpeeds.standardSpeed"
-                  paramKey="standardSpeed"
-                  heading="Standard-speed bag rate"
-                  unit="mL/hour"
-                  :decimals="config.decimals.bagSpeed"
-                />
-              </h3>
-              <h3>
-                Half-standard-speed
-                <ViewWorking
-                  :param="data.calculations.bagSpeeds.halfStandardSpeed"
-                  paramKey="halfStandardSpeed"
-                  heading="Half-standard-speed bag rate"
-                  unit="mL/hour"
-                  :decimals="config.decimals.bagSpeed"
-                />
-              </h3>
-              <h3>
-                High-speed (for managing hypoglycaemia)
-                <ViewWorking
-                  :param="data.calculations.bagSpeeds.hypoSpeed"
-                  paramKey="hypoSpeed"
-                  heading="High-speed bag rate (for managing hypoglycaemia)"
-                  unit="mL/hour"
-                  :decimals="config.decimals.bagSpeed"
-                />
-              </h3>
-            </div>
-          </div>
-
-          <!--making up IV fluids guidance-->
-          <div class="card border-info p-2 mb-2">
-            <a
-              class="btn text-black btn-sm btn-view-guidance"
-              data-bs-toggle="collapse"
-              href="#makingUpIVFluidsGuidance"
-              role="button"
-              aria-expanded="false"
-              aria-controls="collapseMakingUpIVFluidsGuidance"
-              @click="
-                showGuidance.makingUpIVFluids = !showGuidance.makingUpIVFluids
-              "
-            >
-              <span class="d-flex justify-content-center">
-                {{ !showGuidance.makingUpIVFluids ? "Show" : "Hide" }} making up
-                IV fluid bags guidance
-                <img
-                  alt="Guidance icon"
-                  class="icon mx-2"
-                  src="@/assets/images/guidance-icon.svg"
-                  width="24"
-                  height="24"
-                />
-              </span>
-            </a>
-            <div class="collapse" id="makingUpIVFluidsGuidance">
-              <!--IV fluid bags guidance-->
-              <div class="card mb-2">
-                <div class="card-header">Make IV fluid bag #1</div>
-                <div class="card-body">
-                  <ul>
-                    <li>
-                      Add 40 mmol/L KCl (use KCl 15%, 150 mg/mL = 2 mmol/mL (10
-                      mL ampoule))
-                    </li>
-                  </ul>
-
-                  <table
-                    cellpadding="5"
-                    cellspacing="0"
-                    class="table table-bordered"
-                  >
-                    <thead>
-                      <tr>
-                        <th class="fw-normal">
-                          <strong>RL</strong> (or NaCl 0.9%)
-                        </th>
-                        <th>Volume of KCl 15% to add</th>
-                        <th>Final IV fluid bag #1</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>1000 mL</td>
-                        <td>20 mL (2 ampoules)</td>
-                        <td rowspan="2">
-                          RL + 40 mmol/L KCl<br />
-                          (or NaCl 0.9% + 40 mmol/L KCl)
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>500 mL</td>
-                        <td>10 mL (1 ampoule)</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div class="card mb-2">
-                <div class="card-header">Make IV fluid bag #2</div>
-                <div class="card-body">
-                  <ol>
-                    <li>
-                      Add glucose (dextrose) 50% (G50%) to a bag of Ringer
-                      lactate (RL) to make G10%-RL (or G10%-NaCl 0.9%). Follow
-                      instructions below.
-                    </li>
-                    <li>Add 40 mmol/L KCl.</li>
-                  </ol>
-
-                  <p><strong>1. Make G10%-RL</strong> (or G10%-NaCl 0.9%)</p>
-
-                  <table
-                    cellpadding="5"
-                    cellspacing="0"
-                    class="table table-bordered"
-                  >
-                    <thead>
-                      <tr>
-                        <th class="fw-normal">
-                          <strong>RL</strong> (or NaCl 0.9%)
-                        </th>
-                        <th>Remove</th>
-                        <th>Add</th>
-                        <th>Intermediary solution</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>1000 mL</td>
-                        <td>200 mL</td>
-                        <td>G50% 200 mL</td>
-                        <td>1000 mL G10%-RL (or G10%-NaCl 0.9%)</td>
-                      </tr>
-                      <tr>
-                        <td>500 mL</td>
-                        <td>100 mL</td>
-                        <td>G50% 100 mL</td>
-                        <td>500 mL G10%-RL (or G10%-NaCl 0.9%)</td>
-                      </tr>
-                    </tbody>
-                  </table>
-
-                  <p>
-                    <strong
-                      >2. Add potassium to make final IV fluid bag #2</strong
-                    >
-                  </p>
-
-                  <table
-                    cellpadding="5"
-                    cellspacing="0"
-                    class="table table-bordered"
-                  >
-                    <thead>
-                      <tr>
-                        <th class="fw-normal">
-                          <strong>G10%-RL</strong> (or G10%-NaCl 0.9%)
-                        </th>
-
-                        <th>Volume of KCl 15% to add</th>
-                        <th>Final IV fluid bag #2</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>1000 mL</td>
-                        <td>20 mL (2 ampoules)</td>
-                        <td rowspan="2">
-                          G10%-RL + 40 mmol/L KCl<br />
-                          (or G10%-NaCl 0.9% + 40 mmol/L KCl)
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>500 mL</td>
-                        <td>10 mL (1 ampoule)</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              * RL = Ringer lactate, G = glucose, NaCl = sodium chloride, KCl =
-              potassium chloride
-            </div>
-          </div>
-
-          <!--which bag(s) at what speed table-->
-          <div class="card border-info p-3">
-            <a
-              class="btn text-black btn-sm btn-view-guidance"
-              data-bs-toggle="collapse"
-              href="#whichBagsAtWhatSpeedGuidance"
-              role="button"
-              aria-expanded="false"
-              aria-controls="collapseWhichBagsAtWhatSpeedGuidance"
-              @click="
-                showGuidance.whichBagsAtWhatSpeed =
-                  !showGuidance.whichBagsAtWhatSpeed
-              "
-            >
-              <span class="d-flex justify-content-center">
-                {{ !showGuidance.whichBagsAtWhatSpeed ? "Show" : "Hide" }} which
-                bag(s) at what speed guidance
-                <img
-                  alt="Guidance icon"
-                  class="icon mx-2"
-                  src="@/assets/images/guidance-icon.svg"
-                  width="24"
-                  height="24"
-                />
-              </span>
-            </a>
-            <div class="collapse" id="whichBagsAtWhatSpeedGuidance">
               <!--which bag(s) at what speed guidance-->
               <div class="mb-2">
+                <p>Select starting rate by checking blood glucose when IV fluids for two-bag method have been made up. Adjust according to blood glucose checks at least once per hour.</p>
                 <!--header-->
                 <div class="row bg-light">
                   <div class="col-4 d-none d-sm-block">
@@ -800,7 +592,7 @@ onMounted(() => window.scrollTo(0, 0));
                         data.inputs.glucose.unit
                       ][2]
                     }}
-                    to <{{
+                    to &lt;{{
                       config.bagSpeedGlucoseThresholds[
                         data.inputs.glucose.unit
                       ][1]
@@ -817,7 +609,7 @@ onMounted(() => window.scrollTo(0, 0));
                           data.inputs.glucose.unit
                         ][2]
                       }}
-                      to <{{
+                      to &lt;{{
                         config.bagSpeedGlucoseThresholds[
                           data.inputs.glucose.unit
                         ][1]
@@ -892,7 +684,7 @@ onMounted(() => window.scrollTo(0, 0));
                 <div class="row bg-light">
                   <!--glucose col-->
                   <div class="col-4 d-none d-sm-block mb-2">
-                    <{{
+                    &lt;{{
                       config.bagSpeedGlucoseThresholds[
                         data.inputs.glucose.unit
                       ][2]
@@ -904,7 +696,7 @@ onMounted(() => window.scrollTo(0, 0));
                   <div class="col">
                     <!--narrow screen glucose-->
                     <div class="d-block d-sm-none mb-2">
-                      Blood glucose <{{
+                      Blood glucose &lt;{{
                         config.bagSpeedGlucoseThresholds[
                           data.inputs.glucose.unit
                         ][2]
@@ -987,6 +779,162 @@ onMounted(() => window.scrollTo(0, 0));
                   to be decreased (see full guidelines).
                 </p>
               </div>
+
+          </div>
+
+          <!--making up IV fluids guidance-->
+          <div class="card border-info p-2 mb-2">
+            <a
+              class="btn text-black btn-sm btn-view-guidance"
+              data-bs-toggle="collapse"
+              href="#makingUpIVFluidsGuidance"
+              role="button"
+              aria-expanded="false"
+              aria-controls="collapseMakingUpIVFluidsGuidance"
+              @click="
+                showGuidance.makingUpIVFluids = !showGuidance.makingUpIVFluids
+              "
+            >
+              <span class="d-flex justify-content-center">
+                {{ !showGuidance.makingUpIVFluids ? "Show" : "Hide" }} preparation of IV fluids for two-bag method guidance
+                <img
+                  alt="Guidance icon"
+                  class="icon mx-2"
+                  src="@/assets/images/guidance-icon.svg"
+                  width="24"
+                  height="24"
+                />
+              </span>
+            </a>
+            <div class="collapse" id="makingUpIVFluidsGuidance">
+              <!--IV fluid bags guidance-->
+              <div class="card mb-2">
+                <div class="card-header">Make IV fluid bag #1</div>
+                <div class="card-body">
+                  <ul>
+                    <li>
+                      Add 40 mmol/L KCl (use KCl 15%, 150 mg/mL = 2 mmol/mL (10
+                      mL ampoule))
+                    </li>
+                  </ul>
+
+                  <table
+                    cellpadding="5"
+                    cellspacing="0"
+                    class="table table-bordered"
+                  >
+                    <thead>
+                      <tr>
+                        <th class="fw-normal">
+                          <strong>RL</strong> (or NaCl 0.9%)
+                        </th>
+                        <th>Volume of KCl 15% to add</th>
+                        <th>Final IV fluid bag #1</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1000 mL</td>
+                        <td>20 mL (2 ampoules)</td>
+                        <td rowspan="2">
+                          RL + 40 mmol/L KCl<br />
+                          (or NaCl 0.9% + 40 mmol/L KCl)
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>500 mL</td>
+                        <td>10 mL (1 ampoule)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card mb-2">
+                <div class="card-header">Make IV fluid bag #2</div>
+                <div class="card-body">
+                  <ol>
+                    <li>
+                      Add glucose (dextrose) 50% (G50%) to a bag of Ringer
+                      lactate (RL) to make G10%-RL (or G10%-NaCl 0.9%). Follow
+                      instructions below.
+                    </li>
+                    <li>Add 40 mmol/L KCl.</li>
+                  </ol>
+
+                  <p><strong>1. Make G10%-RL</strong> (or G10%-NaCl 0.9%)</p>
+
+                  <table
+                    cellpadding="5"
+                    cellspacing="0"
+                    class="table table-bordered"
+                  >
+                    <thead>
+                      <tr>
+                        <th class="fw-normal">
+                          <strong>RL</strong> (or NaCl 0.9%)
+                        </th>
+                        <th>Remove</th>
+                        <th>Add</th>
+                        <th>Intermediary solution</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1000 mL</td>
+                        <td>200 mL</td>
+                        <td>G50% 200 mL</td>
+                        <td>1000 mL G10%-RL (or G10%-NaCl 0.9%)</td>
+                      </tr>
+                      <tr>
+                        <td>500 mL</td>
+                        <td>100 mL</td>
+                        <td>G50% 100 mL</td>
+                        <td>500 mL G10%-RL (or G10%-NaCl 0.9%)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <p>
+                    <strong
+                      >2. Add potassium to make final IV fluid bag #2</strong
+                    >
+                  </p>
+
+                  <table
+                    cellpadding="5"
+                    cellspacing="0"
+                    class="table table-bordered"
+                  >
+                    <thead>
+                      <tr>
+                        <th class="fw-normal">
+                          <strong>G10%-RL</strong> (or G10%-NaCl 0.9%)
+                        </th>
+
+                        <th>Volume of KCl 15% to add</th>
+                        <th>Final IV fluid bag #2</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1000 mL</td>
+                        <td>20 mL (2 ampoules)</td>
+                        <td rowspan="2">
+                          G10%-RL + 40 mmol/L KCl<br />
+                          (or G10%-NaCl 0.9% + 40 mmol/L KCl)
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>500 mL</td>
+                        <td>10 mL (1 ampoule)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <p>* RL = Ringer lactate, G = glucose, NaCl = sodium chloride, KCl =
+              potassium chloride</p>
+              <p>Start fluid replacement without potassium if no urine output and add potassium to fluids only once urine output confirmed.</p>
             </div>
           </div>
         </div>

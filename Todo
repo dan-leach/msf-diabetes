@@ -1,15 +1,6 @@
 Current:
 Check each step of the offlineCalculator returns appropriately displayed errors to generate page.
 
-See feedback from IPP meeting:
-
-- Step by step instructions of guidance (e.g. step 1, step 2, step 3) to make it easier to follow the workflow
-- Insulin units/hr is equal to ml/hr note
-- How often to check the blood glucose - every hour - add to fluid guidance
-- Add KCL only once urine output confirmed note
-- Add assess and manage ABCDE at top of guidance
-- 10% deficit should be "10% fluid deficit"
-
 IPP/MSF group feedback COMPLETED:
 
 - Previous page and start over/new patient buttons (at end of form and throughout workflow)
@@ -22,6 +13,11 @@ IPP/MSF group feedback COMPLETED:
 - Clinical signs of shock guidance (and use "is the patient in shock" rather than "is the patient shocked")
 - "reassess after" can be just "reassess"
 - Years/months alternative to DOB
+- Step by step instructions of guidance (e.g. step 1, step 2, step 3) to make it easier to follow the workflow
+- Insulin units/hr is equal to ml/hr note
+- Add assess and manage ABCDE at top of guidance
+- How often to check the blood glucose - every hour - add to fluid guidance
+- Add KCL only once urine output confirmed note
 
 Can use css media queries:
 @media (display-mode: browser){} - targets app within the browser only

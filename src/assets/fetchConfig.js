@@ -12,7 +12,7 @@ let config = ref({});
  * When true, uses the development API endpoint and logs debug information.
  * @type {boolean}
  */
-const underDevelopment = true;
+const underDevelopment = false;
 //Set API development mode with NODE_ENV
 
 /**
