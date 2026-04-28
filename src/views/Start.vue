@@ -2,6 +2,8 @@
 import { inject, ref } from "vue";
 const config = inject("config");
 
+import Feedback from "../components/Feedback.vue"; 
+
 const isOnline = ref(navigator.onLine);
 
 const formatDatetime = (iso) => {
@@ -128,6 +130,7 @@ const formatDatetime = (iso) => {
         Start
       </button>
     </div>
+    <Feedback />
   </div>
 </template>
 

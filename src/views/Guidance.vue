@@ -7,6 +7,8 @@ import ViewWorking from "../components/ViewWorking.vue";
 import { inject } from "vue";
 const config = inject("config");
 
+import Feedback from "../components/Feedback.vue"; 
+
 if (!data.value.auditID) router.push("/form-clinical-details");
 
 const viewWorkingExample = ref({
@@ -938,41 +940,153 @@ onMounted(() => window.scrollTo(0, 0));
             </div>
           </div>
         </div>
+      </div>
 
-        <!--iv insulin rate-->
-        <div
-          class="card mb-4"
-          v-if="data.inputs.syringePumpAvailable.val == 'true'"
-        >
-          <div class="card-header">
-            <img
-              alt="IV pump icon"
-              class="icon"
-              src="@/assets/images/infusion-pump-icon.svg"
-              width="24"
-              height="24"
+      <!--iv insulin rate-->
+      <div
+        class="card mb-4"
+        v-if="data.inputs.syringePumpAvailable.val == 'true'"
+      >
+        <div class="card-header">
+          <img
+            alt="IV pump icon"
+            class="icon"
+            src="@/assets/images/infusion-pump-icon.svg"
+            width="24"
+            height="24"
+          />
+          IV insulin rate
+        </div>
+        <div class="card-body">
+          <h3>
+            <ViewWorking
+              :param="data.calculations.insulinRate"
+              paramKey="ivInsulinRate"
+              heading="IV insulin rate"
+              unit=" Units/hour"
+              :decimals="config.decimals.ivInsulinRate"
             />
-            IV insulin rate
+          </h3>
+          <div class="mb-2">
+            {{
+              data.inputs.shockPresent
+                ? "Once shock corrected, and one"
+                : "One"
+            }}
+            hour after starting IV fluid replacement, start IV insulin at a
+            rate of
+            {{ data.calculations.insulinRate.val.toFixed(2) }} Units/hour.
           </div>
-          <div class="card-body">
+
+          <!--show guidance-->
+          <div class="card border-info p-2">
+            <a
+              class="btn text-black btn-sm btn-view-guidance"
+              data-bs-toggle="collapse"
+              href="#ivInsulinRateGuidance"
+              role="button"
+              aria-expanded="false"
+              aria-controls="collapseIvInsulinRateGuidance"
+              @click="
+                showGuidance.ivInsulinRate = !showGuidance.ivInsulinRate
+              "
+            >
+              <span class="d-flex justify-content-center">
+                {{ !showGuidance.ivInsulinRate ? "Show" : "Hide" }} making up
+                IV insulin guidance
+                <img
+                  alt="Guidance icon"
+                  class="icon mx-2"
+                  src="@/assets/images/guidance-icon.svg"
+                  width="24"
+                  height="24"
+                />
+              </span>
+            </a>
+            <div class="collapse" id="ivInsulinRateGuidance">
+              <!--IV insulin guidance-->
+              <div class="card mb-2">
+                <div class="card-header">Making up IV insulin</div>
+                <div class="card-body">
+                  Add 50 IU of soluble insulin to 49.5 mL sodium chloride 0.9%
+                  to make a total of 50 mL. Ensure insulin preparation is
+                  double checked by two qualified healthcare professionals.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--insulin dose-->
+      <div class="card mb-4" v-else>
+        <div class="card-header">
+          <img
+            alt="Syringe icon"
+            class="icon"
+            src="@/assets/images/syringe-icon.svg"
+            width="24"
+            height="24"
+          />
+          IM insulin dose
+        </div>
+        <div class="card-body">
+          <div>
+            <div class="card border-danger mb-3">
+              <div class="card-body d-flex flex-row align-items-center">
+                <font-awesome-icon
+                  :icon="['fas', 'triangle-exclamation']"
+                  size="2xl"
+                  class="me-4"
+                />
+                <ul class="card-text m-0">
+                  <li>
+                    IM (intramuscular) insulin dosing guidance is currently
+                    unavailable pending review.
+                  </li>
+                  <li>
+                    Please refer to MSF Paediatric Care written guidance
+                    instead.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <!--disabled IM insulin dosing panel pending further guidance-->
+          <div hidden>
             <h3>
               <ViewWorking
-                :param="data.calculations.insulinRate"
-                paramKey="ivInsulinRate"
-                heading="IV insulin rate"
-                unit=" Units/hour"
-                :decimals="config.decimals.ivInsulinRate"
+                :param="data.calculations.insulinDose"
+                paramKey="imInsulinDose"
+                heading="IM insulin dose"
+                unit=" Units 2-hourly"
+                :decimals="config.decimals.imInsulinDose"
               />
             </h3>
             <div class="mb-2">
-              {{
-                data.inputs.shockPresent
-                  ? "Once shock corrected, and one"
-                  : "One"
-              }}
-              hour after starting IV fluid replacement, start IV insulin at a
-              rate of
-              {{ data.calculations.insulinRate.val.toFixed(2) }} Units/hour.
+              Administer IM (intramuscular) insulin
+              {{ data.calculations.insulinDose.val.toFixed(1) }} Units every 2
+              hours.
+            </div>
+
+            <div class="card border-danger mb-3">
+              <div class="card-body d-flex flex-row align-items-center">
+                <font-awesome-icon
+                  :icon="['fas', 'triangle-exclamation']"
+                  size="2xl"
+                  class="me-4"
+                />
+                <ul class="card-text m-0">
+                  <li>
+                    IV (intravenous) route must not be used for bolus insulin
+                    as rapid hypoglycaemia will occur
+                  </li>
+                  <li>
+                    SC (subcutaneous) route must not be used due to unreliable
+                    absorption during DKA
+                  </li>
+                </ul>
+              </div>
             </div>
 
             <!--show guidance-->
@@ -980,17 +1094,17 @@ onMounted(() => window.scrollTo(0, 0));
               <a
                 class="btn text-black btn-sm btn-view-guidance"
                 data-bs-toggle="collapse"
-                href="#ivInsulinRateGuidance"
+                href="#imInsulinDoseGuidance"
                 role="button"
                 aria-expanded="false"
-                aria-controls="collapseIvInsulinRateGuidance"
+                aria-controls="collapseImInsulinDoseGuidance"
                 @click="
-                  showGuidance.ivInsulinRate = !showGuidance.ivInsulinRate
+                  showGuidance.imInsulinDose = !showGuidance.imInsulinDose
                 "
               >
                 <span class="d-flex justify-content-center">
-                  {{ !showGuidance.ivInsulinRate ? "Show" : "Hide" }} making up
-                  IV insulin guidance
+                  {{ !showGuidance.imInsulinDose ? "Show" : "Hide" }} making
+                  up IM insulin guidance
                   <img
                     alt="Guidance icon"
                     class="icon mx-2"
@@ -1000,129 +1114,19 @@ onMounted(() => window.scrollTo(0, 0));
                   />
                 </span>
               </a>
-              <div class="collapse" id="ivInsulinRateGuidance">
-                <!--IV insulin guidance-->
+              <div class="collapse" id="imInsulinDoseGuidance">
+                <!--IM insuling guidance-->
                 <div class="card mb-2">
-                  <div class="card-header">Making up IV insulin</div>
-                  <div class="card-body">
-                    Add 50 IU of soluble insulin to 49.5 mL sodium chloride 0.9%
-                    to make a total of 50 mL. Ensure insulin preparation is
-                    double checked by two qualified healthcare professionals.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!--insulin dose-->
-        <div class="card mb-4" v-else>
-          <div class="card-header">
-            <img
-              alt="Syringe icon"
-              class="icon"
-              src="@/assets/images/syringe-icon.svg"
-              width="24"
-              height="24"
-            />
-            IM insulin dose
-          </div>
-          <div class="card-body">
-            <div>
-              <div class="card border-danger mb-3">
-                <div class="card-body d-flex flex-row align-items-center">
-                  <font-awesome-icon
-                    :icon="['fas', 'triangle-exclamation']"
-                    size="2xl"
-                    class="me-4"
-                  />
-                  <ul class="card-text m-0">
-                    <li>
-                      IM (intramuscular) insulin dosing guidance is currently
-                      unavailable pending review.
-                    </li>
-                    <li>
-                      Please refer to MSF Paediatric Care written guidance
-                      instead.
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <!--disabled IM insulin dosing panel pending further guidance-->
-            <div hidden>
-              <h3>
-                <ViewWorking
-                  :param="data.calculations.insulinDose"
-                  paramKey="imInsulinDose"
-                  heading="IM insulin dose"
-                  unit=" Units 2-hourly"
-                  :decimals="config.decimals.imInsulinDose"
-                />
-              </h3>
-              <div class="mb-2">
-                Administer IM (intramuscular) insulin
-                {{ data.calculations.insulinDose.val.toFixed(1) }} Units every 2
-                hours.
-              </div>
-
-              <div class="card border-danger mb-3">
-                <div class="card-body d-flex flex-row align-items-center">
-                  <font-awesome-icon
-                    :icon="['fas', 'triangle-exclamation']"
-                    size="2xl"
-                    class="me-4"
-                  />
-                  <ul class="card-text m-0">
-                    <li>
-                      IV (intravenous) route must not be used for bolus insulin
-                      as rapid hypoglycaemia will occur
-                    </li>
-                    <li>
-                      SC (subcutaneous) route must not be used due to unreliable
-                      absorption during DKA
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <!--show guidance-->
-              <div class="card border-info p-2">
-                <a
-                  class="btn text-black btn-sm btn-view-guidance"
-                  data-bs-toggle="collapse"
-                  href="#imInsulinDoseGuidance"
-                  role="button"
-                  aria-expanded="false"
-                  aria-controls="collapseImInsulinDoseGuidance"
-                  @click="
-                    showGuidance.imInsulinDose = !showGuidance.imInsulinDose
-                  "
-                >
-                  <span class="d-flex justify-content-center">
-                    {{ !showGuidance.imInsulinDose ? "Show" : "Hide" }} making
-                    up IM insulin guidance
-                    <img
-                      alt="Guidance icon"
-                      class="icon mx-2"
-                      src="@/assets/images/guidance-icon.svg"
-                      width="24"
-                      height="24"
-                    />
-                  </span>
-                </a>
-                <div class="collapse" id="imInsulinDoseGuidance">
-                  <!--IM insuling guidance-->
-                  <div class="card mb-2">
-                    <div class="card-header">Making up IM insulin</div>
-                    <div class="card-body">To do</div>
-                  </div>
+                  <div class="card-header">Making up IM insulin</div>
+                  <div class="card-body">To do</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <Feedback />
     </div>
     <div class="d-flex flex-row justify-content-evenly">
       <!--back-->
