@@ -26,20 +26,20 @@ console.log("clientDevInterimCode", clientDevInterimCode);
  * Current client application version.
  * @type {number}
  */
-const clientVersion = 0.5;
+const clientVersion = 0.6;
 
 /**
  * Last update date of the client application (YYYY-MM-DD format).
  * @type {string}
  */
-const clientLastUpdated = "2026-03-31";
+const clientLastUpdated = "2026-05-06";
 
 /**
  * Version of the offline calculator algorithm.
  * Should match the API version that checkWeightWithinLimits.js and calculateVariables.js are aligned with.
  * @type {number}
  */
-const offlineCalculatorVersion = 0.5;
+const offlineCalculatorVersion = 0.6;
 
 /**
  * API base URL. Uses development endpoint when underDevelopment is true, otherwise production.

@@ -85,11 +85,11 @@ function validate(payload) {
   if (
     typeof payload.patientAge !== "number" ||
     payload.patientAge < config.value.validation.patientAge.min ||
-    payload.patientAge > config.value.validation.patientAge.max
+    payload.patientAge >= config.value.validation.patientAge.max
   ) {
     errors.push({
       field: "patientAge",
-      message: `Patient age must be a decimal in the range ${config.value.validation.patientAge.min} to ${config.value.validation.patientAge.max}.`,
+      message: `Patient age must be a decimal in the range ${config.value.validation.patientAge.min} to <${config.value.validation.patientAge.max} years.`,
     });
   }
 

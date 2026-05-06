@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { config } from "./fetchConfig.js";
+import Swal from "sweetalert2";
 
 // Utility functions
 /**
@@ -216,13 +217,6 @@ export const data = ref({
             errors.push("A valid age in years and months must be entered.");
           }
           this.patientAge.build();
-          if (this.patientAge.val > config.value.validation.patientAge.max) {
-            errors.push(
-              "Patient age cannot be greater than " +
-                config.value.validation.patientAge.max.toFixed(0) +
-                " years.",
-            );
-          }
         } else {
           const dateVal = new Date(this.val);
           if (isNaN(Date.parse(this.val)))
@@ -231,13 +225,14 @@ export const data = ref({
             errors.push("Date of birth cannot be after today.");
 
           this.patientAge.build();
-          if (this.patientAge.val > config.value.validation.patientAge.max) {
-            errors.push(
-              `Patient age cannot be greater than ${config.value.validation.patientAge.max.toFixed(
-                0,
-              )} years.`,
-            );
-          }
+        }
+
+        if (this.patientAge.val >= config.value.validation.patientAge.max) {
+          errors.push(
+            "Patient age must be less than " +
+              config.value.validation.patientAge.max.toFixed(0) +
+              " years.",
+          );
         }
 
         this.errors = errors.join(" ");

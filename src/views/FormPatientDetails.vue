@@ -1,9 +1,8 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, inject } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
 import Swal from "sweetalert2";
-import { inject } from "vue";
 const config = inject("config");
 
 // Reactive variable to control error display.
@@ -230,6 +229,19 @@ onMounted(() => {
         id="patientDOBErrors"
       >
         {{ data.inputs.patientDOB.errors }}
+      </div>
+      <div
+        v-if="
+          showErrors &&
+          data.inputs.patientDOB.patientAge.val >=
+            config.validation.patientAge.max
+        "
+        class="form-text text-danger mx-1"
+        id="patientDOBErrors"
+      >
+        <a href="/msf-adult-dka-guidance.pdf" target="_blank">
+          View adult DKA guidance.
+        </a>
       </div>
       <div
         class="collapse form-text mx-1"
