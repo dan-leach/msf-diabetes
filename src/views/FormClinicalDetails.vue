@@ -1,17 +1,75 @@
+/**
+ * @component FormClinicalDetails
+ * @description Step 3 of the episode form flow — collects the patient's clinical
+ * observations at the time of DKA assessment.
+ *
+ * Fields collected (some conditional on earlier equipment/blood gas choices):
+ *
+ *   - glucose           — blood glucose reading. Accepts a numeric value with a
+ *                         selectable unit (mmol/L or mg/dL). A "reads high/hi" toggle
+ *                         disables the numeric input and signals an unquantifiable
+ *                         hyperglycaemia to the calculator.
+ *
+ *   - bloodKetones      — shown when bloodKetonesAvailable === 'true'. Numeric
+ *                         input in mmol/L.
+ *
+ *   - urineKetones      — shown when bloodKetonesAvailable !== 'true'. Button-group
+ *                         picker for dipstick result (-, +, ++, +++, ++++).
+ *
+ *   - diagnosticFeatures — yes/no: whether clinical diagnostic features of DKA
+ *                          are present.
+ *
+ *   - pH                — shown only when bloodGasAvailable === 'true'.
+ *
+ *   - bicarbonate       — shown only when bloodGasAvailable === 'true' AND pH is
+ *                         at or above the configured diagnostic threshold (i.e. not
+ *                         severely acidotic). Fades in via Vue transition.
+ *
+ *   - shockPresent      — yes/no. When shock is present, GCS and respiratory support
+ *                         inputs are hidden (assumed to be in shock protocol).
+ *
+ *   - gcs               — shown only when shockPresent === 'false'. Links to the
+ *                         GCS reference page in a new tab.
+ *
+ *   - respiratorySupport — shown only when shockPresent === 'false', GCS is above
+ *                          the severe threshold, and pH (if available) is not severely
+ *                          acidotic. Controls whether respiratory support is factored
+ *                          into the severity classification.
+ *
+ * Guard: if form step 1 is not valid (patient details incomplete), redirects to
+ * FormEquipmentAvailability. Note: this guard checks step 1 rather than step 2,
+ * which may be a bug — step 2 (equipment) is the immediately preceding step.
+ *
+ * Form flow: Disclaimer → PatientDetails → (OverrideConfirm?) → EquipmentAvailability
+ *            → **ClinicalDetails** → Generate → Guidance
+ *
+ * @requires config — application configuration injected from App.vue.
+ * @requires data   — global reactive data store from assets/data.js.
+ * @requires router — Vue Router instance for programmatic navigation.
+ * @requires Swal   — SweetAlert2 for the reset confirmation dialog.
+ */
 <script setup>
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
 import Swal from "sweetalert2";
 import { inject } from "vue";
+
+/** @type {Object} Application configuration injected from the root provider in App.vue. */
 const config = inject("config");
 
-// Reactive variable to control error display.
+/**
+ * @type {import('vue').Ref<boolean>}
+ * Controls whether validation error messages are displayed beneath each field.
+ * Set to true on the first "Continue" attempt; errors remain visible thereafter.
+ */
 const showErrors = ref(false);
 
 /**
- * Handle continue button click event
- * Show validation errors and navigate based on form validity
+ * Handles the "Continue" button click.
+ *
+ * Enables error display, applies Bootstrap's `was-validated` class to the form,
+ * and navigates to the Generate view if all step-3 inputs are valid.
  */
 const continueClick = () => {
   showErrors.value = true;
@@ -25,8 +83,11 @@ const continueClick = () => {
 };
 
 /**
- * Function to reset the patient details form to its default state.
- * Resets all input values to their default values, hides error messages, and removes validation styling from the form.
+ * Prompts the user for confirmation then resets the entire form to its default state.
+ *
+ * Uses a SweetAlert2 dialog to prevent accidental data loss.
+ * On confirmation: clears all input values, hides errors, and removes Bootstrap
+ * validation styling.
  */
 const resetForm = () => {
   Swal.fire({
@@ -50,15 +111,24 @@ const resetForm = () => {
   });
 };
 
+// Guard: redirect if patient details (step 1) are not complete
 if (!data.value.form.isValid(1)) router.push("/form-equipment-availability");
 
+/** Scroll to top on mount so the heading is visible immediately. */
 onMounted(() => window.scrollTo(0, 0));
 </script>
 
 <template>
   <form id="form-clinical-details" class="container my-4 needs-validation">
     <h2 class="display-3 text-center">Clinical details</h2>
-    <!--glucose-->
+
+    <!--
+      Glucose.
+      Accepts a numeric value with a user-selectable unit (mmol/L or mg/dL).
+      The unit selector is driven by config.validation.glucose.units so new
+      units can be added centrally. A toggle disables the number input and
+      flags a "reads high/hi" result instead.
+    -->
     <div class="mb-4 flex-grow-1">
       <div class="input-group">
         <div class="form-floating">
@@ -78,6 +148,7 @@ onMounted(() => window.scrollTo(0, 0));
           />
           <label for="glucose">{{ data.inputs.glucose.label }}</label>
         </div>
+        <!-- Unit selector: width is auto so it doesn't stretch the input group -->
         <select
           class="form-select w-auto glucose-unit-select"
           id="glucoseUnitSelect"
@@ -101,6 +172,7 @@ onMounted(() => window.scrollTo(0, 0));
           ><font-awesome-icon :icon="['fas', 'circle-info']"
         /></span>
       </div>
+      <!-- "Reads high/hi" toggle: disables numeric input and flags the value in the payload -->
       <div class="form-check form-switch mt-1">
         <input
           class="form-check-input"
@@ -127,7 +199,13 @@ onMounted(() => window.scrollTo(0, 0));
         v-html="data.inputs.glucose.info"
       ></div>
     </div>
-    <!--bloodKetones-->
+
+    <!--
+      Ketones: mutually exclusive blood vs. urine input.
+      Which is shown is determined by the bloodKetonesAvailable answer from FormEquipmentAvailability.
+    -->
+
+    <!-- Blood ketones — shown when a blood ketone meter is available -->
     <div class="mb-4" v-if="data.inputs.bloodKetonesAvailable.val === 'true'">
       <div class="input-group">
         <div class="form-floating">
@@ -167,7 +245,12 @@ onMounted(() => window.scrollTo(0, 0));
         v-html="data.inputs.bloodKetones.info"
       ></div>
     </div>
-    <!--urineKetones-->
+
+    <!--
+      Urine ketones — shown when a blood ketone meter is NOT available.
+      Button-group picker for dipstick result: -, +, ++, +++, ++++
+      (values 0–4). The active selection is highlighted via `urineKetonesActive`.
+    -->
     <div class="mb-4" v-else>
       <p class="text-center m-2">
         {{ data.inputs.urineKetones.label }}
@@ -239,7 +322,8 @@ onMounted(() => window.scrollTo(0, 0));
         v-html="data.inputs.urineKetones.info"
       ></div>
     </div>
-    <!--diagnosticFeatures-->
+
+    <!-- Diagnostic features of DKA: yes/no -->
     <div class="mb-4 text-center">
       <p class="m-2">
         {{ data.inputs.diagnosticFeatures.label }}
@@ -294,8 +378,16 @@ onMounted(() => window.scrollTo(0, 0));
         {{ data.inputs.diagnosticFeatures.info }}
       </div>
     </div>
+
+    <!--
+      Blood gas inputs — only shown when bloodGasAvailable === 'true'.
+      pH is always shown in this block.
+      Bicarbonate is only shown (with a fade-in transition) when pH is at or
+      above the diagnostic threshold configured in config.validation.pH.diagnosticThreshold,
+      because at severely low pH values bicarbonate adds no additional discriminatory value.
+    -->
     <div v-if="data.inputs.bloodGasAvailable.val === 'true'">
-      <!--pH-->
+      <!-- pH -->
       <div class="mb-4">
         <div class="input-group">
           <div class="form-floating">
@@ -330,7 +422,8 @@ onMounted(() => window.scrollTo(0, 0));
           v-html="data.inputs.pH.info"
         ></div>
       </div>
-      <!--bicarbonate-->
+
+      <!-- Bicarbonate — fades in once pH is at or above the diagnostic threshold -->
       <transition>
         <div
           class="mb-4"
@@ -378,7 +471,8 @@ onMounted(() => window.scrollTo(0, 0));
         </div>
       </transition>
     </div>
-    <!--shockPresent-->
+
+    <!-- Shock present: yes/no. When true, GCS and respiratory support are hidden. -->
     <div class="mb-4 text-center">
       <p class="m-2">
         {{ data.inputs.shockPresent.label }}
@@ -430,7 +524,11 @@ onMounted(() => window.scrollTo(0, 0));
         {{ data.inputs.shockPresent.info }}
       </div>
     </div>
-    <!--gcs-->
+
+    <!--
+      GCS — fades in when shockPresent === 'false'.
+      Links to the GCS reference page in a new tab to help the user score correctly.
+    -->
     <transition>
       <div class="mb-4" v-if="data.inputs.shockPresent.val === 'false'">
         <div class="input-group">
@@ -476,7 +574,15 @@ onMounted(() => window.scrollTo(0, 0));
         ></div>
       </div>
     </transition>
-    <!--respiratorySupport-->
+
+    <!--
+      Respiratory support — fades in only when:
+        1. Shock is not present, AND
+        2. GCS is above the severe threshold (patient not deeply unconscious), AND
+        3. Either no blood gas is available, OR pH is at or above the severe threshold.
+      This mirrors the clinical logic: severely unwell patients (low GCS or severe
+      acidosis) are already classified as severe DKA and respiratory support is moot.
+    -->
     <transition>
       <div
         class="mb-4 text-center"
@@ -542,8 +648,8 @@ onMounted(() => window.scrollTo(0, 0));
       </div>
     </transition>
 
+    <!-- Navigation: Back / Reset / Continue -->
     <div class="d-flex flex-row justify-content-evenly">
-      <!--back-->
       <div class="text-center">
         <button
           type="button"
@@ -553,7 +659,6 @@ onMounted(() => window.scrollTo(0, 0));
           Back
         </button>
       </div>
-      <!--reset-->
       <div class="text-center">
         <button
           type="button"
@@ -563,7 +668,6 @@ onMounted(() => window.scrollTo(0, 0));
           Reset
         </button>
       </div>
-      <!--next-->
       <div class="text-center">
         <button
           type="button"
@@ -581,6 +685,7 @@ onMounted(() => window.scrollTo(0, 0));
 .container {
   max-width: 750px;
 }
+/* Fixed width keeps all option buttons uniform */
 .btn-outline-secondary {
   width: 200px;
   background-color: white;
@@ -588,25 +693,32 @@ onMounted(() => window.scrollTo(0, 0));
 .flex-wrap {
   column-gap: 20px;
 }
+/* Retained from earlier design — not currently used */
 .insulin-rate-btn {
   height: 62px;
 }
+/* Fade-in transition for conditionally revealed fields (bicarbonate, GCS, etc.) */
 .v-enter-active {
   transition: all 0.5s ease;
 }
 .v-enter-from {
   opacity: 0;
 }
+/* Active state for the selected urine ketones dipstick button */
 .urineKetonesActive {
   background-color: #6c757d;
   color: white;
 }
+/*
+ * Glucose unit select: overrides Bootstrap's flex-grow default so the dropdown
+ * stays narrow and doesn't stretch to fill remaining input-group space.
+ */
 .input-group > .glucose-unit-select {
   flex: 0 0 auto !important;
   width: auto !important;
   min-width: 0 !important;
   max-width: none !important;
   display: inline-block;
-  padding-right: 2em; /* optional */
+  padding-right: 2em;
 }
 </style>

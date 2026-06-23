@@ -1,13 +1,35 @@
+/**
+ * @component FormDisclaimer
+ * @description Step 0 of the episode form flow — displays the legal disclaimer.
+ *
+ * The user must agree to the disclaimer before entering patient data.
+ * Clicking "Agree and continue" records legal agreement in the shared data store
+ * and navigates to the patient details form.
+ *
+ * This is the entry point of the form; it does not guard against missing prior
+ * steps because it is itself the first step.
+ *
+ * Form flow: Disclaimer → PatientDetails → (OverrideConfirm?) → EquipmentAvailability
+ *            → ClinicalDetails → Generate → Guidance
+ *
+ * @requires config — application configuration injected from App.vue.
+ * @requires data   — global reactive data store from assets/data.js.
+ * @requires router — Vue Router instance for programmatic navigation.
+ */
 <script setup>
 import { onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
 import { inject } from "vue";
+
+/** @type {Object} Application configuration injected from the root provider in App.vue. */
 const config = inject("config");
 
 /**
- * Function to handle the 'Continue' button click event
- * Sets the legal agreement to true and navigates to the patient details form.
+ * Handles the "Agree and continue" button click.
+ *
+ * Records that the user has accepted the legal disclaimer and navigates
+ * to the first data-entry step of the form flow.
  */
 const continueClick = () => {
   data.value.inputs.legalAgreement.val = true;
@@ -15,11 +37,11 @@ const continueClick = () => {
 };
 
 /**
- * Lifecycle hook that runs when the component is mounted.
- * Ensures the page is scrolled to the top.
+ * Scrolls to the top of the page when the component mounts.
+ * Ensures the user always reads the disclaimer from the beginning,
+ * even if they navigated here from a later step via the back button.
  */
 onMounted(() => {
-  // Scroll to the top of the page
   window.scrollTo(0, 0);
 });
 </script>
@@ -27,6 +49,8 @@ onMounted(() => {
 <template>
   <form id="form-disclaimer" class="container my-4 needs-validation">
     <h2 class="display-3 text-center">Legal disclaimer</h2>
+
+    <!-- Full disclaimer text — all paragraphs must remain visible; do not truncate -->
     <div>
       <p>
         By using this website and by using the calculated values, and the
@@ -46,11 +70,15 @@ onMounted(() => {
         calculation formulae and calculated values for accuracy, we make no
         representations, warranties or guarantees, whether express or implied,
         that the content on our site is accurate, complete, free from error or
-        up to date, and it remains strictly the treating clinician’s
+        up to date, and it remains strictly the treating clinician's
         responsibility to check the calculated values produced by this website
         manually. The content on our site is provided for general information
         only. It is not intended to amount to advice on which you should rely.
       </p>
+      <!--
+        Weight limit disclaimer — values are drawn from config so they stay in
+        sync if the limits are updated centrally.
+      -->
       <p>
         The {{ config.appName }} allows a maximum weight for age of +2SDS or
         {{ config.caps.weight }}kg (whichever is lower), and a minimum weight
@@ -89,7 +117,7 @@ onMounted(() => {
       </p>
     </div>
 
-    <!--next-->
+    <!-- Agreement button — clicking records consent and advances to the form -->
     <div class="text-center">
       <button
         type="button"

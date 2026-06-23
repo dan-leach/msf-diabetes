@@ -1,34 +1,71 @@
+/**
+ * @component FormEquipmentAvailability
+ * @description Step 2 of the episode form flow — collects information about
+ * available clinical equipment.
+ *
+ * The answers given here determine which clinical pathways and calculation
+ * branches are available on the guidance page:
+ *   - bloodGasAvailable    — unlocks pH and bicarbonate inputs on FormClinicalDetails.
+ *   - bloodKetonesAvailable — selects blood vs. urine ketone input on FormClinicalDetails.
+ *   - syringePumpAvailable  — determines IV insulin rate vs. IM insulin dose output.
+ *   - infusionPumpAvailable — determines whether drop-rate calculations are required.
+ *   - dropFactor            — only shown when infusionPumpAvailable is false; selects
+ *                             the giving set to use for drop-rate calculations.
+ *
+ * Guards (run at setup time, before mount):
+ *   - If form step 1 is invalid, redirects to FormPatientDetails.
+ *   - If a weight override is pending but not yet confirmed, redirects to FormOverrideConfirm.
+ *
+ * Form flow: Disclaimer → PatientDetails → (OverrideConfirm?) → **EquipmentAvailability**
+ *            → ClinicalDetails → Generate → Guidance
+ *
+ * @requires config  — application configuration injected from App.vue.
+ * @requires data    — global reactive data store from assets/data.js.
+ * @requires router  — Vue Router instance for programmatic navigation.
+ * @requires Swal    — SweetAlert2 for the reset confirmation dialog.
+ */
 <script setup>
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router/index.js";
 import Swal from "sweetalert2";
 import { inject } from "vue";
+
+/** @type {Object} Application configuration injected from the root provider in App.vue. */
 const config = inject("config");
 
-// Reactive variable to control error display.
+/**
+ * @type {import('vue').Ref<boolean>}
+ * Controls whether validation error messages are displayed.
+ * Set to true on the first "Continue" attempt; errors then remain visible
+ * for all subsequent interactions.
+ */
 let showErrors = ref(false);
 
 /**
- * Handles the 'Continue' button click event.
- * Shows validation errors and navigates to the next step if the form is valid.
+ * Handles the "Continue" button click.
+ *
+ * Enables error display, applies Bootstrap's `was-validated` styling to the form,
+ * and navigates to FormClinicalDetails if all step-2 inputs are valid.
  */
 const continueClick = () => {
   showErrors.value = true;
-  // Add validation class to the form
+  // Apply Bootstrap validation styling to trigger native constraint feedback
   document
     .getElementById("form-equipment-availability")
     .classList.add("was-validated");
 
-  // Check if the form is valid and navigate to the next route
   if (data.value.form.isValid(2)) {
     router.push("/form-clinical-details");
   }
 };
 
 /**
- * Function to reset the patient details form to its default state.
- * Resets all input values to their default values, hides error messages, and removes validation styling from the form.
+ * Prompts the user for confirmation then resets the entire form to its default state.
+ *
+ * Uses a SweetAlert2 dialog to prevent accidental data loss.
+ * On confirmation: clears all input values, hides error messages, and removes
+ * Bootstrap validation styling from the patient details form element.
  */
 const resetForm = () => {
   Swal.fire({
@@ -52,15 +89,18 @@ const resetForm = () => {
   });
 };
 
+// Guard: redirect if form step 1 is incomplete
 if (!data.value.form.isValid(1)) {
   router.push("/form-patient-details");
 } else if (
+  // Guard: redirect if a weight override was triggered but not yet confirmed
   data.value.inputs.weight.limit.override &&
   !data.value.inputs.weight.limit.overrideConfirm
 ) {
   router.push("/form-override-confirm");
 }
 
+/** Scroll to top on mount so the heading is visible immediately. */
 onMounted(() => window.scrollTo(0, 0));
 </script>
 
@@ -70,7 +110,15 @@ onMounted(() => window.scrollTo(0, 0));
     class="container my-4 needs-validation"
   >
     <h2 class="display-3 text-center">Equipment availability</h2>
-    <!--bloodGasAvailable-->
+
+    <!--
+      Each equipment question follows the same pattern:
+        - Radio button pair (Yes / No) bound to the input's `.val`
+        - Inline info icon that toggles a Bootstrap collapse with the input's `.info` text
+        - Conditional error text shown when showErrors is true and validation fails
+    -->
+
+    <!-- Blood gas analyser availability -->
     <div class="mb-4 text-center">
       <p class="m-2">
         {{ data.inputs.bloodGasAvailable.label }}
@@ -125,7 +173,8 @@ onMounted(() => window.scrollTo(0, 0));
         {{ data.inputs.bloodGasAvailable.info }}
       </div>
     </div>
-    <!--bloodKetonesAvailable-->
+
+    <!-- Blood ketone meter availability -->
     <div class="mb-4 text-center">
       <p class="m-2">
         {{ data.inputs.bloodKetonesAvailable.label }}
@@ -182,7 +231,8 @@ onMounted(() => window.scrollTo(0, 0));
         {{ data.inputs.bloodKetonesAvailable.info }}
       </div>
     </div>
-    <!--syringePumpAvailable-->
+
+    <!-- Syringe pump (driver) availability — determines IV vs. IM insulin route -->
     <div class="mb-4 text-center">
       <p class="m-2">
         {{ data.inputs.syringePumpAvailable.label }}
@@ -237,7 +287,8 @@ onMounted(() => window.scrollTo(0, 0));
         {{ data.inputs.syringePumpAvailable.info }}
       </div>
     </div>
-    <!--infusionPumpAvailable-->
+
+    <!-- Infusion pump availability — if No, drop-rate calculation is required -->
     <div class="mb-4 text-center">
       <p class="m-2">
         {{ data.inputs.infusionPumpAvailable.label }}
@@ -294,7 +345,12 @@ onMounted(() => window.scrollTo(0, 0));
         {{ data.inputs.infusionPumpAvailable.info }}
       </div>
     </div>
-    <!--dropFactor-->
+
+    <!--
+      Drop factor — only shown when infusion pump is NOT available.
+      Options are driven by config.validation.dropFactor so new giving set types
+      can be added centrally without modifying this template.
+    -->
     <div
       class="mb-4 text-center"
       v-if="data.inputs.infusionPumpAvailable.val == 'false'"
@@ -340,8 +396,8 @@ onMounted(() => window.scrollTo(0, 0));
       </div>
     </div>
 
+    <!-- Navigation: Back / Reset / Continue -->
     <div class="d-flex flex-row justify-content-evenly">
-      <!--back-->
       <div class="text-center">
         <button
           type="button"
@@ -351,7 +407,6 @@ onMounted(() => window.scrollTo(0, 0));
           Back
         </button>
       </div>
-      <!--reset-->
       <div class="text-center">
         <button
           type="button"
@@ -361,7 +416,6 @@ onMounted(() => window.scrollTo(0, 0));
           Reset
         </button>
       </div>
-      <!--next-->
       <div class="text-center">
         <button
           type="button"
@@ -379,10 +433,12 @@ onMounted(() => window.scrollTo(0, 0));
 .container {
   max-width: 750px;
 }
+/* Fixed width keeps all equipment option buttons uniform in size */
 .btn-outline-secondary {
   width: 200px;
   background-color: white;
 }
+/* Retained from earlier iteration — not currently used but kept for future option buttons */
 .episode-type-btn {
   height: 62px;
 }
@@ -394,6 +450,7 @@ onMounted(() => window.scrollTo(0, 0));
   font-size: smaller;
   width: 170px;
 }
+/* Fade-in transition for conditionally rendered elements (e.g. dropFactor) */
 .v-enter-active {
   transition: all 0.5s ease;
 }
