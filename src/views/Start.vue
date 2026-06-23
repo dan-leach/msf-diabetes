@@ -124,17 +124,17 @@ const formatDatetime = (iso) => {
 
     <!--quick start guide info box-->
     <div class="card border-info mb-3">
-      <div class="card-body d-flex flex-row align-items-top">
+      <div class="card-body d-flex flex-row align-items-center">
         <font-awesome-icon
           :icon="['fas', 'circle-info']"
           size="2xl"
-          class="me-4 mt-1 flex-shrink-0"
+          class="me-4 flex-shrink-0"
         />
         <div>
           <p class="card-text mb-2">
             Before using this calculator for the first time, please read the
             <a href="/msf-diabetes-calculator-quick-start-guide.pdf" target="_blank"
-              >MSF Diabetes Calculator Quick Start Guide</a
+              >Quick Start Guide</a
             >.
           </p>
           <a
