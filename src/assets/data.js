@@ -24,13 +24,12 @@
  *   form         — array of form-step indices this field belongs to
  *                  (0 = disclaimer, 1 = patient details, 2 = equipment,
  *                   3 = clinical details)
- *   optionalForForms — array of form-step indices where the field is optional
  *   errors       — string of current validation error messages (empty = valid)
  *   isValid()    — validates the field, sets `errors`, returns boolean
  * }
  * ```
  *
- * Utility functions (`checkLength`, `checkNumberRange`, `ageInYears`) are
+ * Utility functions (`checkNumberRange`, `ageInYears`) are
  * module-private and not exported.
  *
  * @requires vue           — for `ref`
@@ -44,23 +43,6 @@ import Swal from "sweetalert2";
 // ---------------------------------------------------------------------------
 // Module-private utility functions
 // ---------------------------------------------------------------------------
-
-/**
- * Validates a string value against minimum and maximum length constraints.
- * Pushes a human-readable error message into `errors` for each constraint violated.
- *
- * @param {string}   val       - The string value to check.
- * @param {number}   minLength - Minimum allowable character count.
- * @param {number}   maxLength - Maximum allowable character count.
- * @param {string[]} errors    - Mutable array to which error messages are appended.
- * @param {string}   fieldName - Display name of the field, used in error messages.
- */
-const checkLength = (val, minLength, maxLength, errors, fieldName) => {
-  if (val.length < minLength)
-    errors.push(`${fieldName} must be at least ${minLength} characters.`);
-  if (val.length > maxLength)
-    errors.push(`${fieldName} must be no more than ${maxLength} characters.`);
-};
 
 /**
  * Validates a numeric value against minimum and maximum bounds.
@@ -112,8 +94,7 @@ export const data = ref({
      * Checks whether all inputs belonging to a given form step are currently valid.
      *
      * Iterates over every input in `data.inputs`. For each input whose `form` array
-     * includes `formIndex`, calls `input.isValid()`. A field is treated as optional
-     * for that step if its `optionalForForms` array also includes `formIndex`.
+     * includes `formIndex`, calls `input.isValid()`.
      *
      * Form step indices:
      *   0 — legal disclaimer (legalAgreement only)
@@ -132,12 +113,8 @@ export const data = ref({
       let isValid = true;
       for (let i in data.value.inputs) {
         let input = data.value.inputs[i];
-        let isOptional = false;
-        if (input.optionalForForms) {
-          if (input.optionalForForms.includes(formIndex)) isOptional = true;
-        }
         if (input.form.includes(formIndex)) {
-          if (!input.isValid(isOptional)) isValid = false;
+          if (!input.isValid()) isValid = false;
         }
       }
       return isValid;
@@ -500,10 +477,10 @@ export const data = ref({
             upper = config.value.weightLimits.max;
           return upper;
         },
-        exceeded: false,       // true when weight is outside the ±2 SD range
-        override: false,       // true when the user has enabled the override toggle
-        overrideConfirm: false,// true when confirmed on the FormOverrideConfirm page
-        use2SD: false,         // true when weight was auto-set to +2SD value
+        exceeded: false, // true when weight is outside the ±2 SD range
+        override: false, // true when the user has enabled the override toggle
+        overrideConfirm: false, // true when confirmed on the FormOverrideConfirm page
+        use2SD: false, // true when weight was auto-set to +2SD value
         overrideLabel: "Override weight limit",
       },
       /**
@@ -537,7 +514,7 @@ export const data = ref({
 
         // If the weight was set to +2SD from the override page but has since been
         // changed manually, remove the use2SD flag to avoid misleading the API
-        if (this.val != this.limit.upper().toFixed(2))
+        if (Number.parseFloat(this.val).toFixed(2) != this.limit.upper().toFixed(2))
           this.limit.use2SD = false;
 
         this.val = Number.parseFloat(this.val).toFixed(2);
@@ -961,20 +938,6 @@ export const data = ref({
         return !this.errors;
       },
       errors: "",
-      available: {
-        val: null,
-        label: "Blood ketones available?",
-        info: "If blood ketones are available this is used to confirm DKA diagnosis. It is stored for audit purposes.",
-        isValid() {
-          this.errors = "";
-          if (!this.val)
-            this.errors += "Availability of blood ketones must be selected. ";
-          if (this.val === "true") data.value.inputs.urineKetones.val = null;
-          if (this.val === "false") data.value.inputs.bloodKetones.val = null;
-          return !this.errors;
-        },
-        errors: "",
-      },
     },
 
     /**
@@ -1109,6 +1072,9 @@ export const data = ref({
        * and within the configured numeric bounds.
        *
        * Normalises val to 2 decimal places on success.
+       * Side effect: clears `respiratorySupport.val` when pH is below the severe
+       * threshold — but only when a valid pH value has been entered (guarded inside
+       * the `else` block to prevent firing on null/empty input).
        *
        * @returns {boolean}
        */
@@ -1120,10 +1086,10 @@ export const data = ref({
         } else {
           this.val = Number.parseFloat(this.val).toFixed(2);
           checkNumberRange(this.val, "", this.min(), this.max(), errors, "pH");
+          // Severely low pH → clear respiratory support (not clinically applicable)
+          if (this.val < config.value.validation.pH.severeThreshold)
+            data.value.inputs.respiratorySupport.val = null;
         }
-        // Severely low pH → clear respiratory support (not clinically applicable)
-        if (this.val < config.value.validation.pH.severeThreshold)
-          data.value.inputs.respiratorySupport.val = null;
         this.errors = errors.join(" ");
         return !this.errors;
       },
@@ -1161,11 +1127,13 @@ export const data = ref({
       /**
        * Valid if blood gas is not available, or if pH is below the diagnostic
        * threshold (bicarbonate field is hidden in these cases).
-       * Otherwise: required and must be within numeric bounds.
+       * Otherwise: required (null/empty/NaN all treated as missing) and must be
+       * within the configured numeric bounds.
        *
-       * Also checks the biochemical DKA criterion: if both pH and bicarbonate
-       * are above their respective diagnostic thresholds, DKA is not biochemically
-       * supported.
+       * Also checks the biochemical DKA criterion: at this point in the function
+       * pH is known to be at or above the diagnostic threshold (otherwise we would
+       * have already returned true), so if bicarbonate is also above its diagnostic
+       * threshold the DKA biochemical criteria are not met.
        *
        * @returns {boolean}
        */
@@ -1178,7 +1146,7 @@ export const data = ref({
         )
           return true;
         const errors = [];
-        if (isNaN(this.val)) {
+        if (this.val === null || isNaN(this.val) || this.val == "") {
           errors.push(
             `Bicarbonate must be provided if pH above diagnostic threshold of ${config.value.validation.pH.diagnosticThreshold}. `,
           );
@@ -1194,11 +1162,7 @@ export const data = ref({
           );
         }
         // Biochemical criterion check: both pH and bicarbonate above threshold = no DKA
-        if (
-          data.value.inputs.pH.val <
-            config.value.validation.pH.diagnosticThreshold &&
-          this.val >= config.value.validation.bicarbonate.diagnosticThreshold
-        )
+        if (this.val >= config.value.validation.bicarbonate.diagnosticThreshold)
           errors.push(
             `Biochemical threshold for DKA not met: if blood gas testing available pH should be <${config.value.validation.pH.diagnosticThreshold} or bicarbonate should be <${config.value.validation.bicarbonate.diagnosticThreshold}.`,
           );
