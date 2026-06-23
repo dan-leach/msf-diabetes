@@ -138,23 +138,24 @@ const formatDatetime = (iso) => {
               >Quick Start Guide</a
             >.
           </p>
-          <a
-            href="#"
-            class="text-decoration-none collapse-toggle"
-            data-bs-toggle="collapse"
-            data-bs-target="#dataNeededCollapse"
-            :aria-expanded="dataNeededOpen"
-            aria-controls="dataNeededCollapse"
-            @click.prevent="dataNeededOpen = !dataNeededOpen"
-          >
-            What data will I need to use the calculator?
-            <font-awesome-icon
-              :icon="['fas', 'chevron-down']"
-              class="chevron ms-1"
-              :class="{ 'chevron-open': dataNeededOpen }"
-            />
-          </a>
-          <div class="collapse mt-2" id="dataNeededCollapse">
+          <div class="collapse-wrapper">
+            <a
+              href="#"
+              class="text-decoration-none collapse-toggle"
+              data-bs-toggle="collapse"
+              data-bs-target="#dataNeededCollapse"
+              :aria-expanded="dataNeededOpen"
+              aria-controls="dataNeededCollapse"
+              @click.prevent="dataNeededOpen = !dataNeededOpen"
+            >
+              What data will I need to use the calculator?
+              <font-awesome-icon
+                :icon="['fas', 'chevron-down']"
+                class="chevron ms-1"
+                :class="{ 'chevron-open': dataNeededOpen }"
+              />
+            </a>
+            <div class="collapse" id="dataNeededCollapse">
             <ul class="mb-2">
               <li>Patient date of birth (or age in years and months)</li>
               <li>Patient sex</li>
@@ -186,6 +187,7 @@ const formatDatetime = (iso) => {
               for guidance on how to assess each of these items.
             </p>
           </div>
+          </div>
         </div>
       </div>
     </div>
@@ -214,11 +216,13 @@ const formatDatetime = (iso) => {
 .btn-lg {
   font-size: 30px;
 }
-.collapse-toggle {
-  display: inline-block;
+.collapse-wrapper {
   border: 1px solid currentColor;
   border-radius: 0.375rem;
-  padding: 0.2rem 0.6rem;
+  padding: 0.4rem 0.6rem;
+}
+.collapse-toggle {
+  display: inline-block;
 }
 .chevron {
   transition: transform 0.25s ease;
