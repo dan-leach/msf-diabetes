@@ -56,7 +56,7 @@ const submitFeedback = async () => {
 
 <template>
   <!--quick feedback-->
-  <div class="card mb-4">
+  <div class="card border-dark mb-4">
     <div class="card-header">
       <img
         alt="Megaphone icon"
