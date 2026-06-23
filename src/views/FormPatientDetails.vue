@@ -15,9 +15,10 @@
  *   - project           — filtered by the selected operational centre; shown only after
  *                         an operational centre has been chosen (fade-in transition).
  *
- * Guard: if form step 0 (legal agreement) is not complete, the current implementation
- * calls `data.value.form.joeBloggs()` to pre-fill test data instead of redirecting.
- * (The redirect to `/form-disclaimer` is currently commented out during development.)
+ * Guard: if form step 0 (legal agreement) is not complete, behaviour differs by mode:
+ *   - Development (`config.client.underDevelopment === true`): calls `data.value.form.joeBloggs()`
+ *     to pre-fill the form with test data for convenience.
+ *   - Production: redirects to `/form-disclaimer` so the user must agree before proceeding.
  *
  * Navigation after "Continue":
  *   - → `/form-override-confirm` if weight.limit.override is set.
