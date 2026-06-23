@@ -1,38 +1,7 @@
-Current:
-Check each step of the offlineCalculator returns appropriately displayed errors to generate page.
+# Before launch v1
+
 Updated legal notice
-
-- Add QR code to prescription chart [/]
-- Clinician quick-start guide - needs to include disclaimer and what data will be required at input stage []
-- Quick feedback text box (email) [/]
-- Reupload to live site for feedback and email Matt/group
-
-IPP/MSF group feedback COMPLETED:
-
-- Previous page and start over/new patient buttons (at end of form and throughout workflow)
-- Move which bags at what speed to a drop down and instead display list of speeds for transcription
-- Colour coding box around bag 1 vs bag 2 to easily differentiate
-- Increase highlighting of calculated values
-- Glucose 'hi' checkbox
-- Urine ketones - if 0 error message should be reconsider dx
-- GCS guidance
-- Clinical signs of shock guidance (and use "is the patient in shock" rather than "is the patient shocked")
-- "reassess after" can be just "reassess"
-- Years/months alternative to DOB
-- Step by step instructions of guidance (e.g. step 1, step 2, step 3) to make it easier to follow the workflow
-- Insulin units/hr is equal to ml/hr note
-- Add assess and manage ABCDE at top of guidance
-- How often to check the blood glucose - every hour - add to fluid guidance
-- Add KCL only once urine output confirmed note
-
-Can use css media queries:
-@media (display-mode: browser){} - targets app within the browser only
-@media (display-mode: standalone){} - targets app in standalone mode only
-
-# Before launch:
-
-- restore commented out redirects to start of form if blank
-- Remove joe bloggs
+Update version codes and dates
 
 # Version change:
 
