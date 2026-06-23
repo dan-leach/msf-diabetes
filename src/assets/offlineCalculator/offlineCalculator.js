@@ -103,11 +103,19 @@ async function runOfflineCalculation(payload) {
       auditID,
     };
   } catch (error) {
-    const parsedError = JSON.parse(error.message);
-    console.error(
-      `Offline calculation error (count: ${parsedError.length}): ${parsedError.message}`,
-      parsedError,
-    );
+    // error.message is a JSON-stringified array only when thrown by the validate()
+    // step (Step 1). Errors from checkWeightWithinLimit (Step 2), calculateVariables
+    // (Step 4), encrypt (Step 7), or localStorage carry plain strings — attempting
+    // JSON.parse on those would throw a SyntaxError and mask the original error.
+    try {
+      const parsedError = JSON.parse(error.message);
+      console.error(
+        `Offline calculation error (count: ${parsedError.length}):`,
+        parsedError,
+      );
+    } catch {
+      console.error("Offline calculation error:", error.message);
+    }
     throw error;
   }
 }
