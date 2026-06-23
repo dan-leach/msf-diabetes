@@ -75,7 +75,7 @@ onMounted(() => window.scrollTo(0, 0));
       <span>
         Install this app for faster access and offline use.
       </span>
-      <div class="d-flex gap-2 ms-3 flex-shrink-0">
+      <div class="d-flex gap-2 ms-3 flex-shrink-0 align-items-center">
         <button type="button" class="btn btn-sm btn-primary" @click="install">
           Install app
         </button>
