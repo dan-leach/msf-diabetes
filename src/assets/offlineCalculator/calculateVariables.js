@@ -1,9 +1,68 @@
+/**
+ * @module calculateVariables
+ * @description Computes all clinical parameters required for the MSF paediatric DKA
+ * management protocol given a validated patient payload.
+ *
+ * Every calculation exposes a numeric `val` and an HTML `working` string that
+ * explains the step-by-step arithmetic for display to the clinician.
+ *
+ * All input values must have already been validated by `validate.js` before this
+ * module is called — no defensive type-checking is performed here.
+ *
+ * @see validate.js
+ * @see offlineCalculator.js — orchestrates validate → calculateVariables → encrypt
+ */
 import { config } from "../fetchConfig.js";
 
 /**
- * Performs calculations based on patient data to determine protocol parameters.
- * @param {Object} data - Patient data including weight, pH, etc.
- * @returns {Object} - An object containing calculated values and any errors encountered.
+ * Computes all clinical variables required for the MSF paediatric DKA protocol.
+ *
+ * Derives: DKA severity, IV bolus (volume / rate / drop rate), fluid deficit
+ * (volume / rate — standard and high-speed variants), daily maintenance
+ * (volume / rate), combined IV bag speeds (standard, high, half-speed, and
+ * hypoglycaemia), IV insulin infusion rate, and IM insulin dose.
+ *
+ * @param {Object}  data                       - Validated patient and clinical payload.
+ * @param {number}  data.weight                - Patient weight in kg.
+ * @param {number|string} data.patientAge      - Patient age in years. Note: offlineCalculator.js
+ *                                               converts this to a string via `.toFixed(2)` before
+ *                                               calling this function, so comparisons here rely on
+ *                                               implicit JS string-to-number coercion.
+ * @param {number}  [data.pH]                  - Arterial pH; if present (and truthy), the
+ *                                               blood-gas severity pathway is used.
+ * @param {number}  [data.bicarbonate]         - Bicarbonate in mmol/L; used alongside pH when
+ *                                               pH alone does not meet the severe threshold.
+ * @param {boolean} data.shockPresent          - Whether the patient is in circulatory shock;
+ *                                               drives bolus duration and the clinical-indicators
+ *                                               severity pathway.
+ * @param {number}  [data.gcs]                 - Glasgow Coma Scale score; required when
+ *                                               shockPresent is false; drives noBolus logic and
+ *                                               the clinical-indicators severity pathway.
+ * @param {boolean} [data.respiratorySupport]  - Whether the patient is on supplementary O₂ or
+ *                                               respiratory support; required under the same
+ *                                               conditions as gcs.
+ * @param {number}  [data.bloodKetones]        - Blood ketone level; at least one ketone value must
+ *                                               be present to establish a severity pathway.
+ * @param {number}  [data.urineKetones]        - Urine ketone dipstick level; see bloodKetones.
+ * @param {number}  [data.dropFactor]          - Drops/mL for gravity infusion sets; when provided,
+ *                                               drop rates are calculated for the bolus and bag speeds.
+ *
+ * @returns {{
+ *   severity:    { val: string, working: string },
+ *   bolus:       { volume: Object, duration: Object, rate: Object, drops: Object|null },
+ *   deficit:     { percentage: Object, standardSpeedVolume: Object, standardSpeedRate: Object,
+ *                  highSpeedVolume: Object, highSpeedRate: Object },
+ *   maintenance: { volume: Object, rate: Object },
+ *   bagSpeeds:   Object,
+ *   insulinRate: { val: number, working: string },
+ *   insulinDose: { val: number, working: string },
+ *   errors:      Array
+ * }} Calculated values; each sub-object exposes a numeric `val` and an HTML `working` string.
+ *
+ * @throws {Error} If DKA severity cannot be determined (pH/ketone values fall outside all
+ *                 defined thresholds, or neither ketones nor pH are provided), or if
+ *                 working-string generation encounters an unexpected state. These errors
+ *                 propagate to the caller rather than being collected in the `errors` array.
  */
 const calculateVariables = (data) => {
   const errors = [];
@@ -26,13 +85,32 @@ const calculateVariables = (data) => {
   const rateToDrops = (rate, dropFactor) => (rate / 60) * dropFactor;
 
   /**
-   * Determines the severity of the condition based on pH, bicarbonate, urine ketones or blood ketones.
-   * @returns {string|boolean} - Severity level ("severe", "standard") or false if no valid severity is found.
+   * Determines DKA severity using either the blood-gas pathway (pH ± bicarbonate) or the
+   * clinical-indicators pathway (GCS, shock, respiratory support), whichever applies.
+   *
+   * Pathway selection:
+   *  - pH truthy AND at least one ketone present → blood-gas pathway (pH takes precedence).
+   *  - At least one ketone present, no pH        → clinical-indicators pathway.
+   *  - Neither ketones nor pH present            → throws; insufficient data.
+   *
+   * @returns {{ val: string, working: string }} Severity result — `val` is "severe" or
+   *   "standard"; `working` is an HTML explanation of how the grade was reached.
+   * @throws {Error} If pH and ketones are present but pH falls outside all defined severity
+   *   thresholds; if working-string generation encounters an unexpected pH range; or if
+   *   neither ketones nor pH are provided.
    */
   const calculateSeverity = () => {
     /**
-     * Gets the severity based on pH, bicarbonate, urine ketones or blood ketones.
-     * @returns {string} - The severity grade if matched, otherwise false.
+     * Evaluates severity from the provided blood-gas and/or ketone values.
+     *
+     * Blood-gas pathway: severe if pH < severe upper bound; standard if bicarbonate or pH
+     * meet the standard threshold; throws if neither threshold is met.
+     * Clinical-indicators pathway: severe if GCS ≤ severeThreshold, shockPresent, or
+     * respiratorySupport; otherwise standard.
+     *
+     * @returns {"severe"|"standard"} The matched severity grade.
+     * @throws {Error} If pH and ketones are present but pH does not meet any severity
+     *   threshold, or if neither pH nor ketones are provided.
      */
     const calculateVal = () => {
       if (data.pH && (data.bloodKetones || data.urineKetones)) {
@@ -70,8 +148,17 @@ const calculateVariables = (data) => {
     const val = calculateVal();
 
     /**
-     * Generates a string showing the working used to find the severity level.
-     * @returns {string} - The generated string.
+     * Builds an HTML string explaining how the severity grade was reached, mirroring
+     * the branch logic of calculateVal, for display to the clinician.
+     *
+     * Note: when the clinical-indicators pathway is used (no pH), the working string
+     * interpolates `data.gcs` and `data.respiratorySupport` directly. If either field
+     * is undefined (e.g. shockPresent was true so they were not required), the string
+     * will render the literal text "undefined" for those values.
+     *
+     * @returns {string|false} HTML working string, or false if `val` is falsy.
+     * @throws {Error} If pH is present but falls outside all expected display ranges
+     *   (should not occur if calculateVal returned without throwing).
      */
     const working = () => {
       if (!val) return false;
@@ -126,11 +213,24 @@ const calculateVariables = (data) => {
       working: working(),
     };
   };
+  // ---------------------------------------------------------------------------
+  // Severity — evaluated once; all downstream calculations reference severity.val
+  // ---------------------------------------------------------------------------
   const severity = calculateSeverity();
 
+  // ---------------------------------------------------------------------------
+  // Bolus — IV fluid resuscitation volume, duration, rate, and optional drop rate
+  // ---------------------------------------------------------------------------
   /**
-   * Calculates the bolus volume and rate based on patient weight and severity.
-   * @returns {Object} - An object containing bolus volume and rate calculations.
+   * Calculates the IV bolus volume, duration, rate, and optional drop rate.
+   *
+   * Volume is weight-based and capped at the protocol maximum. A noBolus override
+   * applies when GCS is at or below the no-bolus threshold and shock is absent.
+   * Duration depends on whether the patient is shocked or not.
+   *
+   * @returns {{ volume: Object, duration: Object, rate: Object, drops: Object|null }}
+   *   Each sub-object exposes `val` (number) and `working` (HTML string).
+   *   `drops` is null when no dropFactor was provided.
    */
   const calculateBolus = () => {
     /**
@@ -186,6 +286,12 @@ const calculateVariables = (data) => {
     };
     const volume = calculateVolume();
 
+    /**
+     * Determines the bolus infusion duration in minutes based on shock status.
+     * Shocked patients receive the bolus faster than non-shocked patients.
+     *
+     * @returns {{ val: number, working: string }} Duration in minutes and HTML working string.
+     */
     const calculateDuration = () => {
       // Get the bolus duration in hours based on shock status.
       const val = data.shockPresent
@@ -208,8 +314,10 @@ const calculateVariables = (data) => {
     const duration = calculateDuration();
 
     /**
-     * Calculates the bolus rate based on the bolus volume and severity.
-     * @returns {Object} - An object containing the bolus rate, duration, formula, and working calculation.
+     * Calculates the bolus infusion rate in mL/hour.
+     * Rate = bolus volume ÷ duration (converted from minutes to hours).
+     *
+     * @returns {{ val: number, working: string }} Rate in mL/hour and HTML working string.
      */
     const calculateRate = () => {
       // Calculate the bolus rate in mL/hour.
@@ -235,11 +343,15 @@ const calculateVariables = (data) => {
     };
     const rate = calculateRate();
 
+    /**
+     * Converts the bolus rate to a gravity-drip rate in drops/minute.
+     * Only called when a dropFactor has been provided.
+     *
+     * @returns {{ val: number, working: string }} Drop rate in drops/minute and HTML working string.
+     */
     const calculateDrops = () => {
-      // Calculate the bolus rate in mL/hour.
       const val = rateToDrops(rate.val, data.dropFactor);
 
-      // Generate string showing working calculation for the bolus rate.
       const working = `
         Drop rate is calculated by dividing the rate (in mL/hour) by 60 (to give a rate in mL/minute) and then multiplying by the drop factor (provided value: <strong>${
           data.dropFactor
@@ -266,9 +378,23 @@ const calculateVariables = (data) => {
     };
   };
 
+  // ---------------------------------------------------------------------------
+  // Deficit — fluid deficit volume and replacement rate (standard and high-speed)
+  // ---------------------------------------------------------------------------
   /**
-   * Calculates the fluid deficit based on the severity of the condition and patient data.
-   * @returns {Object} - An object containing deficit percentage, volume, and rate calculations.
+   * Calculates the fluid deficit percentage, volume, and replacement rate for both
+   * the standard-speed and high-speed (severe) regimes.
+   *
+   * Both speed variants are always calculated regardless of severity — the caller
+   * (calculateBagSpeeds) selects the appropriate one based on severity.val.
+   *
+   * @returns {{
+   *   percentage:          { val: number, working: string },
+   *   standardSpeedVolume: { val: number, working: string },
+   *   standardSpeedRate:   { val: number, working: string },
+   *   highSpeedVolume:     { val: number, working: string },
+   *   highSpeedRate:       { val: number, working: string }
+   * }}
    */
   const calculateDeficit = () => {
     /**
@@ -371,8 +497,10 @@ const calculateVariables = (data) => {
     const highSpeedVolume = calculateHighSpeedVolume();
 
     /**
-     * Calculates the rate at which the fluid deficit should be replaced.
-     * @returns {Object} - An object containing the rate, formula, and working calculation.
+     * Calculates the rate at which a given deficit volume should be replaced.
+     *
+     * @param {number} vol - Deficit volume in mL to replace (capped or uncapped variant).
+     * @returns {{ val: number, working: string }} Rate in mL/hour and HTML working string.
      */
     const calculateRate = (vol) => {
       const replacementDuration = config.value.deficitReplacementDuration;
@@ -404,9 +532,14 @@ const calculateVariables = (data) => {
   };
   const deficit = calculateDeficit();
 
+  // ---------------------------------------------------------------------------
+  // Maintenance — daily maintenance fluid volume and hourly rate
+  // ---------------------------------------------------------------------------
   /**
-   * Calculates the daily maintenance fluid volume and rate based on patient weight.
-   * @returns {Object} - An object containing maintenance volume and rate.
+   * Calculates the daily maintenance fluid volume and hourly rate based on patient weight
+   * using the Holliday-Segar formula (100/50/20 mL/kg/day), capped at the protocol maximum.
+   *
+   * @returns {{ volume: { val: number, working: string }, rate: { val: number, working: string } }}
    */
   const calculateMaintenance = () => {
     /**
@@ -520,9 +653,23 @@ const calculateVariables = (data) => {
   };
   const maintenance = calculateMaintenance();
 
+  // ---------------------------------------------------------------------------
+  // Bag speeds — combined IV rates (deficit + maintenance) for standard, high,
+  // half-speed, and hypoglycaemia regimes, with optional drop rates
+  // ---------------------------------------------------------------------------
   /**
-   * Calculates the starting fluid rate by summing deficit and maintenance rates.
-   * @returns {Object} - An object containing the calculated rate value, formula, and working calculation.
+   * Combines deficit and maintenance rates into the final IV bag speeds for each regime.
+   *
+   * Produces different sub-sets depending on severity.val:
+   *  - "standard" → standardSpeed, halfStandardSpeed, hypoSpeed (+ drop rates if dropFactor)
+   *  - "severe"   → highSpeed, halfHighSpeed (+ drop rates if dropFactor)
+   *
+   * Note: `hypoSpeed` shares the same volumes as `highSpeed` (severe deficit percentage)
+   * regardless of the patient's actual DKA severity, so a standard-DKA patient has a
+   * hypo bag running faster than their standard maintenance bag.
+   *
+   * @returns {Object} Bag speed sub-objects for the applicable severity regime.
+   * @throws {Error} If severity.val is neither "standard" nor "severe".
    */
   const calculateBagSpeeds = () => {
     // Calculate the speed fluid rate by summing deficit and maintenance rates.
@@ -531,6 +678,9 @@ const calculateVariables = (data) => {
       deficitRate,
       maintenanceVolume,
       maintenanceRate,
+      // Note: a 5th argument (deficitPercentage) is passed by each call site below but
+      // is not declared in this signature and is therefore silently ignored. It is unused
+      // in the body — consider removing it from the call sites.
     ) => {
       // Calculate the speed fluid rate in mL/hour.
       const val = deficitRate.val + maintenanceRate.val;
@@ -684,9 +834,17 @@ const calculateVariables = (data) => {
     }
   };
 
+  // ---------------------------------------------------------------------------
+  // IV insulin rate — continuous infusion rate (Units/hour) based on age and weight
+  // ---------------------------------------------------------------------------
   /**
-   * Calculates the IV insulin rate based on patient weight and age.
-   * @returns {Object} - An object containing the calculated insulin rate, formula, limit, and working calculation.
+   * Calculates the IV insulin infusion rate in Units/hour based on patient weight and age.
+   *
+   * A lower weight-based rate applies below the age threshold (younger children);
+   * a higher rate applies at or above it. Both rates are capped at the protocol maximum
+   * for the applicable age band.
+   *
+   * @returns {{ val: number, working: string }} Rate in Units/hour and HTML working string.
    */
   const calculateInsulinRate = () => {
     // Select rate based on patient age.
@@ -744,9 +902,17 @@ const calculateVariables = (data) => {
     };
   };
 
+  // ---------------------------------------------------------------------------
+  // IM insulin dose — single subcutaneous/IM dose (Units) based on age and weight
+  // ---------------------------------------------------------------------------
   /**
-   * Calculates the IV insulin rate based on patient weight and age.
-   * @returns {Object} - An object containing the calculated insulin rate, formula, limit, and working calculation.
+   * Calculates the IM insulin dose in Units based on patient weight and age.
+   *
+   * A lower weight-based dose applies below the age threshold; a higher dose applies
+   * at or above it. The raw dose is rounded to the nearest 0.5 Units, then capped at
+   * the protocol maximum for the applicable age band.
+   *
+   * @returns {{ val: number, working: string }} Dose in Units and HTML working string.
    */
   const calculateInsulinDose = () => {
     // Select dose based on patient age.
@@ -811,6 +977,13 @@ const calculateVariables = (data) => {
     };
   };
 
+  // ---------------------------------------------------------------------------
+  // Return — all calculated values for the caller (offlineCalculator.js)
+  //
+  // Note: `errors` is initialised at the top of this function and returned here
+  // for API consistency, but it is never populated — all error paths in this
+  // function throw rather than pushing to the array. It will always be [].
+  // ---------------------------------------------------------------------------
   return {
     severity,
     bolus: calculateBolus(),
