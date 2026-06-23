@@ -67,7 +67,7 @@ const configUrl = import.meta.env.DEV
  */
 async function fetchConfig() {
   if (underDevelopment) console.log("***Client underDevelopment***");
-  if (import.meta.env.DEV) console.log("***Vite DEV mode: using local config.json***");
+  if (import.meta.env.DEV) console.warn("⚠️ DEV MODE: config loaded from local public/config.json — not the live API. Do not use for real clinical cases.");
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
