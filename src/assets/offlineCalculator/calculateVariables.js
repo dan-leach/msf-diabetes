@@ -65,7 +65,6 @@ import { config } from "../fetchConfig.js";
  *                 propagate to the caller rather than being collected in the `errors` array.
  */
 const calculateVariables = (data) => {
-  const errors = [];
   const weight = data.weight;
 
   /**
@@ -678,9 +677,6 @@ const calculateVariables = (data) => {
       deficitRate,
       maintenanceVolume,
       maintenanceRate,
-      // Note: a 5th argument (deficitPercentage) is passed by each call site below but
-      // is not declared in this signature and is therefore silently ignored. It is unused
-      // in the body — consider removing it from the call sites.
     ) => {
       // Calculate the speed fluid rate in mL/hour.
       const val = deficitRate.val + maintenanceRate.val;
@@ -778,7 +774,6 @@ const calculateVariables = (data) => {
       deficit.standardSpeedRate,
       maintenance.volume,
       maintenance.rate,
-      config.value.severity.standard.deficitPercentage,
     );
 
     const halfStandardSpeed =
@@ -791,13 +786,12 @@ const calculateVariables = (data) => {
       deficit.highSpeedRate,
       maintenance.volume,
       maintenance.rate,
-      config.value.severity.severe.deficitPercentage,
     );
 
     const halfHighSpeed =
       severity.val === "severe" ? calculateHalfSpeed(highSpeed.val) : null;
 
-    const hypoSpeed = highSpeed;
+    const hypoSpeed = { ...highSpeed };
     hypoSpeed.working =
       `For managing hypoglycaemia the relevant deficit rate is as for severe DKA (i.e. using a deficit percentage of ${config.value.severity.severe.deficitPercentage}%). Therefore, if the actual DKA severity is standard the hypoglycaemia high-speed bag rate is faster than the standard-speed bag rate.<br><br>` +
       hypoSpeed.working;
@@ -879,7 +873,7 @@ const calculateVariables = (data) => {
         config.value.insulin.rateOptions[0]
       } Units/kg/hour</li>
       <li>Age >=${config.value.insulin.ageThreshold} years = ${
-        config.value.insulin.rateOptions[0]
+        config.value.insulin.rateOptions[1]
       } Units/kg/hour</li></ul>
       
       [${rateUnitsPerKgPerHour} Units/kg/hour] x [${weight.toFixed(
@@ -979,10 +973,6 @@ const calculateVariables = (data) => {
 
   // ---------------------------------------------------------------------------
   // Return — all calculated values for the caller (offlineCalculator.js)
-  //
-  // Note: `errors` is initialised at the top of this function and returned here
-  // for API consistency, but it is never populated — all error paths in this
-  // function throw rather than pushing to the array. It will always be [].
   // ---------------------------------------------------------------------------
   return {
     severity,
@@ -992,7 +982,6 @@ const calculateVariables = (data) => {
     bagSpeeds: calculateBagSpeeds(),
     insulinRate: calculateInsulinRate(),
     insulinDose: calculateInsulinDose(),
-    errors: errors,
   };
 };
 
