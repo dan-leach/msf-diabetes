@@ -11,14 +11,7 @@ let config = ref({});
  * Flag indicating whether the client is running in development mode.
  * @type {boolean}
  */
-const underDevelopment = false;
-
-/**
- * Development interim code for tracking client versions during development.
- * @type {string}
- */
-const clientDevInterimCode = "D";
-console.log("clientDevInterimCode", clientDevInterimCode);
+const underDevelopment = true;
 
 /**
  * Current client application version.
@@ -30,7 +23,7 @@ const clientVersion = 0.6;
  * Last update date of the client application (YYYY-MM-DD format).
  * @type {string}
  */
-const clientLastUpdated = "2026-05-06";
+const clientLastUpdated = "2026-06-23";
 
 /**
  * Version of the offline calculator algorithm.
@@ -52,8 +45,8 @@ const timeoutDuration = 15000;
 const configUrl = import.meta.env.DEV
   ? "/config.json"
   : underDevelopment
-  ? "https://dev-api.msf.dka-calculator.co.uk/config"
-  : "https://api.msf.dka-calculator.co.uk/config";
+    ? "https://dev-api.msf.dka-calculator.co.uk/config"
+    : "https://api.msf.dka-calculator.co.uk/config";
 
 /**
  * Fetches application configuration.
@@ -67,7 +60,10 @@ const configUrl = import.meta.env.DEV
  */
 async function fetchConfig() {
   if (underDevelopment) console.log("***Client underDevelopment***");
-  if (import.meta.env.DEV) console.warn("⚠️ DEV MODE: config loaded from local public/config.json — not the live API. Do not use for real clinical cases.");
+  if (import.meta.env.DEV)
+    console.warn(
+      "⚠️ DEV MODE: config loaded from local public/config.json — not the live API. Do not use for real clinical cases.",
+    );
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);

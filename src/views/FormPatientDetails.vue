@@ -119,11 +119,15 @@ const setMinMaxPatientDOB = () => {
     .substring(0, 10);
 };
 
-// Guard: if the legal agreement step has not been completed, pre-fill with test
-// data for development convenience. In production this would redirect to /form-disclaimer.
+// Guard: if the legal agreement step has not been completed, behaviour differs by mode.
+// In development: pre-fill with test data (joeBloggs) for convenience.
+// In production: redirect to the disclaimer so the user must agree before proceeding.
 if (!data.value.form.isValid(0)) {
-  //router.push("/form-disclaimer");
-  data.value.form.joeBloggs();
+  if (config.value.client.underDevelopment) {
+    data.value.form.joeBloggs();
+  } else {
+    router.push("/form-disclaimer");
+  }
 }
 
 onMounted(() => {
