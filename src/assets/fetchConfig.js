@@ -24,13 +24,13 @@ let config = ref({});
  * Flag indicating whether the client is running in development mode.
  * @type {boolean}
  */
-const underDevelopment = true;
+const underDevelopment = false;
 
 /**
  * Current client application version.
  * @type {number}
  */
-const clientVersion = 0.6;
+const clientVersion = 1.0;
 
 /**
  * Last update date of the client application (YYYY-MM-DD format).
@@ -42,7 +42,7 @@ const clientLastUpdated = "2026-06-23";
  * Version of the offline calculator algorithm.
  * @type {number}
  */
-const offlineCalculatorVersion = 0.6;
+const offlineCalculatorVersion = 1.0;
 
 /**
  * Request timeout duration in milliseconds.
