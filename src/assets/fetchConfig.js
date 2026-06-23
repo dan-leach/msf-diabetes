@@ -57,9 +57,7 @@ const timeoutDuration = 15000;
  */
 const configUrl = import.meta.env.DEV
   ? "/config.json"
-  : underDevelopment
-    ? "https://dev-api.msf.dka-calculator.co.uk/config"
-    : "https://api.msf.dka-calculator.co.uk/config";
+  : "https://api.msf.dka-calculator.co.uk/config";
 
 /**
  * Fetches application configuration.
