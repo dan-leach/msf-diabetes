@@ -69,7 +69,7 @@ onMounted(() => window.scrollTo(0, 0));
     <!--install PWA banner-->
     <div
       v-if="deferredPrompt && !installBannerDismissed"
-      class="alert alert-info d-flex align-items-center justify-content-between mb-3 py-2"
+      class="alert d-flex align-items-center justify-content-between mb-3 py-2 border-info bg-transparent"
       role="alert"
     >
       <span>
@@ -77,7 +77,7 @@ onMounted(() => window.scrollTo(0, 0));
       </span>
       <div class="d-flex gap-2 ms-3 flex-shrink-0">
         <button type="button" class="btn btn-sm btn-primary" @click="install">
-          Install
+          Install app
         </button>
         <button
           type="button"
