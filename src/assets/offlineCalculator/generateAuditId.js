@@ -1,6 +1,27 @@
-//Removed ambiguous characters, using lower case for offline calculator (API uses uppercase)
+/**
+ * @module generateAuditId
+ * @description Generates a cryptographically secure, URL-safe audit ID for offline
+ * DKA calculation records. IDs are encoded in a reduced base-32 alphabet (ambiguous
+ * characters removed) to minimise transcription errors if the ID is ever read aloud
+ * or manually entered.
+ *
+ * The offline calculator uses lowercase IDs; the server API uses uppercase equivalents.
+ *
+ * @exports generateAuditId - Generates a random audit ID of a given length.
+ */
+
+// Ambiguous characters (0, O, 1, I, l) removed to reduce transcription errors.
+// Lowercase — the API uses uppercase; these are offline-only identifiers.
 const BASE62 = "23456789abcdefghjkmnpqrstuvwxyz";
 
+/**
+ * Converts a Uint8Array of random bytes into a base-32 string using the BASE62 alphabet.
+ * Treats the entire byte array as a single big-endian unsigned integer, then repeatedly
+ * divides by the alphabet length to extract each character.
+ *
+ * @param {Uint8Array} bytes - Random bytes to encode.
+ * @returns {string} Base-32 encoded string, or "0" if the input reduces to zero.
+ */
 function bytesToBase62(bytes) {
   // treat the bytes as a big integer and convert to base62
   let value = BigInt(0);

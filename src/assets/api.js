@@ -1,3 +1,12 @@
+/**
+ * @module api
+ * @description Centralised HTTP client for all server API calls. Sends authenticated POST
+ * requests, handles response parsing, enforces a configurable timeout via AbortController,
+ * and normalises all error shapes into a consistent `[{ msg: string }]` array so callers
+ * can handle errors uniformly.
+ *
+ * @exports api - Async function to POST data to a named API route.
+ */
 import { config } from "./fetchConfig.js";
 
 /**

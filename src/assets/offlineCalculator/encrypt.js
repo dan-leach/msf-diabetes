@@ -13,14 +13,26 @@
 
 import { config } from "../fetchConfig.js";
 
-// Helper function to convert ArrayBuffer to hex string
+/**
+ * Converts an ArrayBuffer (or TypedArray-compatible buffer) to a lowercase hex string.
+ *
+ * @param {ArrayBuffer} buffer - The binary data to encode.
+ * @returns {string} Lowercase hex string (two characters per byte).
+ */
 function arrayBufferToHex(buffer) {
   return [...new Uint8Array(buffer)]
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
 
-// Helper function to import RSA public key from base64-encoded PEM (server-style)
+/**
+ * Imports an RSA-OAEP public key from a base64-encoded SPKI PEM string.
+ * Strips the PEM header/footer and whitespace before passing the DER bytes to
+ * the Web Crypto API.
+ *
+ * @param {string} pem - PEM-encoded RSA public key (PKCS#8 SPKI format).
+ * @returns {Promise<CryptoKey>} Imported CryptoKey usable for RSA-OAEP encryption.
+ */
 async function importRSAPublicKey(pem) {
   const pemHeader = "-----BEGIN PUBLIC KEY-----";
   const pemFooter = "-----END PUBLIC KEY-----";

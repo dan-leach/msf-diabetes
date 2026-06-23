@@ -1,3 +1,12 @@
+/**
+ * @module checkWeightWithinLimit
+ * @description Validates that a patient's weight falls within the expected range for their
+ * sex and age using WHO/MSF growth-chart limits stored in config. This is a soft check —
+ * the hard absolute maximum is enforced earlier by `validate.js`. A `weightLimitOverride`
+ * flag bypasses this check when the clinician has confirmed the weight is correct.
+ *
+ * @exports checkWeightWithinLimit - Checks weight against age/sex-based limits.
+ */
 import { config } from "@/assets/fetchConfig";
 
 /**

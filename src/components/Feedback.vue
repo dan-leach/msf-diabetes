@@ -1,13 +1,28 @@
 <script setup>
-import { ref } from "vue";
+/**
+ * Feedback submission form. Validates that the feedback field is not empty, then
+ * POSTs the text and current auditID to the API. Shows a SweetAlert success dialog
+ * on submission and an error dialog on failure, then clears the textarea.
+ *
+ * @inject config - Application configuration provided by `main.js`; used in the
+ *                  error dialog to display the author contact email.
+ */
+import { ref, inject } from "vue";
 import { api } from "@/assets/api.js";
 import Swal from "sweetalert2";
 import { data } from "../assets/data.js";
-/**
- * Function to submit user feedback. Validates that feedback is not empty, then sends it to the API. Displays success or error messages based on the API response.
- * After submission, the feedback text area is cleared.
- */
+
+const config = inject("config");
+
 const feedbackText = ref("");
+
+/**
+ * Validates and submits the current feedback text.
+ * No-ops with a warning dialog if the field is empty.
+ * Clears the textarea after a successful submission.
+ *
+ * @returns {Promise<void>}
+ */
 const submitFeedback = async () => {
   if (!feedbackText.value.trim()) {
     Swal.fire({
@@ -56,23 +71,13 @@ const submitFeedback = async () => {
 
 <template>
   <!--quick feedback-->
-  <div class="card mb-4">
-    <div class="card-header">
-      <img
-        alt="Megaphone icon"
-        class="icon"
-        src="@/assets/images/megaphone-icon.svg"
-        width="24"
-        height="24"
-      />
-      Give us some quick feedback?
-    </div>
+  <div class="card mb-4 border-dark">
     <div class="card-body">
       <div class="mb-1">
-        We would love to hear your feedback on the app, and any suggestions for
+        We would love to hear your feedback on the calculator, and any suggestions for
         improvement. Please share your thoughts below.
         <textarea
-          class="form-control"
+          class="form-control mt-2"
           id="feedbackText"
           rows="3"
           v-model="feedbackText"

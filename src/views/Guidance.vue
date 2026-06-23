@@ -1,3 +1,42 @@
+/**
+ * @component Guidance
+ * @description The final output view of the episode flow — displays the full
+ * clinical guidance protocol generated from the patient's data and calculated values.
+ *
+ * This is the most complex view in the application. It renders:
+ *   - A PWA install prompt banner (dismissible, shown only when a deferred
+ *     install prompt is available).
+ *   - A mandatory "check guidelines" warning card.
+ *   - DKA severity classification with expandable guidance.
+ *   - Fluid bolus recommendations with expandable guidance.
+ *   - Bag speed and fluid composition tables (branching on severity:
+ *     standard vs. severe).
+ *   - IV insulin rate (when syringe pump available) or IM insulin dose
+ *     (when no syringe pump), each with expandable guidance.
+ *   - A "view working" section that links to the Calculations view for
+ *     transparency and audit.
+ *   - An offline mode notice when calculations were performed locally.
+ *   - A "New episode" / "Reset" button group at the foot of the page.
+ *   - The Feedback component.
+ *
+ * Expandable guidance panels are toggled via `showGuidance` — a reactive object
+ * keyed by guidance section name. Each section independently tracks open/closed state.
+ *
+ * Guard: if no `auditID` is present (no calculation has been performed),
+ * redirects to FormClinicalDetails.
+ *
+ * Form flow: Disclaimer → PatientDetails → (OverrideConfirm?) → EquipmentAvailability
+ *            → ClinicalDetails → Generate → **Guidance**
+ *
+ * @requires config          — application configuration injected from App.vue.
+ * @requires data            — global reactive data store from assets/data.js.
+ * @requires router          — Vue Router instance for programmatic navigation.
+ * @requires Swal            — SweetAlert2 for the reset confirmation dialog.
+ * @requires ViewWorking     — component that renders a highlighted calculation value
+ *                             alongside expandable working steps.
+ * @requires Feedback        — quick-feedback form component at the foot of the page.
+ * @requires useInstallPrompt — PWA install prompt composable (singleton).
+ */
 <script setup>
 import { onMounted, ref } from "vue";
 import { data } from "../assets/data.js";
@@ -5,12 +44,37 @@ import router from "../router/index.js";
 import Swal from "sweetalert2";
 import ViewWorking from "../components/ViewWorking.vue";
 import { inject } from "vue";
+
+/** @type {Object} Application configuration injected from the root provider in App.vue. */
 const config = inject("config");
 
-import Feedback from "../components/Feedback.vue"; 
+import Feedback from "../components/Feedback.vue";
+import { useInstallPrompt } from "../assets/useInstallPrompt.js";
 
+/**
+ * PWA install prompt state from the singleton composable.
+ * `deferredPrompt` is non-null when the browser has fired `beforeinstallprompt`.
+ * `install()` triggers the native install dialog.
+ */
+const { deferredPrompt, install } = useInstallPrompt();
+
+/**
+ * @type {import('vue').Ref<boolean>}
+ * Tracks whether the user has dismissed the PWA install banner for this session.
+ * The banner is shown when `deferredPrompt` is available and this flag is false.
+ */
+const installBannerDismissed = ref(false);
+
+// Guard: redirect if no calculation result exists in the data store
 if (!data.value.auditID) router.push("/form-clinical-details");
 
+/**
+ * @type {import('vue').Ref<Object>}
+ * Example data object passed to the ViewWorking component as a placeholder
+ * before real calculation data is wired in. The `val` controls which
+ * display variant is shown; `working` is the HTML content rendered in the
+ * expandable panel.
+ */
 const viewWorkingExample = ref({
   val: "highlighted",
   working: `
@@ -18,6 +82,12 @@ const viewWorkingExample = ref({
   `,
 });
 
+/**
+ * @type {import('vue').Ref<Object>}
+ * Tracks the open/closed state of each expandable guidance panel.
+ * Keys correspond to individual clinical guidance sections on the page.
+ * Each is independently toggled by the clinician as needed.
+ */
 let showGuidance = ref({
   dkaSeverity: false,
   fluidBolus: false,
@@ -26,18 +96,29 @@ let showGuidance = ref({
   imInsulinDose: false,
 });
 
+/**
+ * Formats an ISO 8601 datetime string into a short, locale-aware date and time string.
+ *
+ * Used to display the offline calculator sync timestamp in the offline mode notice.
+ *
+ * @param {string} iso - ISO 8601 datetime string (e.g. "2025-02-01T10:30:00.000Z").
+ * @returns {string} Locale-formatted string, e.g. "01/02/2025, 10:30".
+ */
 const formatDatetime = (iso) => {
   const date = new Date(iso);
 
   return date.toLocaleString(undefined, {
-    dateStyle: "short", // or "medium" / "long" / "full"
-    timeStyle: "short", // short time (e.g. 23:30)
+    dateStyle: "short",
+    timeStyle: "short",
   });
 };
 
 /**
- * Function to reset the patient details form to its default state.
- * Resets all input values to their default values, hides error messages, and removes validation styling from the form.
+ * Prompts the user for confirmation then resets the entire form and navigates
+ * back to the start page to begin a new episode.
+ *
+ * Uses a SweetAlert2 dialog to prevent accidental loss of the current episode's
+ * guidance, which cannot be recovered once the data store is cleared.
  */
 const resetForm = () => {
   Swal.fire({
@@ -58,11 +139,33 @@ const resetForm = () => {
   });
 };
 
+/** Scroll to top on mount so the guidance header is visible immediately. */
 onMounted(() => window.scrollTo(0, 0));
 </script>
 
 <template>
   <div class="container my-4 needs-validation">
+    <!--install PWA banner-->
+    <div
+      v-if="deferredPrompt && !installBannerDismissed"
+      class="alert d-flex align-items-center justify-content-between mb-3 py-2 border-info bg-transparent"
+      role="alert"
+    >
+      <span>
+        Install this app for faster access and offline use.
+      </span>
+      <div class="d-flex gap-2 ms-3 flex-shrink-0 align-items-center">
+        <button type="button" class="btn btn-sm btn-primary" @click="install">
+          Install app
+        </button>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Dismiss"
+          @click="installBannerDismissed = true"
+        ></button>
+      </div>
+    </div>
     <h2 class="display-3 mb-4 text-center">Guidance</h2>
     <div v-if="data.auditID">
       <!--check guidelines alert box-->

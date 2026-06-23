@@ -1,4 +1,22 @@
 <script setup>
+/**
+ * Reusable inline button that displays a formatted value and opens a Bootstrap modal
+ * containing the full step-by-step working for that value when clicked.
+ * Used throughout `Calculations.vue` to let clinicians inspect how each figure
+ * was derived.
+ *
+ * The modal is teleported to `<body>` to prevent it inheriting parent typography styles.
+ *
+ * @prop {Object}  param            - Object with `val` (number|string) and `working`
+ *                                    (HTML string) from `calculateVariables`.
+ * @prop {string}  paramKey         - Unique key used as the modal's DOM ID.
+ * @prop {string}  [heading]        - Modal title; defaults to `paramKey` with first
+ *                                    letter capitalised.
+ * @prop {string}  [unit]           - Unit suffix appended to the displayed value (e.g. "mL").
+ * @prop {number}  [decimals]       - If provided, `val` is formatted with `.toFixed(decimals)`.
+ * @prop {boolean} [captitalizeFirst] - If true, capitalises the first character of `val`
+ *                                    (note: prop name has a typo — two 'i's).
+ */
 import { ref } from "vue";
 const props = defineProps([
   "param",

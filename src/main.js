@@ -1,3 +1,14 @@
+/**
+ * @module main
+ * @description Application entry point. Bootstraps the Vue 3 app by:
+ *  - Importing Bootstrap CSS and JS
+ *  - Registering the PWA service-worker update handler (auto-reloads on new SW)
+ *  - Adding required FontAwesome icons to the global library
+ *  - Providing the reactive `config` ref application-wide via Vue's provide/inject
+ *  - Registering `<font-awesome-icon>` as a global component
+ *  - Attaching Vue Router
+ *  - Mounting the root `<App>` component to `#app`
+ */
 // Import styles
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
@@ -36,6 +47,7 @@ import {
   faEnvelope,
   faCheckCircle,
   faCircleXmark,
+  faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 // Add icons to the FontAwesome library
 library.add(
@@ -50,6 +62,7 @@ library.add(
   faEnvelope,
   faCheckCircle,
   faCircleXmark,
+  faChevronDown,
 );
 
 // Create Vue application

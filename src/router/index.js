@@ -1,3 +1,25 @@
+/**
+ * @module router
+ * @description Vue Router configuration for the MSF DKA Calculator.
+ *
+ * All routes except `/` and `/privacy-policy` use lazy-loaded imports so the
+ * corresponding view chunks are only downloaded when first navigated to.
+ * `Start.vue` is eagerly loaded as it is the first page the user sees.
+ *
+ * Route map:
+ *  /                          → Start (eager)
+ *  /form-disclaimer           → FormDisclaimer
+ *  /form-patient-details      → FormPatientDetails
+ *  /form-override-confirm     → FormOverrideConfirm
+ *  /form-equipment-availability → FormEquipmentAvailability
+ *  /form-clinical-details     → FormClinicalDetails
+ *  /generate                  → Generate
+ *  /guidance                  → Guidance
+ *  /calculations              → Calculations
+ *  /privacy-policy            → PrivacyPolicy (calls fetchConfig in beforeEnter guard)
+ *  /gcs                       → GCS
+ *  /:pathMatch(.*)*           → 404
+ */
 import { createRouter, createWebHistory } from "vue-router";
 import Start from "../views/Start.vue";
 import { fetchConfig } from "../assets/fetchConfig";

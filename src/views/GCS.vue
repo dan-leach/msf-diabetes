@@ -1,6 +1,30 @@
+/**
+ * @component GCS
+ * @description Reference page displaying the Glasgow Coma Scale (GCS) scoring tables.
+ *
+ * Provides two static reference tables:
+ *   - Table 1: Paediatric GCS — for infants and children ≤ 2 years old.
+ *              Uses age-adapted verbal and motor criteria appropriate for
+ *              pre-verbal and early-verbal developmental stages.
+ *   - Table 2: Standard GCS  — for older children (≥ 5 years) and adults.
+ *              Uses conventional verbal and motor criteria.
+ *
+ * For children aged 2–5 years, either scale may be used depending on their
+ * developmental stage and verbal ability.
+ *
+ * Both scales score 3–15. Scores are reported per domain (E, V, M) and as a total.
+ *
+ * This is a read-only reference page; it does not interact with form data.
+ *
+ * @requires config — application configuration injected from App.vue (not used in
+ *                    template currently, retained for consistency with other views).
+ * @requires data   — imported but not used in template; retained for future use.
+ */
 <script setup>
 import { data } from "../assets/data.js";
 import { inject } from "vue";
+
+/** @type {Object} Application configuration injected from the root provider in App.vue. */
 const config = inject("config");
 </script>
 
@@ -24,6 +48,8 @@ const config = inject("config");
       score of 15. It is useful to give a score for each criterion as well as
       the total score e.g. E4 + V3 + M5 = 12/15.
     </p>
+
+    <!-- Table 1: Paediatric GCS (adapted for infants and children ≤ 2 years) -->
     <div>
       <h2 class="table-title">
         Table 1: Paediatric Glasgow Coma Scale (infants and children ≤ 2 years
@@ -39,7 +65,7 @@ const config = inject("config");
           </tr>
         </thead>
         <tbody>
-          <!-- Eye opening response -->
+          <!-- Eye opening response (max 4) -->
           <tr>
             <td rowspan="5" class="light-blue">Eye opening response</td>
             <td>Opens eyes spontaneously</td>
@@ -62,7 +88,7 @@ const config = inject("config");
             <td>_/4</td>
           </tr>
 
-          <!-- Verbal response -->
+          <!-- Verbal response — adapted for pre-verbal/early-verbal children (max 5) -->
           <tr>
             <td rowspan="6" class="light-blue">Verbal response</td>
             <td>Coos, babbles, alert</td>
@@ -92,7 +118,7 @@ const config = inject("config");
             <td>_/5</td>
           </tr>
 
-          <!-- Motor response -->
+          <!-- Motor response — adapted for early motor development (max 6) -->
           <tr>
             <td rowspan="7" class="light-blue">Motor response</td>
             <td>Moves spontaneously and purposefully</td>
@@ -125,7 +151,7 @@ const config = inject("config");
             <td>_/6</td>
           </tr>
 
-          <!-- TOTAL SCORE -->
+          <!-- Total row -->
           <tr class="dark-blue">
             <td colspan="2" style="text-align: right">
               GCS TOTAL SCORE = E__ + V__ + M__
@@ -137,6 +163,8 @@ const config = inject("config");
       * A painful stimulus can be given by applying supra-orbital pressure at
       the supraorbital notch or by applying pressure to the nailbed.
     </div>
+
+    <!-- Table 2: Standard GCS (for children ≥ 5 years and adults) -->
     <div class="mt-4">
       <h2 class="table-title">Table 2: Glasgow Coma Scale</h2>
       <table>
@@ -148,7 +176,7 @@ const config = inject("config");
           </tr>
         </thead>
         <tbody>
-          <!-- Eye opening response -->
+          <!-- Eye opening response (max 4) -->
           <tr>
             <td rowspan="5" class="light-blue">Eye opening response</td>
             <td>Opens eyes spontaneously</td>
@@ -171,7 +199,7 @@ const config = inject("config");
             <td>_/4</td>
           </tr>
 
-          <!-- Verbal response -->
+          <!-- Verbal response — standard adult criteria (max 5) -->
           <tr>
             <td rowspan="6" class="light-blue">Verbal response</td>
             <td>Orientated, words or sentences to usual ability</td>
@@ -201,7 +229,7 @@ const config = inject("config");
             <td>_/5</td>
           </tr>
 
-          <!-- Motor response -->
+          <!-- Motor response — standard adult criteria (max 6) -->
           <tr>
             <td rowspan="7" class="light-blue">Motor response</td>
             <td>Obeys commands</td>
@@ -232,7 +260,7 @@ const config = inject("config");
             <td>_/6</td>
           </tr>
 
-          <!-- TOTAL SCORE -->
+          <!-- Total row -->
           <tr class="dark-blue">
             <td colspan="2" style="text-align: right">
               GCS TOTAL SCORE = E__ + V__ + M__
@@ -248,10 +276,12 @@ const config = inject("config");
 </template>
 
 <style scoped>
+/* Header rows: dark background with white text */
 .dark-blue {
   background-color: #38698d;
   color: white;
 }
+/* Category label cells and subtotal rows: light background */
 .light-blue {
   background-color: #e1e9f2;
 }

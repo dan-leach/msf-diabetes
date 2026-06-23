@@ -9,6 +9,10 @@ export default defineConfig({
   plugins: [
     vue(),
     VitePWA({
+      devOptions: {
+        enabled: true,
+        type: "module",
+      },
       filename: "sw.js", // keep SW filename consistent
       registerType: "autoUpdate", // skipWaiting + clients.claim
       injectRegister: "auto", // auto-inject registration
@@ -93,5 +97,10 @@ export default defineConfig({
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
+  },
+  server: {
+    host: "0.0.0.0",
+    port: 5000,
+    allowedHosts: true,
   },
 });

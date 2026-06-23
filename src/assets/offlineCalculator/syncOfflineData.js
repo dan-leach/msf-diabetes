@@ -1,3 +1,16 @@
+/**
+ * @module syncOfflineData
+ * @description Uploads any DKA calculations that were completed while the device was
+ * offline. Records are stored in localStorage by `offlineCalculator.js` and flushed
+ * here to the server as soon as connectivity is restored (called automatically after
+ * a successful config fetch).
+ *
+ * Each record is removed from localStorage once the server confirms receipt.
+ * If the upload fails the user is presented with a SweetAlert dialog; they may
+ * optionally clear all pending offline logs from within that dialog.
+ *
+ * @exports syncOfflineData - Async function that iterates and uploads all pending records.
+ */
 import { api } from "@/assets/api.js";
 import Swal from "sweetalert2";
 

@@ -1,12 +1,39 @@
+/**
+ * @component Calculations
+ * @description Displays the full calculation working for a completed episode.
+ *
+ * This is an audit/transparency page linked from the Guidance view. It shows:
+ *   - The raw input values submitted for the episode.
+ *   - Step-by-step HTML working for each calculated output (severity, deficit,
+ *     bolus, bag speeds, insulin rate/dose), rendered via `v-html` from the
+ *     server or offline calculator response.
+ *
+ * Sections are conditionally rendered based on the episode context:
+ *   - Drop rate sections only appear when no infusion pump is available.
+ *   - Bag speed sections branch on `severity.val`: "standard" shows three speeds
+ *     (standard, half-standard, hypo); "severe" shows two (high, half-high).
+ *   - Insulin section shows IV rate (syringe pump) or IM dose (no syringe pump).
+ *
+ * Guard: if no `auditID` is present (i.e. no calculation has been performed),
+ * the user is redirected to FormClinicalDetails.
+ *
+ * @requires config — application configuration injected from App.vue.
+ * @requires data   — global reactive data store from assets/data.js.
+ * @requires router — Vue Router instance for programmatic navigation.
+ */
 <script setup>
 import { onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router/index.js";
 import { inject } from "vue";
+
+/** @type {Object} Application configuration injected from the root provider in App.vue. */
 const config = inject("config");
 
+// Guard: calculations are only available after a successful Generate run
 if (!data.value.auditID) router.push("/form-clinical-details");
 
+/** Scroll to top on mount so the page title is visible immediately. */
 onMounted(() => window.scrollTo(0, 0));
 </script>
 
@@ -14,8 +41,8 @@ onMounted(() => window.scrollTo(0, 0));
   <div class="container my-4 needs-validation">
     <h2 class="display-3 mb-4 text-center">Calculations</h2>
     <div v-if="data.auditID">
+      <!-- Return to guidance link at the top for quick navigation -->
       <div class="text-center">
-        <!--back-->
         <button
           type="button"
           @click="router.push('/guidance')"
@@ -24,6 +51,12 @@ onMounted(() => window.scrollTo(0, 0));
           Go back to guidance
         </button>
       </div>
+
+      <!--
+        Provided values — lists the raw inputs submitted for this episode.
+        Conditional list items are only shown when the relevant field was populated
+        (e.g. pH/bicarbonate only when blood gas was available).
+      -->
       <div class="mb-4">
         <h3>Provided values</h3>
         <div>
@@ -49,16 +82,22 @@ onMounted(() => window.scrollTo(0, 0));
           </ul>
         </div>
       </div>
+
+      <!-- DKA severity working -->
       <div class="mb-4">
         <h3>DKA severity</h3>
         <div v-html="data.calculations.severity.working"></div>
       </div>
       <hr></hr>
+
+      <!-- Deficit percentage working -->
       <div class="mb-4">
         <h3>Deficit percentage</h3>
         <div v-html="data.calculations.deficit.percentage.working"></div>
       </div>
       <hr></hr>
+
+      <!-- Bolus working sections -->
       <div class="mb-4">
         <h3>Bolus volume</h3>
         <div v-html="data.calculations.bolus.volume.working"></div>
@@ -74,11 +113,20 @@ onMounted(() => window.scrollTo(0, 0));
         <div v-html="data.calculations.bolus.rate.working"></div>
       </div>
       <hr></hr>
+
+      <!-- Bolus drop rate — only shown when no infusion pump is available -->
       <div class="mb-4" v-if="data.inputs.infusionPumpAvailable.val == 'false'">
         <h3>Bolus drop rate</h3>
         <div v-html="data.calculations.bolus.drops.working"></div>
         <hr></hr>
       </div>
+
+      <!--
+        Bag speed sections — branch on DKA severity:
+          "standard" severity: three speeds (standard, half-standard, hypo)
+          "severe"   severity: two speeds (high, half-high)
+        Each speed also has a drop-rate variant shown when no infusion pump is available.
+      -->
       <div v-if="data.calculations.severity.val === 'standard'">
         <div class="mb-4">
           <h3>Bag speed: standard-speed</h3>
@@ -133,12 +181,17 @@ onMounted(() => window.scrollTo(0, 0));
           <hr></hr>
         </div>
       </div>
+      <!-- Fallback: severity value is neither 'standard' nor 'severe' -->
       <div v-else>
         <div class="mb-4">
           <h3 class="text-danger">Error: unable to select DKA severity</h3>
         </div>
         <hr></hr>
       </div>
+
+      <!--
+        Insulin section: IV rate when syringe pump is available; IM dose otherwise.
+      -->
       <div class="mb-4" v-if="data.inputs.syringePumpAvailable.val == 'true'">
         <h3>IV insulin rate</h3>
         <div v-html="data.calculations.insulinRate.working"></div>
@@ -148,8 +201,9 @@ onMounted(() => window.scrollTo(0, 0));
         <div v-html="data.calculations.insulinDose.working"></div>
       </div>
     </div>
+
+    <!-- Return to guidance link at the bottom -->
     <div class="text-center">
-      <!--back-->
       <button
         type="button"
         @click="router.push('/guidance')"
@@ -171,6 +225,7 @@ onMounted(() => window.scrollTo(0, 0));
 .step-text {
   font-size: larger;
 }
+/* These button classes are retained from an earlier design iteration */
 .btn-view-working,
 .btn-view-guidance {
   min-width: 100%;
