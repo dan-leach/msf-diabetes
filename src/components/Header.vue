@@ -2,10 +2,13 @@
 import { RouterLink } from "vue-router";
 import { inject } from "vue";
 const config = inject("config");
+
+import { useInstallPrompt } from "../assets/useInstallPrompt.js";
+const { deferredPrompt, install } = useInstallPrompt();
 </script>
 
 <template>
-  <nav id="header" class="navbar bg-grey">
+  <nav id="header" class="navbar bg-grey position-relative">
     <div
       class="container-fluid d-flex flex-column align-items-center justify-content-center justify-content-lg-between"
     >
@@ -24,6 +27,14 @@ const config = inject("config");
         Development version
       </h2>
     </div>
+    <button
+      v-if="deferredPrompt"
+      type="button"
+      class="btn btn-sm btn-primary install-btn"
+      @click="install"
+    >
+      Install app
+    </button>
   </nav>
 </template>
 
@@ -38,6 +49,11 @@ const config = inject("config");
 }
 .navbar {
   padding: 0;
+}
+.install-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
 }
 @media only screen and (max-width: 600px) {
   .logo {
