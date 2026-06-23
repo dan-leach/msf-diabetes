@@ -254,29 +254,28 @@ function validate(payload) {
     });
   }
 
-    // glucose
-    if (typeof payload.glucose !== "number") {
+  // glucose
+  if (typeof payload.glucose !== "number") {
+    errors.push({
+      field: "glucose",
+      message: "Glucose field must be data type [float].",
+    });
+  } else {
+    const unitConfig =
+      config.value.validation.glucose.units[payload.glucoseUnit];
+    if (!unitConfig) {
       errors.push({
         field: "glucose",
-        message: "Glucose field must be data type [float].",
+        message: "Invalid glucose unit option provided.",
       });
-    } else {
-      const unitConfig =
-        config.value.validation.glucose.units[payload.glucoseUnit];
-      if (!unitConfig) {
-        errors.push({
-          field: "glucose",
-          message: "Invalid glucose unit option provided.",
-        });
-      } else if (
-        payload.glucose < unitConfig.min ||
-        payload.glucose > unitConfig.max
-      ) {
-        errors.push({
-          field: "glucose",
-          message: `Glucose must be in range ${unitConfig.min} to ${unitConfig.max} ${payload.glucoseUnit}.`,
-        });
-      }
+    } else if (
+      payload.glucose < unitConfig.min ||
+      payload.glucose > unitConfig.max
+    ) {
+      errors.push({
+        field: "glucose",
+        message: `Glucose must be in range ${unitConfig.min} to ${unitConfig.max} ${payload.glucoseUnit}.`,
+      });
     }
   }
 
@@ -394,7 +393,10 @@ function validate(payload) {
   if (
     !payload.shockPresent &&
     payload.gcs > config.value.validation.gcs.severeThreshold &&
-    !(payload.pH !== undefined && payload.pH < config.value.validation.pH.severeThreshold) &&
+    !(
+      payload.pH !== undefined &&
+      payload.pH < config.value.validation.pH.severeThreshold
+    ) &&
     typeof payload.respiratorySupport !== "boolean"
   ) {
     errors.push({
@@ -434,6 +436,6 @@ function validate(payload) {
     isValid: errors.length === 0,
     errors,
   };
-
+}
 
 export { validate };
