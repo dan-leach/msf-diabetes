@@ -254,19 +254,6 @@ function validate(payload) {
     });
   }
 
-  if (!payload.glucoseHigh) {
-    // glucoseUnit
-    if (
-      !Object.keys(config.value.validation.glucose.units).includes(
-        payload.glucoseUnit,
-      )
-    ) {
-      errors.push({
-        field: "glucoseUnit",
-        message: "Invalid glucose unit option provided.",
-      });
-    }
-
     // glucose
     if (typeof payload.glucose !== "number") {
       errors.push({
@@ -277,9 +264,6 @@ function validate(payload) {
       const unitConfig =
         config.value.validation.glucose.units[payload.glucoseUnit];
       if (!unitConfig) {
-        // Unit was invalid — already reported on glucoseUnit above.
-        // A separate error is also pushed here against the glucose field so
-        // the caller knows that glucose itself could not be validated.
         errors.push({
           field: "glucose",
           message: "Invalid glucose unit option provided.",
@@ -420,9 +404,13 @@ function validate(payload) {
   }
 
   // ---------------------------------------------------------------------------
-  // App version — must be an object whose every value is a string
+  // App version — must be a non-null object whose every value is a string.
+  // The explicit null check is required because typeof null === "object" in JS;
+  // without it, Object.values(null) would throw a TypeError rather than pushing
+  // a clean validation error.
   // ---------------------------------------------------------------------------
   if (
+    payload.appVersion === null ||
     typeof payload.appVersion !== "object" ||
     !Object.values(payload.appVersion).every((v) => typeof v === "string")
   ) {
