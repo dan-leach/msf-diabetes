@@ -7,7 +7,10 @@ import ViewWorking from "../components/ViewWorking.vue";
 import { inject } from "vue";
 const config = inject("config");
 
-import Feedback from "../components/Feedback.vue"; 
+import Feedback from "../components/Feedback.vue";
+import { useInstallPrompt } from "../assets/useInstallPrompt.js";
+const { deferredPrompt, install } = useInstallPrompt();
+const installBannerDismissed = ref(false);
 
 if (!data.value.auditID) router.push("/form-clinical-details");
 
@@ -63,6 +66,27 @@ onMounted(() => window.scrollTo(0, 0));
 
 <template>
   <div class="container my-4 needs-validation">
+    <!--install PWA banner-->
+    <div
+      v-if="deferredPrompt && !installBannerDismissed"
+      class="alert alert-info d-flex align-items-center justify-content-between mb-3 py-2"
+      role="alert"
+    >
+      <span>
+        Install this app for faster access and offline use.
+      </span>
+      <div class="d-flex gap-2 ms-3 flex-shrink-0">
+        <button type="button" class="btn btn-sm btn-primary" @click="install">
+          Install
+        </button>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Dismiss"
+          @click="installBannerDismissed = true"
+        ></button>
+      </div>
+    </div>
     <h2 class="display-3 mb-4 text-center">Guidance</h2>
     <div v-if="data.auditID">
       <!--check guidelines alert box-->

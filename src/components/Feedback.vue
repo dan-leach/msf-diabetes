@@ -69,7 +69,7 @@ const submitFeedback = async () => {
     </div>
     <div class="card-body">
       <div class="mb-1">
-        We would love to hear your feedback on the app, and any suggestions for
+        We would love to hear your feedback on the calculator, and any suggestions for
         improvement. Please share your thoughts below.
         <textarea
           class="form-control"
