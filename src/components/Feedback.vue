@@ -56,23 +56,13 @@ const submitFeedback = async () => {
 
 <template>
   <!--quick feedback-->
-  <div class="card border-dark mb-4">
-    <div class="card-header">
-      <img
-        alt="Megaphone icon"
-        class="icon"
-        src="@/assets/images/megaphone-icon.svg"
-        width="24"
-        height="24"
-      />
-      Give us some quick feedback?
-    </div>
+  <div class="card mb-4 border-dark">
     <div class="card-body">
       <div class="mb-1">
         We would love to hear your feedback on the calculator, and any suggestions for
         improvement. Please share your thoughts below.
         <textarea
-          class="form-control"
+          class="form-control mt-2"
           id="feedbackText"
           rows="3"
           v-model="feedbackText"

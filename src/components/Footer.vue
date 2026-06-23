@@ -164,7 +164,7 @@ onMounted(async () => {
 
 .device-label-div {
   transition: all 0.3s ease;
-  border: 2px solid #000000;
+  border: 1px solid #000000;
   border-radius: 8px;
 }
 
