@@ -138,45 +138,38 @@ const formatDatetime = (iso) => {
               >Quick Start Guide</a
             >.
           </p>
-          <div class="collapse-wrapper">
-            <a
-              href="#"
-              class="text-decoration-none collapse-toggle"
-              data-bs-toggle="collapse"
-              data-bs-target="#dataNeededCollapse"
-              :aria-expanded="dataNeededOpen"
-              aria-controls="dataNeededCollapse"
-              @click.prevent="dataNeededOpen = !dataNeededOpen"
-            >
-              What data will I need to use the calculator?
-              <font-awesome-icon
-                :icon="['fas', 'chevron-down']"
-                class="chevron ms-1"
-                :class="{ 'chevron-open': dataNeededOpen }"
-              />
-            </a>
-            <div class="collapse" id="dataNeededCollapse">
+          <a
+            href="#"
+            class="text-decoration-none"
+            data-bs-toggle="collapse"
+            data-bs-target="#dataNeededCollapse"
+            :aria-expanded="dataNeededOpen"
+            aria-controls="dataNeededCollapse"
+            @click.prevent="dataNeededOpen = !dataNeededOpen"
+          >
+            What data will I need to use the calculator?
+            <font-awesome-icon
+              :icon="['fas', 'chevron-down']"
+              class="chevron ms-1"
+              :class="{ 'chevron-open': dataNeededOpen }"
+            />
+          </a>
+          <div class="collapse mt-2" id="dataNeededCollapse">
             <ul class="mb-2">
               <li>Patient date of birth (or age in years and months)</li>
               <li>Patient sex</li>
-              <li>Patient weight (kg)</li>
+              <li>Patient weight</li>
               <li>Operational centre and project</li>
-              <li>Whether a blood gas analyser is available</li>
-              <li>Whether a blood ketone meter is available</li>
-              <li>Whether a syringe driver is available</li>
-              <li>Blood glucose reading (mmol/L or mg/dL), or if the meter reads 'HI'</li>
+              <li>Whether a blood gas analyser, blood ketone meter, syringe driver, and/or infusion pump is available</li>
+              <li>Blood glucose reading</li>
               <li>
-                If blood gas available: pH; and if pH ≥ 7.3, bicarbonate (mmol/L)
+                If blood gas available: pH and bicarbonate
               </li>
               <li>
-                If blood ketone meter available: blood ketones (mmol/L);
+                If blood ketone meter available: blood ketones;
                 otherwise urine ketone dipstick result
               </li>
-              <li>Whether clinical features of DKA are present</li>
-              <li>Whether clinical shock is present</li>
-              <li>
-                If no shock: GCS score, and whether the patient is on oxygen or
-                respiratory support
+              <li>You will also be asked about the clinical status of your patient (features of DKA, shock, GCS, respiratory support)
               </li>
             </ul>
             <p class="mb-0 fst-italic small">
@@ -186,7 +179,6 @@ const formatDatetime = (iso) => {
               >
               for guidance on how to assess each of these items.
             </p>
-          </div>
           </div>
         </div>
       </div>
@@ -216,14 +208,7 @@ const formatDatetime = (iso) => {
 .btn-lg {
   font-size: 30px;
 }
-.collapse-wrapper {
-  border: 1px solid currentColor;
-  border-radius: 0.375rem;
-  padding: 0.4rem 0.6rem;
-}
-.collapse-toggle {
-  display: inline-block;
-}
+
 .chevron {
   transition: transform 0.25s ease;
 }
