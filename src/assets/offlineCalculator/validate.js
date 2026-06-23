@@ -32,7 +32,8 @@ import { config } from "../fetchConfig.js"; // cached config
  *   - `glucoseUnit`/`glucose` — only validated when `glucoseHigh` is false.
  *   - `gcs`               — only validated when `shockPresent` is false.
  *   - `respiratorySupport` — only validated when `shockPresent` is false AND
- *                            `gcs` is above the configured severe threshold.
+ *                            `gcs` is strictly above the severe threshold AND
+ *                            pH (if present) is at or above the pH severe threshold.
  *   - `pH`/`bicarbonate`  — validated only if present (optional; undefined is
  *                            accepted, but if provided the value must be numeric
  *                            and within bounds).
@@ -374,16 +375,18 @@ function validate(payload) {
   }
 
   // ---------------------------------------------------------------------------
-  // Respiratory support — conditional on BOTH:
-  //   1. shockPresent is false (if in shock, this field is not assessed)
-  //   2. GCS is above the severe threshold (at/below → already severe DKA)
-  // Note: the frontend also short-circuits on pH < severeThreshold, but that
-  // path is not replicated here because the payload will not include
-  // respiratorySupport in that case (the frontend clears it before submission).
+  // Respiratory support — only required when severity is not already established
+  // by another criterion. Not required if ANY of the following are true:
+  //   1. shockPresent is true (shock protocol applies regardless of severity)
+  //   2. GCS ≤ severeThreshold (severe DKA established by GCS alone)
+  //   3. pH is present in the payload AND pH < pH.severeThreshold
+  //      (severe DKA established by pH; pH absent = blood gas unavailable,
+  //       so pH cannot contribute to severity and the question still applies)
   // ---------------------------------------------------------------------------
   if (
     !payload.shockPresent &&
-    payload.gcs >= config.value.validation.gcs.severeThreshold &&
+    payload.gcs > config.value.validation.gcs.severeThreshold &&
+    !(payload.pH !== undefined && payload.pH < config.value.validation.pH.severeThreshold) &&
     typeof payload.respiratorySupport !== "boolean"
   ) {
     errors.push({
