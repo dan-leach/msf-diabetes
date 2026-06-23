@@ -64,8 +64,10 @@ import { config } from "../fetchConfig.js"; // cached config
  * @param {number}  [payload.bicarbonate]      - Optional; if present, validated against bounds.
  * @param {boolean} payload.shockPresent       - Whether the patient is in circulatory shock.
  * @param {number}  [payload.gcs]              - Required when shockPresent is false.
- * @param {boolean} [payload.respiratorySupport] - Required when shockPresent is false and
- *                                               gcs is above the severe threshold.
+ * @param {boolean} [payload.respiratorySupport] - Required when shockPresent is false,
+ *                                               gcs is strictly above the severe threshold,
+ *                                               and pH (if present) is at or above the
+ *                                               pH severe threshold.
  * @param {Object}  payload.appVersion         - Object whose every value is a string.
  * @param {string}  payload.clientUseragent    - Browser useragent string.
  *
@@ -275,7 +277,9 @@ function validate(payload) {
       const unitConfig =
         config.value.validation.glucose.units[payload.glucoseUnit];
       if (!unitConfig) {
-        // Unit was invalid — already reported above; duplicate error suppressed
+        // Unit was invalid — already reported on glucoseUnit above.
+        // A separate error is also pushed here against the glucose field so
+        // the caller knows that glucose itself could not be validated.
         errors.push({
           field: "glucose",
           message: "Invalid glucose unit option provided.",
