@@ -1,3 +1,16 @@
+/**
+ * @module fetchConfig
+ * @description Fetches and exposes the application configuration from the server (or a
+ * local static file in development). The resolved config is stored in a reactive Vue ref
+ * so that all consuming components stay in sync via Vue's reactivity system.
+ *
+ * Config is enriched client-side with version metadata before being made available, and
+ * any offline data stored in localStorage is synced to the server immediately after a
+ * successful fetch.
+ *
+ * @exports config        - Reactive ref holding the resolved configuration object.
+ * @exports fetchConfig   - Async function that initiates the config fetch.
+ */
 import { ref } from "vue";
 import { syncOfflineData } from "@/assets/offlineCalculator/syncOfflineData";
 

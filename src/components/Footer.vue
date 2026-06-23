@@ -1,7 +1,17 @@
 <script setup>
+/**
+ * Site-wide footer component. Displays two pieces of information:
+ *  - An offline-readiness indicator (service worker active check via `navigator.serviceWorker`).
+ *  - A clickable device-label panel that opens a Bootstrap modal containing version info,
+ *    author details, MSF address, contact email, and the full legal disclaimer.
+ *
+ * The service worker status is checked once on mount; the indicator does not update
+ * dynamically if the SW registers after the component is mounted.
+ *
+ * @inject config - Application configuration provided by `main.js`.
+ */
 import { inject, ref, onMounted } from "vue";
 const config = inject("config");
-;
 const swActive = ref(false);
 
 onMounted(async () => {

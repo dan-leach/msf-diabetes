@@ -1,3 +1,22 @@
+/**
+ * @module offlineCalculator
+ * @description Orchestrates the full offline DKA calculation pipeline when the device
+ * has no server connectivity. The pipeline runs in order:
+ *
+ *  1. Validate the payload (`validate.js`)
+ *  2. Check weight is within growth-chart limits (`checkWeightWithinLimit.js`)
+ *  3. Sanitise patientAge to 2 d.p. string to avoid re-identification
+ *  4. Compute all clinical variables (`calculateVariables.js`)
+ *  5. Null-out absent optional fields for consistent storage shape
+ *  6. Generate a unique audit ID (`generateAuditId.js`)
+ *  7. Encrypt patient-identifiable data with AES-256-GCM + RSA (`encrypt.js`)
+ *  8. Persist the encrypted record and audit ID to localStorage for later sync
+ *
+ * On success the caller receives `{ calculations, mode: "offline", auditID }`.
+ * On any failure the original error is re-thrown after logging.
+ *
+ * @exports runOfflineCalculation - Async function that runs the full offline pipeline.
+ */
 import { validate } from "./validate";
 import { checkWeightWithinLimit } from "./checkWeightWithinLimit";
 import { calculateVariables } from "./calculateVariables";
