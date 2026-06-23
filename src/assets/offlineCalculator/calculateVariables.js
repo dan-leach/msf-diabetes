@@ -38,7 +38,7 @@ import { config } from "../fetchConfig.js";
  * @param {number}  [data.gcs]                 - Glasgow Coma Scale score; required when
  *                                               shockPresent is false; drives noBolus logic and
  *                                               the clinical-indicators severity pathway.
- * @param {boolean} [data.respiratorySupport]  - Whether the patient is on supplementary O₂ or
+ * @param {boolean} [data.respiratorySupport]  - Whether the patient is on supplementary O2 or
  *                                               respiratory support; required under the same
  *                                               conditions as gcs.
  * @param {number}  [data.bloodKetones]        - Blood ketone level; at least one ketone value must
@@ -84,7 +84,7 @@ const calculateVariables = (data) => {
   const rateToDrops = (rate, dropFactor) => (rate / 60) * dropFactor;
 
   /**
-   * Determines DKA severity using either the blood-gas pathway (pH ± bicarbonate) or the
+   * Determines DKA severity using either the blood-gas pathway (pH +/- bicarbonate) or the
    * clinical-indicators pathway (GCS, shock, respiratory support), whichever applies.
    *
    * Pathway selection:
@@ -104,7 +104,7 @@ const calculateVariables = (data) => {
      *
      * Blood-gas pathway: severe if pH < severe upper bound; standard if bicarbonate or pH
      * meet the standard threshold; throws if neither threshold is met.
-     * Clinical-indicators pathway: severe if GCS ≤ severeThreshold, shockPresent, or
+     * Clinical-indicators pathway: severe if GCS <= severeThreshold, shockPresent, or
      * respiratorySupport; otherwise standard.
      *
      * @returns {"severe"|"standard"} The matched severity grade.
@@ -314,7 +314,7 @@ const calculateVariables = (data) => {
 
     /**
      * Calculates the bolus infusion rate in mL/hour.
-     * Rate = bolus volume ÷ duration (converted from minutes to hours).
+     * Rate = bolus volume / duration (converted from minutes to hours).
      *
      * @returns {{ val: number, working: string }} Rate in mL/hour and HTML working string.
      */

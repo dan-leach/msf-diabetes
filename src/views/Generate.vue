@@ -81,6 +81,7 @@ const steps = ref({
       payload.use2SD = data.value.inputs.weight.limit.use2SD;
 
       payload.patientAge = data.value.inputs.patientDOB.patientAge.val;
+      payload.patientAge = 18
       payload.useYearsMonths =
         data.value.inputs.patientDOB.yearsMonths.switch.val;
 

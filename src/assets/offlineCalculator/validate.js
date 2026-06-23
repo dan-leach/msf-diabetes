@@ -45,8 +45,8 @@ import { config } from "../fetchConfig.js"; // cached config
  * @param {number}  payload.weight             - Must be a number within config weight bounds.
  * @param {string}  payload.operationalCentre  - Must be a string.
  * @param {string}  payload.project            - Must be a string.
- * @param {number}  payload.patientAge         - Decimal years; min ≤ age < max from config.
- * @param {boolean} payload.weightLimitOverride - Whether the ±2 SD weight limit was overridden.
+ * @param {number}  payload.patientAge         - Decimal years; min <= age < max from config.
+ * @param {boolean} payload.weightLimitOverride - Whether the +/-2 SD weight limit was overridden.
  * @param {boolean} payload.use2SD             - Whether weight was set to the +2 SD value.
  * @param {boolean} payload.useYearsMonths     - Whether age was entered as years+months.
  * @param {boolean} payload.bloodGasAvailable  - Whether blood gas was available.
@@ -386,7 +386,7 @@ function validate(payload) {
   // Respiratory support — only required when severity is not already established
   // by another criterion. Not required if ANY of the following are true:
   //   1. shockPresent is true (shock protocol applies regardless of severity)
-  //   2. GCS ≤ severeThreshold (severe DKA established by GCS alone)
+  //   2. GCS <= severeThreshold (severe DKA established by GCS alone)
   //   3. pH is present in the payload AND pH < pH.severeThreshold
   //      (severe DKA established by pH; pH absent = blood gas unavailable,
   //       so pH cannot contribute to severity and the question still applies)
@@ -434,6 +434,6 @@ function validate(payload) {
     isValid: errors.length === 0,
     errors,
   };
-}
+
 
 export { validate };

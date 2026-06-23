@@ -418,7 +418,7 @@ export const data = ref({
      * Validation checks:
      *   1. Value is present and within the absolute numeric bounds from config.
      *   2. Requires a valid DOB and sex to perform centile range checking.
-     *   3. Compares against `limit.lower()` and `limit.upper()` (±2 SD for age/sex).
+     *   3. Compares against `limit.lower()` and `limit.upper()` (+/-2 SD for age/sex).
      *      If outside this range: sets `limit.exceeded = true` and shows an error
      *      unless `limit.override` is true (user has confirmed via FormOverrideConfirm).
      *   4. If weight was set to the +2SD value via use2SD and subsequently changed,
@@ -427,7 +427,7 @@ export const data = ref({
      * `limit` sub-object:
      *   - `lower()`        — -2 SD weight for age/sex (from config centile tables)
      *   - `upper()`        — +2 SD weight for age/sex, capped at config.weightLimits.max
-     *   - `exceeded`       — true when weight is outside the ±2 SD range
+     *   - `exceeded`       — true when weight is outside the +/-2 SD range
      *   - `override`       — true when the user has checked the override toggle
      *   - `overrideConfirm`— true when the user has confirmed the override on the
      *                        FormOverrideConfirm page
@@ -477,7 +477,7 @@ export const data = ref({
             upper = config.value.weightLimits.max;
           return upper;
         },
-        exceeded: false, // true when weight is outside the ±2 SD range
+        exceeded: false, // true when weight is outside the +/-2 SD range
         override: false, // true when the user has enabled the override toggle
         overrideConfirm: false, // true when confirmed on the FormOverrideConfirm page
         use2SD: false, // true when weight was auto-set to +2SD value
@@ -532,7 +532,7 @@ export const data = ref({
         this.errors = errors.join(" ");
         if (errors.length) return false;
 
-        // Check against age/sex-specific ±2 SD centile range
+        // Check against age/sex-specific +/-2 SD centile range
         if (
           Number.parseFloat(this.val) < this.limit.lower().toFixed(2) ||
           Number.parseFloat(this.val) > this.limit.upper().toFixed(2)
@@ -1176,7 +1176,7 @@ export const data = ref({
      * Shock present — whether the patient meets criteria for circulatory shock.
      *
      * Criteria: weak radial pulse/severe tachycardia + lower limb temperature
-     * gradient + CRT ≥ 3 seconds (all three must be present).
+     * gradient + CRT >= 3 seconds (all three must be present).
      *
      * Side effects on validation when `val === "true"`:
      *   - Clears `respiratorySupport.val` (not applicable in shock protocol).
@@ -1216,7 +1216,7 @@ export const data = ref({
      * GCS — Glasgow Coma Scale total score (3–15).
      *
      * Only shown (and validated) when `shockPresent === "false"`.
-     * Used to determine DKA severity (GCS ≤ severe threshold → severe DKA).
+     * Used to determine DKA severity (GCS <= severe threshold -> severe DKA).
      *
      * The GCS reference page (`/GCS`) is linked from the form to help the
      * clinician apply the correct scale for the patient's age.
