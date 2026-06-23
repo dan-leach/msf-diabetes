@@ -121,6 +121,69 @@ const formatDatetime = (iso) => {
       <a :href="'mailto:' + config.author.email">{{ config.author.email }}</a
       >.
     </p>
+
+    <!--quick start guide info box-->
+    <div class="card border-info mb-3">
+      <div class="card-body d-flex flex-row align-items-top">
+        <font-awesome-icon
+          :icon="['fas', 'circle-info']"
+          size="2xl"
+          class="me-4 mt-1 flex-shrink-0"
+        />
+        <div>
+          <p class="card-text mb-2">
+            Before using this calculator for the first time, please read the
+            <a href="/msf-diabetes-calculator-quick-start-guide.pdf" target="_blank"
+              >MSF Diabetes Calculator Quick Start Guide</a
+            >.
+          </p>
+          <a
+            href="#"
+            class="text-decoration-none"
+            data-bs-toggle="collapse"
+            data-bs-target="#dataNeededCollapse"
+            aria-expanded="false"
+            aria-controls="dataNeededCollapse"
+            @click.prevent
+          >
+            What data will I need? &#9660;
+          </a>
+          <div class="collapse mt-2" id="dataNeededCollapse">
+            <ul class="mb-2">
+              <li>Patient date of birth (or age in years and months)</li>
+              <li>Patient sex</li>
+              <li>Patient weight (kg)</li>
+              <li>Operational centre and project</li>
+              <li>Whether a blood gas analyser is available</li>
+              <li>Whether a blood ketone meter is available</li>
+              <li>Whether a syringe driver is available</li>
+              <li>Blood glucose reading (mmol/L or mg/dL), or if the meter reads 'HI'</li>
+              <li>
+                If blood gas available: pH; and if pH ≥ 7.3, bicarbonate (mmol/L)
+              </li>
+              <li>
+                If blood ketone meter available: blood ketones (mmol/L);
+                otherwise urine ketone dipstick result
+              </li>
+              <li>Whether clinical features of DKA are present</li>
+              <li>Whether clinical shock is present</li>
+              <li>
+                If no shock: GCS score, and whether the patient is on oxygen or
+                respiratory support
+              </li>
+            </ul>
+            <p class="mb-0 fst-italic small">
+              Refer to the
+              <a href="/msf-diabetes-calculator-quick-start-guide.pdf" target="_blank"
+                >Quick Start Guide</a
+              >
+              for guidance on how to assess each of these items.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="d-grid gap-2 mb-4">
       <button
         type="button"

@@ -89,7 +89,7 @@ export const data = ref({
       data.value.inputs.weight.val = 20;
       data.value.inputs.operationalCentre.val = "Paris";
       data.value.inputs.operationalCentre.isValid();
-      data.value.inputs.project.val = "OCP-12345-ProjectName";
+      data.value.inputs.project.val = "Other";
 
       data.value.inputs.bloodGasAvailable.val = "false";
       data.value.inputs.bloodKetonesAvailable.val = "false";
