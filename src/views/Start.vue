@@ -2,7 +2,9 @@
 import { inject, ref } from "vue";
 const config = inject("config");
 
-import Feedback from "../components/Feedback.vue"; 
+import Feedback from "../components/Feedback.vue";
+import { useInstallPrompt } from "../assets/useInstallPrompt.js";
+const { deferredPrompt, install } = useInstallPrompt();
 
 const isOnline = ref(navigator.onLine);
 
@@ -137,17 +139,28 @@ const formatDatetime = (iso) => {
               >Quick Start Guide</a
             >.
           </p>
-          <a
-            href="#"
-            class="text-decoration-none"
-            data-bs-toggle="collapse"
-            data-bs-target="#dataNeededCollapse"
-            aria-expanded="false"
-            aria-controls="dataNeededCollapse"
-            @click.prevent
-          >
-            What data will I need? &#9660;
-          </a>
+          <div class="d-flex flex-wrap align-items-center gap-3">
+            <a
+              href="#"
+              class="text-decoration-none"
+              data-bs-toggle="collapse"
+              data-bs-target="#dataNeededCollapse"
+              aria-expanded="false"
+              aria-controls="dataNeededCollapse"
+              @click.prevent
+            >
+              What data will I need? &#9660;
+            </a>
+            <button
+              v-if="deferredPrompt"
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              @click="install"
+            >
+              <font-awesome-icon :icon="['fas', 'circle-info']" class="me-1" />
+              Install app
+            </button>
+          </div>
           <div class="collapse mt-2" id="dataNeededCollapse">
             <ul class="mb-2">
               <li>Patient date of birth (or age in years and months)</li>

@@ -9,6 +9,10 @@ export default defineConfig({
   plugins: [
     vue(),
     VitePWA({
+      devOptions: {
+        enabled: true,
+        type: "module",
+      },
       filename: "sw.js", // keep SW filename consistent
       registerType: "autoUpdate", // skipWaiting + clients.claim
       injectRegister: "auto", // auto-inject registration
