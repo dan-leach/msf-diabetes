@@ -5,6 +5,7 @@ const config = inject("config");
 import Feedback from "../components/Feedback.vue";
 
 const isOnline = ref(navigator.onLine);
+const dataNeededOpen = ref(false);
 
 const formatDatetime = (iso) => {
   const date = new Date(iso);
@@ -139,14 +140,19 @@ const formatDatetime = (iso) => {
           </p>
           <a
             href="#"
-            class="text-decoration-none"
+            class="text-decoration-none collapse-toggle"
             data-bs-toggle="collapse"
             data-bs-target="#dataNeededCollapse"
-            aria-expanded="false"
+            :aria-expanded="dataNeededOpen"
             aria-controls="dataNeededCollapse"
-            @click.prevent
+            @click.prevent="dataNeededOpen = !dataNeededOpen"
           >
-            What data will I need? &#9660;
+            What data will I need to use the calculator?
+            <font-awesome-icon
+              :icon="['fas', 'chevron-down']"
+              class="chevron ms-1"
+              :class="{ 'chevron-open': dataNeededOpen }"
+            />
           </a>
           <div class="collapse mt-2" id="dataNeededCollapse">
             <ul class="mb-2">
@@ -207,5 +213,17 @@ const formatDatetime = (iso) => {
 }
 .btn-lg {
   font-size: 30px;
+}
+.collapse-toggle {
+  display: inline-block;
+  border: 1px solid currentColor;
+  border-radius: 0.375rem;
+  padding: 0.2rem 0.6rem;
+}
+.chevron {
+  transition: transform 0.25s ease;
+}
+.chevron-open {
+  transform: rotate(180deg);
 }
 </style>

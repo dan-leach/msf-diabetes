@@ -36,6 +36,7 @@ import {
   faEnvelope,
   faCheckCircle,
   faCircleXmark,
+  faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 // Add icons to the FontAwesome library
 library.add(
@@ -50,6 +51,7 @@ library.add(
   faEnvelope,
   faCheckCircle,
   faCircleXmark,
+  faChevronDown,
 );
 
 // Create Vue application
