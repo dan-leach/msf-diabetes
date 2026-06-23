@@ -238,13 +238,20 @@ function validate(payload) {
   }
 
   // ---------------------------------------------------------------------------
-  // Glucose — skipped entirely when glucoseHigh is true (meter reads "hi/high").
-  // When present: unit must be a valid key from config, and the value must be
-  // within that unit's min/max bounds.
+  // Glucose — glucoseHigh must be a boolean. When true, the meter reads
+  // "hi/high" and no numeric glucose value is submitted; the unit and value
+  // checks are skipped entirely. When false, unit and value are both validated.
   // The glucose value is validated against the selected unit's bounds only after
   // the unit itself has been confirmed valid, to avoid a misleading error on the
   // glucose value caused by an invalid unit lookup.
   // ---------------------------------------------------------------------------
+  if (typeof payload.glucoseHigh !== "boolean") {
+    errors.push({
+      field: "glucoseHigh",
+      message: "Glucose high field must be data type [boolean].",
+    });
+  }
+
   if (!payload.glucoseHigh) {
     // glucoseUnit
     if (
@@ -286,14 +293,24 @@ function validate(payload) {
   }
 
   // ---------------------------------------------------------------------------
-  // Ketones — blood and urine are mutually exclusive.
-  // Only the minimum threshold is checked here (biochemical DKA criterion);
+  // Ketones — blood and urine are mutually exclusive; exactly one must be
+  // present. Only the minimum threshold is checked (biochemical DKA criterion);
   // the upper range bound is not validated because these fields carry clinical
   // meaning up to and including the maximum meter reading.
+  //   - At least one of bloodKetones / urineKetones must be provided.
   //   - bloodKetones: validated when urineKetones is absent/falsy and the value
   //     is present as a number.
   //   - urineKetones: validated when bloodKetones is absent/falsy.
   // ---------------------------------------------------------------------------
+  if (
+    typeof payload.bloodKetones !== "number" &&
+    (payload.urineKetones === undefined || payload.urineKetones === null)
+  ) {
+    errors.push({
+      field: "bloodKetones",
+      message: "Either blood ketones or urine ketones must be provided.",
+    });
+  }
   if (
     !payload.urineKetones &&
     typeof payload.bloodKetones === "number" &&
@@ -315,14 +332,17 @@ function validate(payload) {
   }
 
   // ---------------------------------------------------------------------------
-  // Diagnostic features — must be boolean true.
-  // A false value or wrong type both mean the DKA diagnostic criteria are not
-  // met; both are reported with the same clinical message.
+  // Diagnostic features — must be a boolean, and must be true.
+  // Two failure modes are distinguished:
+  //   - Wrong type: field is malformed (data integrity issue).
+  //   - False value: field is valid but clinical DKA criteria not met.
   // ---------------------------------------------------------------------------
-  if (
-    typeof payload.diagnosticFeatures !== "boolean" ||
-    !payload.diagnosticFeatures
-  ) {
+  if (typeof payload.diagnosticFeatures !== "boolean") {
+    errors.push({
+      field: "diagnosticFeatures",
+      message: "Diagnostic features field must be data type [boolean].",
+    });
+  } else if (!payload.diagnosticFeatures) {
     errors.push({
       field: "diagnosticFeatures",
       message: "Diagnosis requires clinical features of DKA.",
