@@ -45,8 +45,20 @@ const offlineCalculatorVersion = 0.6;
 const timeoutDuration = 15000;
 
 /**
- * Fetches application configuration from the local config file.
- * Enriches it with client-side version and mode information,
+ * Config URL: local static file in dev (avoids CORS/bot-protection on the real API),
+ * real API endpoint in production where browser requests are not blocked.
+ * @type {string}
+ */
+const configUrl = import.meta.env.DEV
+  ? "/config.json"
+  : underDevelopment
+  ? "https://dev-api.msf.dka-calculator.co.uk/config"
+  : "https://api.msf.dka-calculator.co.uk/config";
+
+/**
+ * Fetches application configuration.
+ * In development uses a local config.json; in production fetches from the real API.
+ * Enriches the response with client-side version and mode information,
  * and triggers syncing of any offline data stored locally.
  *
  * @async
@@ -55,12 +67,13 @@ const timeoutDuration = 15000;
  */
 async function fetchConfig() {
   if (underDevelopment) console.log("***Client underDevelopment***");
+  if (import.meta.env.DEV) console.log("***Vite DEV mode: using local config.json***");
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
   try {
-    const response = await fetch("/config.json", {
+    const response = await fetch(configUrl, {
       method: "GET",
       signal: controller.signal,
     });
