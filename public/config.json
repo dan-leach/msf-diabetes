@@ -23,7 +23,7 @@
       "main": "https://github.com/dan-leach/msf-diabetes-api",
       "changelog": "https://github.com/dan-leach/msf-diabetes-api/wiki/Changelog"
     },
-    "url": "https://api.msf.dka-calculator.co.uk/",
+    "url": "https://api.diabetes.msf.net/",
     "timeoutDuration": 15000,
     "showConsole": true,
     "database": {

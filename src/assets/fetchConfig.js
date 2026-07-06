@@ -36,7 +36,7 @@ const clientVersion = 1.0;
  * Last update date of the client application (YYYY-MM-DD format).
  * @type {string}
  */
-const clientLastUpdated = "2026-06-23";
+const clientLastUpdated = "2026-07-06";
 
 /**
  * Version of the offline calculator algorithm.
@@ -57,7 +57,7 @@ const timeoutDuration = 15000;
  */
 const configUrl = import.meta.env.DEV
   ? "/config.json"
-  : "https://api.msf.dka-calculator.co.uk/config";
+  : "https://api.diabetes.msf.net/config";
 
 /**
  * Fetches application configuration.

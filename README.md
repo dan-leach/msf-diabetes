@@ -89,16 +89,14 @@ All routes except `/` are lazy-loaded.
 
 Config is fetched at startup from the API and stored in a reactive Vue ref that is provided app-wide via `app.provide("config", config)`. Components access it via `inject("config")`.
 
-Two flags in `src/assets/fetchConfig.js` control which endpoint is used:
+Flag in `src/assets/fetchConfig.js` control which endpoint is used:
 
 - **`import.meta.env.DEV`** — set automatically by Vite. When `true`, config is loaded from `public/config.json` (no network call).
-- **`underDevelopment`** — manual flag. When `true` in a production build, the app targets `dev-api.msf.dka-calculator.co.uk` instead of `api.msf.dka-calculator.co.uk`.
 
-| Mode                                        | Config source                                     |
-| ------------------------------------------- | ------------------------------------------------- |
-| `npm run dev`                               | `public/config.json`                              |
-| Production build, `underDevelopment: true`  | `https://dev-api.msf.dka-calculator.co.uk/config` |
-| Production build, `underDevelopment: false` | `https://api.msf.dka-calculator.co.uk/config`     |
+| Mode                                        | Config source                     |
+| ------------------------------------------- | --------------------------------- |
+| `npm run dev`                               | `public/config.json`              |
+| Production build, `underDevelopment: false` | `https://api.diabetes.net/config` |
 
 ---
 

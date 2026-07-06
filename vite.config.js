@@ -67,8 +67,7 @@ export default defineConfig({
         navigateFallbackDenylist: [/\.pdf$/],
         runtimeCaching: [
           {
-            urlPattern:
-              /^https:\/\/(dev-api|api)\.msf\.dka-calculator\.co\.uk\/config$/i,
+            urlPattern: /^https:\/\/(dev-api|api)\.diabetes\.msf.net\/config$/i,
             handler: "StaleWhileRevalidate",
             options: {
               cacheName: "config-cache",
