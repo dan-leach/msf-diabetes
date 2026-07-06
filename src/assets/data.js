@@ -514,7 +514,10 @@ export const data = ref({
 
         // If the weight was set to +2SD from the override page but has since been
         // changed manually, remove the use2SD flag to avoid misleading the API
-        if (Number.parseFloat(this.val).toFixed(2) != this.limit.upper().toFixed(2))
+        if (
+          Number.parseFloat(this.val).toFixed(2) !=
+          this.limit.upper().toFixed(2)
+        )
           this.limit.use2SD = false;
 
         this.val = Number.parseFloat(this.val).toFixed(2);
@@ -850,7 +853,7 @@ export const data = ref({
         if (!this.unit) this.unitChange();
         return config.value.validation.glucose.units[this.unit].max;
       },
-      step: 0.1,
+      step: 1,
       /**
        * Validates the glucose value.
        *

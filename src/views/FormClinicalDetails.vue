@@ -1,53 +1,31 @@
-/**
- * @component FormClinicalDetails
- * @description Step 3 of the episode form flow — collects the patient's clinical
- * observations at the time of DKA assessment.
- *
- * Fields collected (some conditional on earlier equipment/blood gas choices):
- *
- *   - glucose           — blood glucose reading. Accepts a numeric value with a
- *                         selectable unit (mmol/L or mg/dL). A "reads high/hi" toggle
- *                         disables the numeric input and signals an unquantifiable
- *                         hyperglycaemia to the calculator.
- *
- *   - bloodKetones      — shown when bloodKetonesAvailable === 'true'. Numeric
- *                         input in mmol/L.
- *
- *   - urineKetones      — shown when bloodKetonesAvailable !== 'true'. Button-group
- *                         picker for dipstick result (-, +, ++, +++, ++++).
- *
- *   - diagnosticFeatures — yes/no: whether clinical diagnostic features of DKA
- *                          are present.
- *
- *   - pH                — shown only when bloodGasAvailable === 'true'.
- *
- *   - bicarbonate       — shown only when bloodGasAvailable === 'true' AND pH is
- *                         at or above the configured diagnostic threshold (i.e. not
- *                         severely acidotic). Fades in via Vue transition.
- *
- *   - shockPresent      — yes/no. When shock is present, GCS and respiratory support
- *                         inputs are hidden (assumed to be in shock protocol).
- *
- *   - gcs               — shown only when shockPresent === 'false'. Links to the
- *                         GCS reference page in a new tab.
- *
- *   - respiratorySupport — shown only when shockPresent === 'false', GCS is above
- *                          the severe threshold, and pH (if available) is not severely
- *                          acidotic. Controls whether respiratory support is factored
- *                          into the severity classification.
- *
- * Guard: if form step 1 is not valid (patient details incomplete), redirects to
- * FormEquipmentAvailability. Note: this guard checks step 1 rather than step 2,
- * which may be a bug — step 2 (equipment) is the immediately preceding step.
- *
- * Form flow: Disclaimer → PatientDetails → (OverrideConfirm?) → EquipmentAvailability
- *            → **ClinicalDetails** → Generate → Guidance
- *
- * @requires config — application configuration injected from App.vue.
- * @requires data   — global reactive data store from assets/data.js.
- * @requires router — Vue Router instance for programmatic navigation.
- * @requires Swal   — SweetAlert2 for the reset confirmation dialog.
- */
+/** * @component FormClinicalDetails * @description Step 3 of the episode form
+flow — collects the patient's clinical * observations at the time of DKA
+assessment. * * Fields collected (some conditional on earlier equipment/blood
+gas choices): * * - glucose — blood glucose reading. Accepts a numeric value
+with a * selectable unit (mmol/L or mg/dL). A "reads high/hi" toggle * disables
+the numeric input and signals an unquantifiable * hyperglycaemia to the
+calculator. * * - bloodKetones — shown when bloodKetonesAvailable === 'true'.
+Numeric * input in mmol/L. * * - urineKetones — shown when bloodKetonesAvailable
+!== 'true'. Button-group * picker for dipstick result (-, +, ++, +++, ++++). * *
+- diagnosticFeatures — yes/no: whether clinical diagnostic features of DKA * are
+present. * * - pH — shown only when bloodGasAvailable === 'true'. * * -
+bicarbonate — shown only when bloodGasAvailable === 'true' AND pH is * at or
+above the configured diagnostic threshold (i.e. not * severely acidotic). Fades
+in via Vue transition. * * - shockPresent — yes/no. When shock is present, GCS
+and respiratory support * inputs are hidden (assumed to be in shock protocol). *
+* - gcs — shown only when shockPresent === 'false'. Links to the * GCS reference
+page in a new tab. * * - respiratorySupport — shown only when shockPresent ===
+'false', GCS is above * the severe threshold, and pH (if available) is not
+severely * acidotic. Controls whether respiratory support is factored * into the
+severity classification. * * Guard: if form step 1 is not valid (patient details
+incomplete), redirects to * FormEquipmentAvailability. Note: this guard checks
+step 1 rather than step 2, * which may be a bug — step 2 (equipment) is the
+immediately preceding step. * * Form flow: Disclaimer → PatientDetails →
+(OverrideConfirm?) → EquipmentAvailability * → **ClinicalDetails** → Generate →
+Guidance * * @requires config — application configuration injected from App.vue.
+* @requires data — global reactive data store from assets/data.js. * @requires
+router — Vue Router instance for programmatic navigation. * @requires Swal —
+SweetAlert2 for the reset confirmation dialog. */
 <script setup>
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";

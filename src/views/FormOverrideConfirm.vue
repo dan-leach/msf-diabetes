@@ -1,31 +1,22 @@
-/**
- * @component FormOverrideConfirm
- * @description Weight safety override confirmation step in the episode form flow.
- *
- * This view is shown when the patient weight entered in FormPatientDetails falls
- * outside the expected ±2 SD range for age, or exceeds the configured maximum weight.
- * It presents the clinician with three options:
- *
- *   1. Go back and review — returns to FormPatientDetails to re-enter the weight.
- *   2. Use +2SD weight   — automatically sets weight to the upper age-appropriate limit
- *                          (shown only when the weight is above the upper limit and the
- *                          upper limit is below the hard maximum cap).
- *   3. Proceed with current weight — confirms the override and advances to
- *                          FormEquipmentAvailability, with a `border-danger` warning.
- *
- * When the entered weight is *below* the lower limit (< -2 SD for age), options 2 and 3
- * are still available but the text reflects the under-weight scenario.
- *
- * Guard: if form step 1 is not valid, the user is redirected to FormPatientDetails.
- *
- * Form flow: Disclaimer → PatientDetails → **OverrideConfirm** → EquipmentAvailability
- *            → ClinicalDetails → Generate → Guidance
- *
- * @requires config — application configuration injected from App.vue.
- * @requires data   — global reactive data store from assets/data.js.
- * @requires router — Vue Router instance for programmatic navigation.
- * @requires Swal   — SweetAlert2 for confirmation toasts.
- */
+/** * @component FormOverrideConfirm * @description Weight safety override
+confirmation step in the episode form flow. * * This view is shown when the
+patient weight entered in FormPatientDetails falls * outside the expected ±2 SD
+range for age, or exceeds the configured maximum weight. * It presents the
+clinician with three options: * * 1. Go back and review — returns to
+FormPatientDetails to re-enter the weight. * 2. Use +2SD weight — automatically
+sets weight to the upper age-appropriate limit * (shown only when the weight is
+above the upper limit and the * upper limit is below the hard maximum cap). * 3.
+Proceed with current weight — confirms the override and advances to *
+FormEquipmentAvailability, with a `border-danger` warning. * * When the entered
+weight is *below* the lower limit (< -2 SD for age), options 2 and 3 * are still
+available but the text reflects the under-weight scenario. * * Guard: if form
+step 1 is not valid, the user is redirected to FormPatientDetails. * * Form
+flow: Disclaimer → PatientDetails → **OverrideConfirm** → EquipmentAvailability
+* → ClinicalDetails → Generate → Guidance * * @requires config — application
+configuration injected from App.vue. * @requires data — global reactive data
+store from assets/data.js. * @requires router — Vue Router instance for
+programmatic navigation. * @requires Swal — SweetAlert2 for confirmation toasts.
+*/
 <script setup>
 import { onMounted } from "vue";
 import { data } from "../assets/data.js";

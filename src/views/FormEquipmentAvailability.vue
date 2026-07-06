@@ -1,29 +1,21 @@
-/**
- * @component FormEquipmentAvailability
- * @description Step 2 of the episode form flow — collects information about
- * available clinical equipment.
- *
- * The answers given here determine which clinical pathways and calculation
- * branches are available on the guidance page:
- *   - bloodGasAvailable    — unlocks pH and bicarbonate inputs on FormClinicalDetails.
- *   - bloodKetonesAvailable — selects blood vs. urine ketone input on FormClinicalDetails.
- *   - syringePumpAvailable  — determines IV insulin rate vs. IM insulin dose output.
- *   - infusionPumpAvailable — determines whether drop-rate calculations are required.
- *   - dropFactor            — only shown when infusionPumpAvailable is false; selects
- *                             the giving set to use for drop-rate calculations.
- *
- * Guards (run at setup time, before mount):
- *   - If form step 1 is invalid, redirects to FormPatientDetails.
- *   - If a weight override is pending but not yet confirmed, redirects to FormOverrideConfirm.
- *
- * Form flow: Disclaimer → PatientDetails → (OverrideConfirm?) → **EquipmentAvailability**
- *            → ClinicalDetails → Generate → Guidance
- *
- * @requires config  — application configuration injected from App.vue.
- * @requires data    — global reactive data store from assets/data.js.
- * @requires router  — Vue Router instance for programmatic navigation.
- * @requires Swal    — SweetAlert2 for the reset confirmation dialog.
- */
+/** * @component FormEquipmentAvailability * @description Step 2 of the episode
+form flow — collects information about * available clinical equipment. * * The
+answers given here determine which clinical pathways and calculation * branches
+are available on the guidance page: * - bloodGasAvailable — unlocks pH and
+bicarbonate inputs on FormClinicalDetails. * - bloodKetonesAvailable — selects
+blood vs. urine ketone input on FormClinicalDetails. * - syringePumpAvailable —
+determines IV insulin rate vs. IM insulin dose output. * - infusionPumpAvailable
+— determines whether drop-rate calculations are required. * - dropFactor — only
+shown when infusionPumpAvailable is false; selects * the giving set to use for
+drop-rate calculations. * * Guards (run at setup time, before mount): * - If
+form step 1 is invalid, redirects to FormPatientDetails. * - If a weight
+override is pending but not yet confirmed, redirects to FormOverrideConfirm. * *
+Form flow: Disclaimer → PatientDetails → (OverrideConfirm?) →
+**EquipmentAvailability** * → ClinicalDetails → Generate → Guidance * *
+@requires config — application configuration injected from App.vue. * @requires
+data — global reactive data store from assets/data.js. * @requires router — Vue
+Router instance for programmatic navigation. * @requires Swal — SweetAlert2 for
+the reset confirmation dialog. */
 <script setup>
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";

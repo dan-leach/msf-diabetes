@@ -188,7 +188,6 @@ const formatDatetime = (iso) => {
         </div>
       </div>
     </div>
-
     <p class="mx-1">
       We're always trying to improve. If you have suggestions or queries, please
       contact

@@ -1,37 +1,27 @@
-/**
- * @component FormPatientDetails
- * @description Step 1 of the episode form flow — collects patient demographics
- * and operational context.
- *
- * Fields collected:
- *   - episodeType        — real patient episode or test/training episode.
- *   - patientDOB        — date of birth, or age expressed as years + months via a toggle.
- *   - patientSex        — male or female (used with weight to look up age-appropriate limits).
- *   - weight            — patient weight in kg. Min/max are computed dynamically from
- *                         the patient's age and sex. If the entered weight exceeds the
- *                         ±2 SD range, an override checkbox is shown; enabling it routes
- *                         the user through FormOverrideConfirm before proceeding.
- *   - operationalCentre — selected from config.operationalCentres.
- *   - project           — filtered by the selected operational centre; shown only after
- *                         an operational centre has been chosen (fade-in transition).
- *
- * Guard: if form step 0 (legal agreement) is not complete, behaviour differs by mode:
- *   - Development (`config.client.underDevelopment === true`): calls `data.value.form.joeBloggs()`
- *     to pre-fill the form with test data for convenience.
- *   - Production: redirects to `/form-disclaimer` so the user must agree before proceeding.
- *
- * Navigation after "Continue":
- *   - → `/form-override-confirm` if weight.limit.override is set.
- *   - → `/form-equipment-availability` otherwise.
- *
- * Form flow: Disclaimer → **PatientDetails** → (OverrideConfirm?) → EquipmentAvailability
- *            → ClinicalDetails → Generate → Guidance
- *
- * @requires config — application configuration injected from App.vue.
- * @requires data   — global reactive data store from assets/data.js.
- * @requires router — Vue Router instance for programmatic navigation.
- * @requires Swal   — SweetAlert2 for the reset confirmation dialog.
- */
+/** * @component FormPatientDetails * @description Step 1 of the episode form
+flow — collects patient demographics * and operational context. * * Fields
+collected: * - episodeType — real patient episode or test/training episode. * -
+patientDOB — date of birth, or age expressed as years + months via a toggle. * -
+patientSex — male or female (used with weight to look up age-appropriate
+limits). * - weight — patient weight in kg. Min/max are computed dynamically
+from * the patient's age and sex. If the entered weight exceeds the * ±2 SD
+range, an override checkbox is shown; enabling it routes * the user through
+FormOverrideConfirm before proceeding. * - operationalCentre — selected from
+config.operationalCentres. * - project — filtered by the selected operational
+centre; shown only after * an operational centre has been chosen (fade-in
+transition). * * Guard: if form step 0 (legal agreement) is not complete,
+behaviour differs by mode: * - Development (`config.client.underDevelopment ===
+true`): calls `data.value.form.joeBloggs()` * to pre-fill the form with test
+data for convenience. * - Production: redirects to `/form-disclaimer` so the
+user must agree before proceeding. * * Navigation after "Continue": * - →
+`/form-override-confirm` if weight.limit.override is set. * - →
+`/form-equipment-availability` otherwise. * * Form flow: Disclaimer →
+**PatientDetails** → (OverrideConfirm?) → EquipmentAvailability * →
+ClinicalDetails → Generate → Guidance * * @requires config — application
+configuration injected from App.vue. * @requires data — global reactive data
+store from assets/data.js. * @requires router — Vue Router instance for
+programmatic navigation. * @requires Swal — SweetAlert2 for the reset
+confirmation dialog. */
 <script setup>
 import { ref, onMounted, inject } from "vue";
 import { data } from "../assets/data.js";
