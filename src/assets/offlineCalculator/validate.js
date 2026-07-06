@@ -240,42 +240,47 @@ function validate(payload) {
   }
 
   // ---------------------------------------------------------------------------
-  // Glucose — glucoseHigh must be a boolean. When true, the meter reads
-  // "hi/high" and no numeric glucose value is submitted; the unit and value
-  // checks are skipped entirely. When false, unit and value are both validated.
-  // The glucose value is validated against the selected unit's bounds only after
-  // the unit itself has been confirmed valid, to avoid a misleading error on the
-  // glucose value caused by an invalid unit lookup.
+  // Glucose — glucoseHigh must be a boolean when provided. When true, the meter
+  // reads "HI/HIGH" and no numeric glucose value is expected, so the glucose
+  // value and unit checks are skipped. Otherwise, a numeric glucose value is
+  // required and is validated against the selected unit's min/max bounds. The
+  // glucose value is only validated after the unit has been confirmed valid to
+  // avoid reporting a misleading range error caused by an invalid unit.
   // ---------------------------------------------------------------------------
-  if (typeof payload.glucoseHigh !== "boolean") {
+
+  if (
+    payload.glucoseHigh !== undefined &&
+    typeof payload.glucoseHigh !== "boolean"
+  ) {
     errors.push({
       field: "glucoseHigh",
       message: "Glucose high field must be data type [boolean].",
     });
-  }
-
-  // glucose
-  if (typeof payload.glucose !== "number") {
-    errors.push({
-      field: "glucose",
-      message: "Glucose field must be data type [float].",
-    });
+  } else if (payload.glucoseHigh === true) {
+    // High reading - nothing else to validate.
   } else {
-    const unitConfig =
-      config.value.validation.glucose.units[payload.glucoseUnit];
-    if (!unitConfig) {
+    if (typeof payload.glucose !== "number") {
       errors.push({
         field: "glucose",
-        message: "Invalid glucose unit option provided.",
+        message: "Glucose field must be data type [float].",
       });
-    } else if (
-      payload.glucose < unitConfig.min ||
-      payload.glucose > unitConfig.max
-    ) {
-      errors.push({
-        field: "glucose",
-        message: `Glucose must be in range ${unitConfig.min} to ${unitConfig.max} ${payload.glucoseUnit}.`,
-      });
+    } else {
+      const unitConfig =
+        config.value.validation.glucose.units[payload.glucoseUnit];
+      if (!unitConfig) {
+        errors.push({
+          field: "glucoseUnit",
+          message: "Invalid glucose unit option provided.",
+        });
+      } else if (
+        payload.glucose < unitConfig.min ||
+        payload.glucose > unitConfig.max
+      ) {
+        errors.push({
+          field: "glucose",
+          message: `Glucose must be in range ${unitConfig.min} to ${unitConfig.max} ${payload.glucoseUnit}.`,
+        });
+      }
     }
   }
 
