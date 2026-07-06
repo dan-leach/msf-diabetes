@@ -85,6 +85,26 @@ const formatDatetime = (iso) => {
         </div>
       </div>
     </div>
+    
+    <div
+      class="card border-danger mb-3"
+    >
+      <div class="card-body">
+        <div class="d-flex flex-row align-items-center">
+          <font-awesome-icon
+          :icon="['fas', 'triangle-exclamation']"
+            size="2xl"
+            class="me-4"
+          />
+          <div>
+            <h5 class="card-title">Pilot version</h5>
+            <p class="card-text">
+              For clinical use only as part of the Aweil pilot program.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!--
       Version mismatch alert.
