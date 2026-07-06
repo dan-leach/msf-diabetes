@@ -1,13 +1,27 @@
+/** * @component FormDisclaimer * @description Step 0 of the episode form flow —
+displays the legal disclaimer. * * The user must agree to the disclaimer before
+entering patient data. * Clicking "Agree and continue" records legal agreement
+in the shared data store * and navigates to the patient details form. * * This
+is the entry point of the form; it does not guard against missing prior * steps
+because it is itself the first step. * * Form flow: Disclaimer → PatientDetails
+→ (OverrideConfirm?) → EquipmentAvailability * → ClinicalDetails → Generate →
+Guidance * * @requires config — application configuration injected from App.vue.
+* @requires data — global reactive data store from assets/data.js. * @requires
+router — Vue Router instance for programmatic navigation. */
 <script setup>
 import { onMounted } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
 import { inject } from "vue";
+
+/** @type {Object} Application configuration injected from the root provider in App.vue. */
 const config = inject("config");
 
 /**
- * Function to handle the 'Continue' button click event
- * Sets the legal agreement to true and navigates to the patient details form.
+ * Handles the "Agree and continue" button click.
+ *
+ * Records that the user has accepted the legal disclaimer and navigates
+ * to the first data-entry step of the form flow.
  */
 const continueClick = () => {
   data.value.inputs.legalAgreement.val = true;
@@ -15,19 +29,22 @@ const continueClick = () => {
 };
 
 /**
- * Lifecycle hook that runs when the component is mounted.
- * Ensures the page is scrolled to the top.
+ * Scrolls to the top of the page when the component mounts.
+ * Ensures the user always reads the disclaimer from the beginning,
+ * even if they navigated here from a later step via the back button.
  */
 onMounted(() => {
-  // Scroll to the top of the page
   window.scrollTo(0, 0);
 });
 </script>
 
 <template>
   <form id="form-disclaimer" class="container my-4 needs-validation">
-    <h2 class="display-3">Legal disclaimer</h2>
+    <h2 class="display-3 text-center">Legal disclaimer</h2>
+
+    <!-- Full disclaimer text — all paragraphs must remain visible; do not truncate -->
     <div>
+      <p><strong>Pilot Mode Only / Not Final Product!</strong></p>
       <p>
         By using this website and by using the calculated values, and the
         calculation formulae, you confirm that you accept the terms of this
@@ -48,18 +65,19 @@ onMounted(() => {
         that the content on our site is accurate, complete, free from error or
         up to date, and it remains strictly the treating clinician’s
         responsibility to check the calculated values produced by this website
-        manually. The content on our site is provided for general information
-        only. It is not intended to amount to advice on which you should rely.
+        manually and verified with treating Senior Consultant such as
+        Paediatrician or Endocrinologist. The content on our site is provided
+        for general information only. It is not intended to amount to advice on
+        which you should rely as the is only in pilot mode.
       </p>
       <p>
-        The {{ config.appName }} allows a maximum weight for age of +2SDS or
-        {{ config.caps.weight }}kg (whichever is lower), and a minimum weight
-        for age of -2SDS. There is the facility to override these weight limits
-        but clinicians do this at their own risk and the
-        {{ config.organisations.msf.shortName }} accepts no liability for any
-        adverse events. Neither the {{ config.organisations.msf.shortName }} nor
-        the website authors accept any liability for any errors arising from the
-        use of this tool or protocols generated.
+        The MSF pilot phase Diabetes Calculator allows a maximum weight for age
+        of +2SDS or 75kg (whichever is lower), and a minimum weight for age of
+        -2SDS. There is the facility to override these weight limits but
+        clinicians do this at their own risk and the MSF Foundation accepts no
+        liability for any adverse events. Neither the MSF Foundation nor the
+        website authors accept any liability for any errors arising from the use
+        of this tool or protocols generated.
       </p>
       <p>
         We exclude all implied conditions, warranties, representations or other
@@ -87,9 +105,15 @@ onMounted(() => {
         formulae contained within it, you confirm that you agree to the
         exclusive jurisdiction of the courts of England and Wales.
       </p>
+      <p>
+        As this is only pilot phase tool, the primary objective is to validate
+        the usefulness and safety of the DKA Calculator in real clinical
+        workflows across different devices (PC/tablet/smartphone) and
+        connectivity conditions (online/offline).
+      </p>
     </div>
 
-    <!--next-->
+    <!-- Agreement button — clicking records consent and advances to the form -->
     <div class="text-center">
       <button
         type="button"

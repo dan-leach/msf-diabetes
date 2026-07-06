@@ -1,0 +1,142 @@
+/**
+ * @module offlineCalculator
+ * @description Orchestrates the full offline DKA calculation pipeline when the device
+ * has no server connectivity. The pipeline runs in order:
+ *
+ *  1. Validate the payload (`validate.js`)
+ *  2. Check weight is within growth-chart limits (`checkWeightWithinLimit.js`)
+ *  3. Sanitise patientAge to 2 d.p. string to avoid re-identification
+ *  4. Compute all clinical variables (`calculateVariables.js`)
+ *  5. Null-out absent optional fields for consistent storage shape
+ *  6. Generate a unique audit ID (`generateAuditId.js`)
+ *  7. Encrypt patient-identifiable data with AES-256-GCM + RSA (`encrypt.js`)
+ *  8. Persist the encrypted record and audit ID to localStorage for later sync
+ *
+ * On success the caller receives `{ calculations, mode: "offline", auditID }`.
+ * On any failure the original error is re-thrown after logging.
+ *
+ * @exports runOfflineCalculation - Async function that runs the full offline pipeline.
+ */
+import { validate } from "./validate";
+import { checkWeightWithinLimit } from "./checkWeightWithinLimit";
+import { calculateVariables } from "./calculateVariables";
+import { generateAuditId } from "./generateAuditId";
+import { encrypt } from "./encrypt";
+
+/**
+ * Performs offline calculation by validating payload, checking weight limits, and calculating variables.
+ * @param {Object} payload - The patient and clinical data to process.
+ * @returns {Promise<Object>} - A promise resolving to an object containing calculations, mode, and auditID.
+ * @returns {Object} returns.calculations - The calculation results from calculateVariables.
+ * @returns {string} returns.mode - The mode indicator ('offline').
+ * @returns {string} returns.auditID - A unique identifier for this calculation.
+ * @throws {Error} - Throws error if validation, weight check, or calculations fail.
+ */
+async function runOfflineCalculation(payload) {
+  try {
+    // Step 1: Validate
+    const validation = validate(payload);
+    if (!validation.isValid) {
+      throw new Error(JSON.stringify(validation.errors));
+    }
+
+    // Step 2: Check weight within limits
+    const check = checkWeightWithinLimit(payload);
+    if (!check.pass) {
+      console.log("checkWeightWithinLimit failed");
+      throw new Error(check.error);
+    }
+
+    // Step 3: Format patientAge to 2 decimal places (as string) to avoid deanonymisation
+    payload.patientAge = payload.patientAge.toFixed(2);
+
+    // Step 4: Perform calculations
+    const calculations = calculateVariables(payload);
+
+    // Step 5: Set undefined optional values to null
+    payload.pH = payload.pH || null;
+    payload.glucoseUnit = payload.glucoseUnit || null;
+    payload.glucose = payload.glucose || null;
+    payload.glucoseHigh = payload.glucoseHigh || false;
+    payload.bicarbonate = payload.bicarbonate || null;
+    payload.bloodKetones = payload.bloodKetones || null;
+    payload.urineKetones = payload.urineKetones || null;
+    payload.gcs = payload.gcs || null;
+    payload.respiratorySupport = payload.respiratorySupport || null;
+    payload.dropFactor = payload.dropFactor || null;
+
+    // Step 6: Generate audit ID
+    const auditID = generateAuditId();
+
+    // Step 7: Encrypt the data
+    const encryptedData = await encrypt({
+      patientSex: payload.patientSex,
+      weight: payload.weight,
+      patientAge: payload.patientAge,
+      glucose: payload.glucose,
+      glucoseUnit: payload.glucoseUnit,
+      glucoseHigh: payload.glucoseHigh,
+      bloodKetones: payload.bloodKetones,
+      urineKetones: payload.urineKetones,
+      diagnosticFeatures: payload.diagnosticFeatures,
+      pH: payload.pH,
+      bicarbonate: payload.bicarbonate,
+      shockPresent: payload.shockPresent,
+      gcs: payload.gcs,
+      respiratorySupport: payload.respiratorySupport,
+      calculations: calculations,
+    });
+
+    // Step 8: store in local storage, for later upload when online
+    const offlineData = {
+      data: {
+        episodeType: payload.episodeType,
+        appVersion: payload.appVersion,
+        legalAgreement: payload.legalAgreement,
+        operationalCentre: payload.operationalCentre,
+        project: payload.project,
+        clientUseragent: payload.clientUseragent,
+        weightLimitOverride: payload.weightLimitOverride,
+        use2SD: payload.use2SD,
+        useYearsMonths: payload.useYearsMonths,
+        bloodGasAvailable: payload.bloodGasAvailable,
+        bloodKetonesAvailable: payload.bloodKetonesAvailable,
+        syringePumpAvailable: payload.syringePumpAvailable,
+        infusionPumpAvailable: payload.infusionPumpAvailable,
+        dropFactor: payload.dropFactor,
+        offlineTimestamp: new Date().toISOString(),
+      },
+      encryptedData,
+    };
+
+    const offlineStoreIDs = JSON.parse(
+      localStorage.getItem("offlineStoreIDs") || "[]",
+    );
+    offlineStoreIDs.push(auditID);
+    localStorage.setItem("offlineStoreIDs", JSON.stringify(offlineStoreIDs));
+    localStorage.setItem(auditID, JSON.stringify(offlineData));
+
+    return {
+      calculations,
+      mode: "offline",
+      auditID,
+    };
+  } catch (error) {
+    // error.message is a JSON-stringified array only when thrown by the validate()
+    // step (Step 1). Errors from checkWeightWithinLimit (Step 2), calculateVariables
+    // (Step 4), encrypt (Step 7), or localStorage carry plain strings — attempting
+    // JSON.parse on those would throw a SyntaxError and mask the original error.
+    try {
+      const parsedError = JSON.parse(error.message);
+      console.error(
+        `Offline calculation error (count: ${parsedError.length}):`,
+        parsedError,
+      );
+    } catch {
+      console.error("Offline calculation error:", error.message);
+    }
+    throw error;
+  }
+}
+
+export { runOfflineCalculation };

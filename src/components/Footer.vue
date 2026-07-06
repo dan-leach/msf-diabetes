@@ -1,6 +1,25 @@
 <script setup>
-import { inject } from "vue";
+/**
+ * Site-wide footer component. Displays two pieces of information:
+ *  - An offline-readiness indicator (service worker active check via `navigator.serviceWorker`).
+ *  - A clickable device-label panel that opens a Bootstrap modal containing version info,
+ *    author details, MSF address, contact email, and the full legal disclaimer.
+ *
+ * The service worker status is checked once on mount; the indicator does not update
+ * dynamically if the SW registers after the component is mounted.
+ *
+ * @inject config - Application configuration provided by `main.js`.
+ */
+import { inject, ref, onMounted } from "vue";
 const config = inject("config");
+const swActive = ref(false);
+
+onMounted(async () => {
+  if ("serviceWorker" in navigator) {
+    const registration = await navigator.serviceWorker.ready;
+    swActive.value = !!registration.active;
+  }
+});
 </script>
 
 <template>
@@ -14,11 +33,28 @@ const config = inject("config");
         data-bs-target="#deviceLabelModal"
         style="cursor: pointer"
       >
+      <div class="mb-1 text-black">
+        <div v-if="swActive">
+          <font-awesome-icon icon="check-circle" class="text-success" />
+          Ready for offline use
+        </div>
+        <div v-else>
+          <font-awesome-icon icon="circle-xmark" class="text-danger" />
+          Not ready for offline use
+        </div>
+      </div>
         <p class="footer-text d-flex flex-row flex-wrap align-items-center justify-content-center text-center">
           <span
             ><strong>{{ config.appName }}&nbsp;</strong></span
           >
-          <span class="text-decoration-underline mx-3">View device label</span>
+          <span class="text-decoration-underline mx-3">View device label 
+            <img
+                alt="Guidance icon"
+                class="icon mx-2"
+                src="@/assets/images/guidance-icon.svg"
+                width="24"
+                height="24"
+              /></span>
         </p>
         <div class="footer-text text-xxs text-center">
         This application should only be used by medical professionals. Decisions
@@ -52,25 +88,23 @@ const config = inject("config");
         <div class="modal-body">
           <table class="table align-middle">
             <tr>
-              <td class="left-col">Version</td>
+              <td class="left-col"><font-awesome-icon :icon="['fas', 'file-code']" size="2xl" /></td>
               <td>
-                Client
-                <a
+                Client <a
                   :href="config.client.repo.changelog"
                   target="_blank"
                   class="p-0"
                   >v{{ config.client.version }}</a
-                >
-                | API
-                <a :href="config.api.repo.changelog" target="_blank" class="p-0"
+                > ({{ config.client.underDevelopment ? 'development' : 'production' }})<br></br>
+                Last updated: {{ config.client.lastUpdated }}
+                <br></br>
+                <br></br>
+                API <a :href="config.api.repo.changelog" target="_blank" class="p-0"
                   >v{{ config.api.version }}</a
-                >
+                > ({{ config.api.underDevelopment ? 'development' : 'production' }})
+                <br></br>
+                Last updated: {{ config.api.lastUpdated }}
               </td>
-            </tr>
-            <br />
-            <tr>
-              <td class="left-col">Last updated</td>
-              <td>{{ config.lastUpdated }}</td>
             </tr>
             <br />
             <tr>
@@ -78,8 +112,7 @@ const config = inject("config");
                 <font-awesome-icon :icon="['fas', 'industry']" size="2xl" />
               </td>
               <td>
-                Created by <a class="p-0" :href="config.author.url">{{config.author.name}}</a> for<br></br>
-                <a
+                Created by <a class="p-0" :href="config.author.url">{{config.author.name}}</a> for <a
                   :href="config.organisations.msf.main"
                   target="_blank"
                   class="p-0"
@@ -93,7 +126,7 @@ const config = inject("config");
             </tr>
             <br />
             <tr>
-              <td class="left-col">Correspondance</td>
+              <td class="left-col"><font-awesome-icon :icon="['fas', 'envelope']" size="2xl" /></td>
               <td>
                 <a :href="'mailto:' + config.author.email" class="p-0">{{
                   config.author.email
@@ -141,7 +174,7 @@ const config = inject("config");
 
 .device-label-div {
   transition: all 0.3s ease;
-  border: 2px solid #000000;
+  border: 1px solid #000000;
   border-radius: 8px;
 }
 

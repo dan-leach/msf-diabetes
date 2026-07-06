@@ -1,4 +1,11 @@
-Before launch
+# Version change:
 
-- restore commented out redirects to start of form if blank
-- Remove joe bloggs
+- client
+  - clientVersion in src/assets/fetchConfig.js
+  - clientLastUpdated in src/assets/fetchConfig.js
+  - developmentMode in src/assets/fetchConfig.js
+- api
+  - version in node environment variables
+  - lastUpdated in node environment variables
+  - development mode in NODE_ENV drop down
+  - update offlineCalculator files (validate, checkWeightWithinLimit, calculateVariables) and update versions

@@ -1,4 +1,15 @@
 <script setup>
+/**
+ * Root application component. Manages the config fetch lifecycle on mount and
+ * controls three top-level UI states:
+ *  - Loading: full-screen spinner (vue-loading-overlay) while config is fetching.
+ *  - Error: inline error message with a Retry button if the fetch fails.
+ *  - Ready: Header + slide-fade-transitioned RouterView + Footer.
+ *
+ * The reactive `config` ref is provided to all descendant components via
+ * `app.provide("config", config)` in `main.js` — this component does not need to
+ * inject it; it simply initiates the fetch that populates it.
+ */
 import { RouterView } from "vue-router";
 import { ref, onMounted } from "vue";
 import Header from "./components/Header.vue";

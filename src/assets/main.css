@@ -29,7 +29,11 @@ body {
 }
 
 .border-info {
-  border-color: #ec0000 !important;
+  border-color: black !important;
+}
+
+.btn-outline-info {
+  border-color: black !important;
 }
 
 a {

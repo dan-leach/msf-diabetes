@@ -3,7 +3,7 @@ forms:
     description: A form to require users read and accept the legal terms before using the application.
     inputs:
       legalAgreement:
-        type: bolean
+        type: boolean
         description: indicates if the user has accepted the legal agreement
         validation: must be true
         required: true
@@ -97,12 +97,29 @@ forms:
         required: true
         auditable: true
         encrypted: false
-      syringeDriverAvailable:
+      syringePumpAvailable:
         type: boolean
-        description: Indicates if syringe drivers are available.
+        description: Indicates if a syringe pump is available.
         options: true, false
         validation: must be one of the provided options
         required: true
+        auditable: true
+        encrypted: false
+      infusionPumpAvailable:
+        type: boolean
+        description: Indicates if an infusion pump is available.
+        options: true, false
+        validation: must be one of the provided options
+        required: true
+        auditable: true
+        encrypted: false
+      dropFactor:
+        type: int
+        description: The drop factor for the infusion set in drops/mL.
+        conditions: infusionPumpAvailable is false
+        options: 20, 60
+        validation: must be one of the provided options
+        required: true, if conditions are met
         auditable: true
         encrypted: false
   Clinical details:
@@ -373,7 +390,7 @@ server:
           imDose:
             type: object
             description: The dose of intramuscular insulin in units.
-            conditions: syringeDriversAvailable is false
+            conditions: syringePumpAvailable is false
             properties:
               val:
                 type: float
@@ -387,7 +404,7 @@ server:
           ivRate:
             type: object
             description: The rate of intravenous insulin infusion in units/hour.
-            conditions: syringeDriversAvailable is true
+            conditions: syringePumpAvailable is true
             properties:
               val:
                 type: float

@@ -1,16 +1,50 @@
+/** * @component FormPatientDetails * @description Step 1 of the episode form
+flow — collects patient demographics * and operational context. * * Fields
+collected: * - episodeType — real patient episode or test/training episode. * -
+patientDOB — date of birth, or age expressed as years + months via a toggle. * -
+patientSex — male or female (used with weight to look up age-appropriate
+limits). * - weight — patient weight in kg. Min/max are computed dynamically
+from * the patient's age and sex. If the entered weight exceeds the * ±2 SD
+range, an override checkbox is shown; enabling it routes * the user through
+FormOverrideConfirm before proceeding. * - operationalCentre — selected from
+config.operationalCentres. * - project — filtered by the selected operational
+centre; shown only after * an operational centre has been chosen (fade-in
+transition). * * Guard: if form step 0 (legal agreement) is not complete,
+behaviour differs by mode: * - Development (`config.client.underDevelopment ===
+true`): calls `data.value.form.joeBloggs()` * to pre-fill the form with test
+data for convenience. * - Production: redirects to `/form-disclaimer` so the
+user must agree before proceeding. * * Navigation after "Continue": * - →
+`/form-override-confirm` if weight.limit.override is set. * - →
+`/form-equipment-availability` otherwise. * * Form flow: Disclaimer →
+**PatientDetails** → (OverrideConfirm?) → EquipmentAvailability * →
+ClinicalDetails → Generate → Guidance * * @requires config — application
+configuration injected from App.vue. * @requires data — global reactive data
+store from assets/data.js. * @requires router — Vue Router instance for
+programmatic navigation. * @requires Swal — SweetAlert2 for the reset
+confirmation dialog. */
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, inject } from "vue";
 import { data } from "../assets/data.js";
 import router from "../router";
-import { inject } from "vue";
+import Swal from "sweetalert2";
+
+/** @type {Object} Application configuration injected from the root provider in App.vue. */
 const config = inject("config");
 
-// Reactive variable to control error display.
+/**
+ * @type {import('vue').Ref<boolean>}
+ * Controls whether validation error messages are displayed beneath each field.
+ * Set to true on the first "Continue" attempt; errors remain visible thereafter.
+ */
 let showErrors = ref(false);
 
 /**
- * Function to handle the 'Continue' button click event.
- * Validates the patient details form and navigates to the clinical details form if valid.
+ * Handles the "Continue" button click.
+ *
+ * Enables error display, applies Bootstrap's `was-validated` class to the form,
+ * and navigates to the next step if all step-1 inputs are valid.
+ * If a weight limit override is pending, routes to FormOverrideConfirm;
+ * otherwise routes directly to FormEquipmentAvailability.
  */
 const continueClick = () => {
   showErrors.value = true;
@@ -26,7 +60,44 @@ const continueClick = () => {
 };
 
 /**
- * Sets the minimum and maximum allowed dates for the patient date of birth input field.
+ * Prompts the user for confirmation then resets the entire form to its default state.
+ *
+ * Uses a SweetAlert2 dialog to prevent accidental data loss.
+ * On confirmation: clears all input values, hides errors, removes Bootstrap
+ * validation styling, and navigates back to the start page.
+ */
+const resetForm = () => {
+  Swal.fire({
+    title: "Reset?",
+    text: "This will clear all data you have entered on the form.",
+    icon: "info",
+    iconColor: "black",
+    showCancelButton: true,
+    showConfirmButton: true,
+    confirmButtonColor: "#ec0000",
+    confirmButtonText: "Reset",
+    reverseButtons: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      data.value.form.reset();
+      showErrors.value = false;
+      document
+        .getElementById("form-patient-details")
+        .classList.remove("was-validated");
+      router.push("/");
+    }
+  });
+};
+
+/**
+ * Sets the `min` and `max` attributes on the date-of-birth input element.
+ *
+ * - `max` is set to today's date so future dates cannot be selected.
+ * - `min` is set via `data.inputs.patientDOB.minDate()` which returns the
+ *   earliest date the calculator supports (based on the configured maximum age).
+ *
+ * Called on mount after the DOM is ready, because the input element must exist
+ * before its attributes can be set imperatively.
  */
 const setMinMaxPatientDOB = () => {
   const today = new Date();
@@ -39,9 +110,15 @@ const setMinMaxPatientDOB = () => {
     .substring(0, 10);
 };
 
+// Guard: if the legal agreement step has not been completed, behaviour differs by mode.
+// In development: pre-fill with test data (joeBloggs) for convenience.
+// In production: redirect to the disclaimer so the user must agree before proceeding.
 if (!data.value.form.isValid(0)) {
-  router.push("/form-disclaimer");
-  //data.value.form.joeBloggs();
+  if (config.value.client.underDevelopment) {
+    data.value.form.joeBloggs();
+  } else {
+    router.push("/form-disclaimer");
+  }
 }
 
 onMounted(() => {
@@ -52,19 +129,22 @@ onMounted(() => {
 
 <template>
   <form id="form-patient-details" class="container my-4 needs-validation">
-    <h2 class="display-3">Patient details</h2>
+    <h2 class="display-3 text-center">Patient details</h2>
     <p class="mx-1">
       To calculate values for your patient please complete the form below. For
       more information about how this data is used refer to the
       <RouterLink to="/privacy-policy" target="_blank" class=""
-        >privacy policy</RouterLink
+        >privacy policy
+        <font-awesome-icon
+          :icon="['fas', 'up-right-from-square']" /></RouterLink
       >.
     </p>
     <p class="mx-1">
       For more information about each field click the
       <font-awesome-icon :icon="['fas', 'circle-info']" /> icon.
     </p>
-    <!--episodeType-->
+
+    <!-- Episode type: real patient or test/training — affects audit logging server-side -->
     <div class="mb-4">
       <p class="text-center m-2">
         {{ data.inputs.episodeType.label }}
@@ -120,7 +200,16 @@ onMounted(() => {
         {{ data.inputs.episodeType.info }}
       </div>
     </div>
-    <!--patientDOB-->
+
+    <!--
+      Patient date of birth.
+      The user can enter either a full date of birth OR an age in years and months
+      (toggled by the switch below the date field). The toggle disables the date
+      input and shows two number fields (years / months) instead.
+      min/max attributes are set imperatively in setMinMaxPatientDOB() on mount.
+      An additional error link to adult DKA guidance is shown if the age exceeds
+      the configured maximum paediatric age.
+    -->
     <div class="mb-4">
       <div class="input-group">
         <div class="form-floating">
@@ -135,6 +224,7 @@ onMounted(() => {
             min=""
             required
             autocomplete="off"
+            :disabled="data.inputs.patientDOB.yearsMonths.switch.val"
           />
           <label for="patientDOB">{{ data.inputs.patientDOB.label }}</label>
         </div>
@@ -145,6 +235,56 @@ onMounted(() => {
           ><font-awesome-icon :icon="['fas', 'circle-info']"
         /></span>
       </div>
+      <!-- Toggle: switch between date-of-birth input and years/months inputs -->
+      <div class="form-check form-switch mt-1">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          role="switch"
+          id="useYearsMonthsSwitch"
+          v-model="data.inputs.patientDOB.yearsMonths.switch.val"
+          @change="data.inputs.patientDOB.yearsMonths.switch.change()"
+        />
+        <label class="form-check-label" for="glucoseHighSwitch"
+          >Use age in years and months instead of date of birth</label
+        >
+      </div>
+      <!-- Years/months inputs — only shown when the toggle is on -->
+      <div
+        class="input-group"
+        v-if="data.inputs.patientDOB.yearsMonths.switch.val"
+      >
+        <div class="form-floating">
+          <input
+            type="number"
+            class="form-control"
+            id="ageYears"
+            v-model="data.inputs.patientDOB.yearsMonths.yearsVal"
+            @change="data.inputs.patientDOB.isValid()"
+            placeholder="x"
+            max="19"
+            min="0"
+            required
+            autocomplete="off"
+          />
+          <label for="ageYears">Years old</label>
+        </div>
+        <div class="form-floating">
+          <input
+            type="number"
+            class="form-control"
+            id="ageMonths"
+            v-model="data.inputs.patientDOB.yearsMonths.monthsVal"
+            @change="data.inputs.patientDOB.isValid()"
+            placeholder="x"
+            max="11"
+            min="0"
+            required
+            autocomplete="off"
+          />
+          <label for="ageMonths">Months old</label>
+        </div>
+      </div>
       <div
         v-if="showErrors"
         class="form-text text-danger mx-1"
@@ -152,13 +292,28 @@ onMounted(() => {
       >
         {{ data.inputs.patientDOB.errors }}
       </div>
+      <!-- Extra error: links to adult DKA guidance when the patient exceeds max paediatric age -->
+      <div
+        v-if="
+          showErrors &&
+          data.inputs.patientDOB.patientAge.val >=
+            config.validation.patientAge.max
+        "
+        class="form-text text-danger mx-1"
+        id="patientDOBErrors"
+      >
+        <a href="/msf-adult-dka-guidance.pdf" target="_blank">
+          View adult DKA guidance.
+        </a>
+      </div>
       <div
         class="collapse form-text mx-1"
         id="patientDOBInfo"
         v-html="data.inputs.patientDOB.info"
       ></div>
     </div>
-    <!--patientSex-->
+
+    <!-- Patient sex: used with age to compute weight-for-age centile limits -->
     <div class="mb-4">
       <p class="text-center m-2">
         {{ data.inputs.patientSex.label }}
@@ -208,7 +363,16 @@ onMounted(() => {
         {{ data.inputs.patientSex.info }}
       </div>
     </div>
-    <!--weight-->
+
+    <!--
+      Patient weight.
+      min/max are computed dynamically from the patient's age and sex.
+      If the weight exceeds the age-appropriate ±2 SD range, an override toggle
+      appears. Enabling it sets weight.limit.override = true, which causes
+      continueClick() to route to FormOverrideConfirm rather than directly to
+      FormEquipmentAvailability. The override toggle is hidden when the weight
+      exceeds the absolute maximum (weight.max()), as no override is possible.
+    -->
     <div class="mb-4">
       <div class="input-group">
         <div class="form-floating">
@@ -235,6 +399,7 @@ onMounted(() => {
           ><font-awesome-icon :icon="['fas', 'circle-info']"
         /></span>
       </div>
+      <!-- Weight errors: shown on validation attempt or when the limit has already been exceeded -->
       <div
         v-if="showErrors || data.inputs.weight.limit.exceeded"
         class="form-text text-danger mx-1"
@@ -242,6 +407,7 @@ onMounted(() => {
       >
         {{ data.inputs.weight.errors }}
       </div>
+      <!-- Override toggle: shown when weight is outside the ±2 SD range but below the hard max -->
       <div
         class="form-check form-switch ms-1 my-1"
         v-if="
@@ -266,7 +432,8 @@ onMounted(() => {
         v-html="data.inputs.weight.info"
       ></div>
     </div>
-    <!--operationalCentre-->
+
+    <!-- Operational centre: populated from config.operationalCentres -->
     <div class="mb-4">
       <div class="input-group">
         <select
@@ -307,7 +474,12 @@ onMounted(() => {
         {{ data.inputs.operationalCentre.info }}
       </div>
     </div>
-    <!--project-->
+
+    <!--
+      Project: only shown (with a fade-in transition) once an operational centre
+      has been selected. Options are filtered by the selected centre via
+      data.inputs.project.options. Disabled until a centre is chosen.
+    -->
     <transition>
       <div class="mb-4" v-if="data.inputs.operationalCentre.val">
         <div class="input-group">
@@ -350,8 +522,8 @@ onMounted(() => {
       </div>
     </transition>
 
+    <!-- Navigation: Back / Reset / Continue -->
     <div class="d-flex flex-row justify-content-evenly">
-      <!--back-->
       <div class="text-center">
         <button
           type="button"
@@ -361,7 +533,15 @@ onMounted(() => {
           Back
         </button>
       </div>
-      <!--next-->
+      <div class="text-center">
+        <button
+          type="button"
+          @click="resetForm"
+          class="btn btn-lg btn-secondary"
+        >
+          Reset
+        </button>
+      </div>
       <div class="text-center">
         <button
           type="button"
@@ -379,13 +559,16 @@ onMounted(() => {
 .container {
   max-width: 750px;
 }
+/* Fixed width keeps all option buttons uniform */
 .btn-outline-secondary {
   width: 150px;
   background-color: white;
 }
+/* Taller button for episode type options to accommodate two-line labels */
 .episode-type-btn {
   height: 62px;
 }
+/* Fade-in transition for the project dropdown when operational centre is selected */
 .v-enter-active {
   transition: all 0.5s ease;
 }
