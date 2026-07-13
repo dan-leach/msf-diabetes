@@ -1,40 +1,26 @@
-/**
- * @component Generate
- * @description Calculation orchestration view — builds the API payload, submits it,
- * and navigates to the Guidance page on success.
- *
- * The view renders a live step-by-step progress list while the calculation runs.
- * Each step has a `status` of: `pre` | `active` | `complete` | `error` | `hidden`.
- *
- * Three sequential steps are executed by `generate()`:
- *
- *   1. **buildPayload** — synchronous; assembles the API request object from the
- *      reactive data store. Handles type coercion (string → number / boolean) and
- *      only includes optional fields (pH, bicarbonate, ketones, etc.) when present.
- *
- *   2. **calculateAPI** — asynchronous; POSTs the payload to the server API. If the
- *      server returns a non-network error (e.g. validation failure), execution stops
- *      and the error is displayed. If a network/timeout error occurs, falls through
- *      to step 3.
- *
- *   3. **calculateClient** — asynchronous; runs the bundled offline calculator when
- *      the server is unreachable. Starts as `hidden` and only becomes visible if a
- *      network failure is detected in step 2.
- *
- * On success, `data.calculations`, `data.auditID`, and `data.mode` are populated
- * from the response and the router navigates to `/guidance`.
- *
- * Guard: if form step 3 is not valid, redirects to FormClinicalDetails.
- *
- * Form flow: Disclaimer → PatientDetails → (OverrideConfirm?) → EquipmentAvailability
- *            → ClinicalDetails → **Generate** → Guidance
- *
- * @requires config               — application configuration injected from App.vue.
- * @requires data                 — global reactive data store from assets/data.js.
- * @requires router               — Vue Router instance for programmatic navigation.
- * @requires api                  — API helper from assets/api.js.
- * @requires runOfflineCalculation — bundled offline calculator fallback.
- */
+/** * @component Generate * @description Calculation orchestration view — builds
+the API payload, submits it, * and navigates to the Guidance page on success. *
+* The view renders a live step-by-step progress list while the calculation runs.
+* Each step has a `status` of: `pre` | `active` | `complete` | `error` |
+`hidden`. * * Three sequential steps are executed by `generate()`: * * 1.
+**buildPayload** — synchronous; assembles the API request object from the *
+reactive data store. Handles type coercion (string → number / boolean) and *
+only includes optional fields (pH, bicarbonate, ketones, etc.) when present. * *
+2. **calculateAPI** — asynchronous; POSTs the payload to the server API. If the
+* server returns a non-network error (e.g. validation failure), execution stops
+* and the error is displayed. If a network/timeout error occurs, falls through *
+to step 3. * * 3. **calculateClient** — asynchronous; runs the bundled offline
+calculator when * the server is unreachable. Starts as `hidden` and only becomes
+visible if a * network failure is detected in step 2. * * On success,
+`data.calculations`, `data.auditID`, and `data.mode` are populated * from the
+response and the router navigates to `/guidance`. * * Guard: if form step 3 is
+not valid, redirects to FormClinicalDetails. * * Form flow: Disclaimer →
+PatientDetails → (OverrideConfirm?) → EquipmentAvailability * → ClinicalDetails
+→ **Generate** → Guidance * * @requires config — application configuration
+injected from App.vue. * @requires data — global reactive data store from
+assets/data.js. * @requires router — Vue Router instance for programmatic
+navigation. * @requires api — API helper from assets/api.js. * @requires
+runOfflineCalculation — bundled offline calculator fallback. */
 <script setup>
 import { ref, onMounted } from "vue";
 import { data } from "../assets/data.js";
@@ -231,6 +217,7 @@ const generate = async () => {
         (e) =>
           e.msg?.includes("timed out") ||
           e.msg?.includes("Network") ||
+          e.msg?.includes("Load failed") ||
           e.msg?.includes("fetch"),
       ) || error.name === "AbortError";
     console.log("networkFailed?", networkFailed);
