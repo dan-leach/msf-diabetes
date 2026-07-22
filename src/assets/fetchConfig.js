@@ -30,13 +30,13 @@ const underDevelopment = false;
  * Current client application version.
  * @type {number}
  */
-const clientVersion = 1.0;
+const clientVersion = 1.2;
 
 /**
  * Last update date of the client application (YYYY-MM-DD format).
  * @type {string}
  */
-const clientLastUpdated = "2026-07-06";
+const clientLastUpdated = "2026-07-22";
 
 /**
  * Version of the offline calculator algorithm.
