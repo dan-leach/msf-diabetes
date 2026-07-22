@@ -11,6 +11,10 @@ description: Real bugs caught and fixed during the JSDoc documentation pass.
 
 **How to apply:** Any component that needs the app config must explicitly call `inject("config")` — it is not available globally, only via Vue's provide/inject mechanism (provided in `main.js`).
 
+## Safari/iOS offline — config fetch fails before app loads
+
+On Safari/iOS, `TypeError: Load failed` was not caught as a recoverable network error in `fetchConfig.js`, so the app showed "Sorry, something went wrong..." even when valid cached config was available. See `safari-offline-fix.md` for full detail.
+
 ## offlineCalculator.js — catch block masking non-validation errors
 
 The catch block attempted `JSON.parse(error.message)` unconditionally. This worked for `validate.js` errors (which stringify an array) but threw a `SyntaxError` for plain-string errors from other pipeline steps (`checkWeightWithinLimit`, `calculateVariables`, `encrypt`, `localStorage`), masking the original error.
