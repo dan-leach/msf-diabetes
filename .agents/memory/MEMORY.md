@@ -1,0 +1,7 @@
+- [Project overview](project-overview.md) — stack, purpose, repo links, production URL, team wiki
+- [Config system](config-system.md) — how config is fetched, cached, and distributed app-wide
+- [Online vs offline mode](online-offline-mode.md) — how Generate.vue chooses a pathway and how offline sync works
+- [API error shape](api-error-shape.md) — all errors are [{ msg: string }] arrays; never plain strings
+- [JSDoc convention](jsdoc-convention.md) — module headers, param/returns, section dividers, Unicode restriction
+- [Known bugs fixed](known-bugs-fixed.md) — Feedback.vue config inject; offlineCalculator.js catch block; Safari offline config fetch
+- [Safari offline fix](safari-offline-fix.md) — localStorage config cache bypasses Safari SW interception gaps; two files changed

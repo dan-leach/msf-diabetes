@@ -37,7 +37,4 @@ cgi-bin/
 .well-known
 private/
 db/
-
-externalDependencies/
-
-link.php
+attached_assets/

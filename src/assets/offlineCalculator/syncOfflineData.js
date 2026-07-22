@@ -69,7 +69,12 @@ async function syncOfflineData() {
     }
   } catch (error) {
     console.error("Error syncing offline data: ", error);
-    if (error[0] && error[0].msg.includes("Failed to fetch")) {
+    if (
+      error[0] &&
+      (error[0].msg.includes("Failed to fetch") ||
+        error[0].msg.includes("Load failed") ||
+        error[0].msg.includes("timed out"))
+    ) {
       Swal.fire({
         text: "There are offline episode logs waiting to upload: go online when able and refresh this page.",
         icon: "info",

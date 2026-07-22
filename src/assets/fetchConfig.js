@@ -30,13 +30,13 @@ const underDevelopment = false;
  * Current client application version.
  * @type {number}
  */
-const clientVersion = 1.0;
+const clientVersion = 1.2;
 
 /**
  * Last update date of the client application (YYYY-MM-DD format).
  * @type {string}
  */
-const clientLastUpdated = "2026-07-06";
+const clientLastUpdated = "2026-07-22";
 
 /**
  * Version of the offline calculator algorithm.
@@ -95,6 +95,15 @@ async function fetchConfig() {
     const jsonResponse = await response.json();
     config.value = jsonResponse;
 
+    // Persist a copy of the raw server response so the offline fallback below
+    // can restore it when the device is offline and the service worker cache
+    // is not available (e.g. Safari/iOS PWA cross-origin SW interception gaps).
+    try {
+      localStorage.setItem("cachedConfig", JSON.stringify(jsonResponse));
+    } catch (storageError) {
+      console.warn("Could not persist config to localStorage:", storageError);
+    }
+
     console.log("Config fetched:", config.value.fetchDatetime);
 
     config.value.client.underDevelopment = underDevelopment;
@@ -106,8 +115,46 @@ async function fetchConfig() {
 
     return jsonResponse;
   } catch (error) {
-    if (error.name === "AbortError") {
-      const errorStr = "API error: The request timed out.";
+    // ---------------------------------------------------------------------------
+    // Network / timeout failures -- try localStorage fallback before giving up.
+    // Both Chrome ("Failed to fetch") and Safari ("Load failed") offline errors
+    // are TypeErrors. AbortError covers the 15-second request timeout.
+    // Server-side errors carry an error.errors array and are NOT retried from
+    // cache -- they are real validation/API failures that the user must see.
+    // ---------------------------------------------------------------------------
+    if (error instanceof TypeError || error.name === "AbortError") {
+      const errorLabel =
+        error.name === "AbortError" ? "timed out" : "network error";
+      console.warn(
+        "Config fetch failed (" +
+          errorLabel +
+          "), checking localStorage for cached config...",
+      );
+      try {
+        const cached = localStorage.getItem("cachedConfig");
+        if (cached) {
+          console.warn(
+            "Offline: using cached config from localStorage. " +
+              "syncOfflineData will run when connectivity is restored.",
+          );
+          config.value = JSON.parse(cached);
+          // Re-apply client-side fields -- these are never stored on the server.
+          config.value.client = config.value.client || {};
+          config.value.client.underDevelopment = underDevelopment;
+          config.value.client.version = clientVersion;
+          config.value.client.lastUpdated = clientLastUpdated;
+          config.value.client.offlineCalculatorVersion =
+            offlineCalculatorVersion;
+          return config.value;
+        }
+      } catch (parseError) {
+        console.error("Failed to restore cached config:", parseError);
+      }
+      // No usable cache -- cannot proceed.
+      const errorStr =
+        error.name === "AbortError"
+          ? "API error: The request timed out."
+          : "API error: " + error.toString();
       console.error(errorStr);
       throw [{ msg: errorStr }];
     } else if (error.errors) {
