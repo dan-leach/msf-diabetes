@@ -12,3 +12,9 @@ Push development changes to a development branch, not directly to main. The user
 For the next development session, create a new `v1.4` branch from the latest remote main and push that branch before making the subsequent changes. Do not create it early.
 
 **Why:** The user specified this workflow after merging v1.3 on GitHub.
+
+Remind the user to update the versioning in `fetchConfig.js` when working on a new version.
+
+**Why:** The user asked for this reminder for future version work.
+
+**How to apply:** Raise the reminder when starting work on a new version, including v1.4.
