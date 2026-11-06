@@ -5,3 +5,4 @@
 - [JSDoc convention](jsdoc-convention.md) — module headers, param/returns, section dividers, Unicode restriction
 - [Known bugs fixed](known-bugs-fixed.md) — Feedback.vue config inject; offlineCalculator.js catch block; Safari offline config fetch
 - [Safari offline fix](safari-offline-fix.md) — localStorage config cache bypasses Safari SW interception gaps; two files changed
+- [GitHub review workflow](github-review-workflow.md) — push development branches only; user creates PRs on GitHub for a final AI-free review.
